@@ -1,0 +1,24 @@
+<resources>
+
+    <string name="show_less">Show less</string>
+    <string name="show_more">Show more</string>
+    <string name="back_button">Back</string>
+
+    <string name="splash">Splash</string>
+    <string name="sign_in">sign_in</string>
+    <string name="login">login</string>
+    <string name="select_contact">select_contact</string>
+
+    <string name="contact">contact</string>
+    <string name="history">친구</string>
+    <string name="friend">목록</string>
+    <string name="feed">피드</string>
+
+    <string name="friend_profile">friend_profile</string>
+    <string name="friend_history">friend_history</string>
+    <string name="friend_edit">friend_edit</string>
+    <string name="history_add">history_add</string>
+
+    <string name="birth_date">생일 %s월 %s일</string>
+
+</resources>
