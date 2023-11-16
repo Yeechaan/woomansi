@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -57,13 +58,13 @@ fun HistoryScreen(navHostController: NavHostController) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         TopAppBar(
             title = {
-                androidx.compose.material3.Text(
-                    "우리가 만났던 시절",
+                Text(
+                    "\n우리가 만났던 시절",
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_4),
                 )
             },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = Color.White
             ),
             navigationIcon = {
                 IconButton(onClick = {
@@ -90,9 +91,9 @@ fun HistoryScreen(navHostController: NavHostController) {
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            HistoryItem("전화", R.drawable.baseline_phone_24) {}
-            HistoryItem("SNS", R.drawable.baseline_message_24) {}
-            HistoryItem("안부", R.drawable.baseline_adb_24) {}
+            HistoryItem("전화", R.drawable.ic_call) {}
+            HistoryItem("SNS", R.drawable.ic_message) {}
+            HistoryItem("안부", R.drawable.ic_sns) {}
         }
         HistoryPagerScreen(navHostController)
     }
@@ -130,20 +131,20 @@ fun HistoryPagerScreen(navHostController: NavHostController) {
                     )
                 }
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center
-            ) {
+            Box {
                 Image(
                     painter = painterResource(id = R.drawable.img_sample),
                     contentDescription = stringResource(id = R.string.history),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally).fillMaxSize()
-                        .weight(1f),
+                    contentScale = ContentScale.FillHeight,
+                    modifier = Modifier.fillMaxSize(),
                 )
-                val friendProfile = friendProfiles[page]
-                FriendSummaryItem(friendProfile, navHostController)
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    val friendProfile = friendProfiles[page]
+                    FriendSummaryItem(friendProfile, navHostController)
+                }
             }
         }
     }
@@ -161,9 +162,13 @@ fun HistoryItem(text: String, icon: Int, onClick: () -> Unit) {
             contentPadding = PaddingValues(0.dp),  //avoid the little icon
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
         ) {
-            Icon(painterResource(id = icon), contentDescription = "content description")
+            Icon(painterResource(id = icon), contentDescription = "content description", modifier = Modifier.padding(8.dp))
         }
-        Text(text = text, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        Text(
+            text = text, textAlign = TextAlign.Center, modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        )
     }
 }
 
@@ -177,12 +182,13 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(text = friendProfile.name, fontSize = 24.sp)
-            Text(text = friendProfile.phoneNumber, fontSize = 16.sp, modifier = Modifier.padding(top = 8.dp))
+            Text(text = friendProfile.name, fontSize = 24.sp, color = Color.White)
+            Text(text = friendProfile.phoneNumber, fontSize = 16.sp, modifier = Modifier.padding(top = 8.dp), color = Color.White)
             Text(
 //                text = stringResource(id = R.string.birth_date, birthMonth, birthDate),
                 text = friendProfile.birthDate,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                color = Color.White
             )
         }
         Button(

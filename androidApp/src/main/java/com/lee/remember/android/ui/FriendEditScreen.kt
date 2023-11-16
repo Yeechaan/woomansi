@@ -2,14 +2,19 @@ package com.lee.remember.android.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.TextField
 import androidx.compose.material3.Button
@@ -21,7 +26,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,11 +60,13 @@ import java.util.Date
 fun FriendEditScreen(navHostController: NavHostController) {
 
     Column(
-//        Modifier.fillMaxSize()
+        Modifier
+            .fillMaxSize()
+            .background(Color.White)
     ) {
-        var name by remember { mutableStateOf("Harry") }
+        var name by remember { mutableStateOf("") }
         var group by remember { mutableStateOf("favorite") }
-        var number by remember { mutableStateOf("010-1111-1111") }
+        var number by remember { mutableStateOf("") }
         var dateTitle by remember { mutableStateOf("생일") }
         var date by remember { mutableStateOf("2023/11/10") }
 
@@ -69,18 +76,12 @@ fun FriendEditScreen(navHostController: NavHostController) {
         } ?: "yyyy/mm/dd"
 
         androidx.compose.material3.TopAppBar(
+            modifier = Modifier.shadow(elevation = 1.dp),
             title = { Text("친구 기록", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ),
+            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
             navigationIcon = {
-                IconButton(onClick = {
-                    navHostController.navigateUp()
-                }) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
+                IconButton(onClick = { navHostController.navigateUp() }) {
+                    Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = stringResource(R.string.back_button))
                 }
             },
             actions = {
@@ -94,15 +95,19 @@ fun FriendEditScreen(navHostController: NavHostController) {
             }
         )
 
-        Image(painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
                 .background(lightColor)
-                .clickable {
-
-                }
-        )
+                .clickable {},
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
+                modifier = Modifier.size(74.dp)
+            )
+        }
 
         Divider(thickness = 1.dp, color = Color.Black)
 
@@ -138,15 +143,20 @@ fun FriendEditScreen(navHostController: NavHostController) {
                         .padding(top = 12.dp)
                         .fillMaxWidth(),
                     trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                expanded = true
+                        IconButton(onClick = { expanded = true }) {
+                            if (!expanded) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_expand_more_24),
+                                    contentDescription = "",
+                                    tint = Color.Black
+                                )
+                            } else {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_expand_less_24),
+                                    contentDescription = "",
+                                    tint = Color.Black
+                                )
                             }
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.baseline_expand_more_24),
-                                contentDescription = "More"
-                            )
                         }
                     }
                 )
@@ -156,9 +166,8 @@ fun FriendEditScreen(navHostController: NavHostController) {
                     onDismissRequest = { expanded = false },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            Color.Red
-                        )
+                        .background(Color.White)
+                        .padding(start = 16.dp, end = 16.dp, top = 8.dp)
                 ) {
                     items.forEachIndexed { index, s ->
                         DropdownMenuItem(text = {
@@ -179,90 +188,104 @@ fun FriendEditScreen(navHostController: NavHostController) {
                 textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
                 modifier = Modifier
                     .padding(top = 12.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(onClick = { number = "" }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_cancel),
+                            contentDescription = "Clear"
+                        )
+                    }
+                }
             )
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
                 var expanded by remember { mutableStateOf(false) }
                 val items = listOf("생일", "기념일", "기일")
                 var selectedIndex by remember { mutableStateOf(0) }
-                Box(
+
+                TextButton(
+                    onClick = { expanded = true },
                     modifier = Modifier
-                        .wrapContentSize(Alignment.TopStart)
+                        .align(Alignment.CenterVertically)
+                        .wrapContentHeight()
+                        .padding()
                 ) {
-                    Row {
-                        Text(
-                            items[selectedIndex],
-                            style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(color = Color(0xFF1D1B20)),
-                            modifier = Modifier.clickable(onClick = { expanded = true })
-                        )
-                        Icon(painter = painterResource(id = R.drawable.baseline_expand_more_24), contentDescription = "")
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                Color.Red
-                            )
-                    ) {
-                        items.forEachIndexed { index, s ->
-                            DropdownMenuItem(text = {
-                                Text(text = s)
-                            }, onClick = {
-                                selectedIndex = index
-                                expanded = false
-                            })
-                        }
-                    }
-                }
-
-                val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
-                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                        return utcTimeMillis <= System.currentTimeMillis()
-                    }
-                })
-
-                Box {
-                    val openDialog = remember { mutableStateOf(false) }
-
-                    if (openDialog.value) {
-                        DatePickerDialog(
-                            onDismissRequest = { openDialog.value = false },
-                            confirmButton = {
-                                TextButton(onClick = { openDialog.value = false }) {
-                                    Text("확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(fontColorPoint))
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { openDialog.value = false }
-                                ) {
-                                    Text("취소", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-                                }
-                            }
-                        ) { DatePicker(state = state) }
-                    }
-
-                    TextField(
-                        value = selectedDate, onValueChange = { selectedDate = it }, readOnly = true,
-                        label = {
-                            Text("이벤트", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-                        },
-                        textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
-                        modifier = Modifier
-                            .padding(top = 12.dp)
-                            .fillMaxWidth(),
-                        trailingIcon = {
-                            IconButton(onClick = { openDialog.value = true }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_calander),
-                                    contentDescription = "Clear"
-                                )
-                            }
-                        }
+                    Text(
+                        items[selectedIndex],
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(color = Color(0xFF1D1B20))
                     )
+                    if (!expanded) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_expand_more_24),
+                            contentDescription = "",
+                            tint = Color.Black
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_expand_less_24),
+                            contentDescription = "",
+                            tint = Color.Black
+                        )
+                    }
                 }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                ) {
+                    items.forEachIndexed { index, s ->
+                        DropdownMenuItem(text = {
+                            Text(text = s)
+                        }, onClick = {
+                            selectedIndex = index
+                            expanded = false
+                        })
+                    }
+                }
+
+
+                val openDialog = remember { mutableStateOf(false) }
+                if (openDialog.value) {
+                    DatePickerDialog(
+                        onDismissRequest = { openDialog.value = false },
+                        confirmButton = {
+                            TextButton(onClick = { openDialog.value = false }) {
+                                Text("확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(fontColorPoint))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { openDialog.value = false }
+                            ) {
+                                Text("취소", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
+                            }
+                        }
+                    ) { DatePicker(state = state) }
+                }
+
+
+                TextField(
+                    value = selectedDate, onValueChange = { selectedDate = it }, readOnly = true,
+                    label = {
+                        Text("이벤트", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
+                    },
+                    textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = {
+                        IconButton(
+                            onClick = { openDialog.value = true }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_calander),
+                                contentDescription = "Clear"
+                            )
+                        }
+                    }
+                )
             }
 
             Text(
@@ -273,21 +296,22 @@ fun FriendEditScreen(navHostController: NavHostController) {
                 style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)
             )
 
-            Button(
+            TextButton(
                 onClick = {
                     friendProfiles.add(FriendProfile(name, number, grouped = group, birthDate = selectedDate))
                     navHostController.navigate(RememberScreen.HistoryAdd.name)
                 },
                 modifier = Modifier
                     .padding(top = 24.dp)
-                    .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                    .fillMaxWidth()
+                    .border(width = 1.dp, color = Color(0xFFD8D8D8), shape = RoundedCornerShape(size = 16.dp)),
+//                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
                 Image(painter = painterResource(id = R.drawable.ic_plus), contentDescription = "")
                 Text(
                     text = "기록추가",
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(Color.Black),
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp, top = 12.dp, bottom = 12.dp)
                 )
             }
         }

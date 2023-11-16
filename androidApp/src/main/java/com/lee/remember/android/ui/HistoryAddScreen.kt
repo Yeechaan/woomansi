@@ -78,7 +78,7 @@ fun HistoryAddScreen(navHostController: NavHostController) {
         TopAppBar(
             title = { Text("기록 추가", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = Color.White
             ),
             navigationIcon = {
                 IconButton(onClick = {

@@ -19,4 +19,5 @@ data class FriendHistory(
     var title: String = "",
     var contents: String = "",
     var imageUri: Uri? = null,
+    var date: String = "",
 )

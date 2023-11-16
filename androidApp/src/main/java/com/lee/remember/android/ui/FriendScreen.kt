@@ -66,7 +66,7 @@ fun FriendScreen(navHostController: NavHostController) {
                 )
             },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = Color.White
             ),
             navigationIcon = {
                 IconButton(onClick = {
