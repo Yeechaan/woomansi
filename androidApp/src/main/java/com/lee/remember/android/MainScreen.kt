@@ -138,7 +138,7 @@ fun MainApp(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = RememberScreen.Splash.name,
+            startDestination = RememberScreen.Friend.name,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()

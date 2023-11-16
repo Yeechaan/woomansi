@@ -38,24 +38,23 @@ import kotlinx.coroutines.launch
 @Composable
 fun SignInScreen(navController: NavHostController) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        var id by remember { mutableStateOf("harry@naver.com") }
-        var password by remember { mutableStateOf("123") }
-        var name by remember { mutableStateOf("") }
+        var id by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
 
         // Ktor Test
         val scope = rememberCoroutineScope()
-        var text by remember { mutableStateOf("Loading") }
+        var text by remember { mutableStateOf("") }
 
         GreetingView(text)
 
         TextField(
             value = id, onValueChange = { id = it },
             label = {
-                Text("id", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
+                Text("email", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
             },
             textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
             modifier = Modifier
@@ -74,22 +73,11 @@ fun SignInScreen(navController: NavHostController) {
                 .fillMaxWidth()
         )
 
-        TextField(
-            value = name, onValueChange = { name = it },
-            label = {
-                Text("name", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
-            modifier = Modifier
-                .padding(top = 12.dp)
-                .fillMaxWidth()
-        )
-
         Button(
             onClick = {
                 scope.launch {
                     text = try {
-                        val signInRequest = RegisterRequest(id, name, password, "")
+                        val signInRequest = RegisterRequest(id, "name", password, "")
                         val response = GreetingKtor().register(signInRequest)
 
                         if (response != null) {

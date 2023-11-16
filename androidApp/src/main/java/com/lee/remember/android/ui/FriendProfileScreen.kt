@@ -3,19 +3,23 @@ package com.lee.remember.android.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Divider
 import androidx.compose.material.TextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,41 +50,41 @@ val fontColorPoint = Color(0xFFF2BE2F)
 fun FriendProfileScreen(navHostController: NavHostController) {
 
     Column(
-//        Modifier.fillMaxSize()
+        Modifier.fillMaxSize().background(Color.White)
     ) {
-        androidx.compose.material3.TopAppBar(
+        TopAppBar(
             title = { Text("친구 기록", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ),
+            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
             navigationIcon = {
-                IconButton(onClick = {
-                    navHostController.navigateUp()
-                }) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
+                IconButton(onClick = { navHostController.navigateUp() }) {
+                    Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = stringResource(R.string.back_button))
                 }
             },
             actions = {
                 TextButton(onClick = {
                     navHostController.navigate(RememberScreen.FriendEdit.name)
                 }) {
-                    Text(text = "편집", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B))
+                    Text(text = "편집", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(color = Color(0xFF49454F)))
                 }
-            }
+            },
+            modifier = Modifier
+                .shadow(elevation = 1.dp, spotColor = Color(0x36444444), ambientColor = Color(0x36444444))
+                .shadow(elevation = 10.dp, spotColor = Color(0x0F444444), ambientColor = Color(0x0F444444))
         )
 
-        Image(painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
                 .background(lightColor)
-                .clickable {
-
-                }
-        )
+                .clickable {},
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
+                modifier = Modifier.size(74.dp)
+            )
+        }
 
         Divider(thickness = 1.dp, color = Color.Black)
 
@@ -105,7 +110,10 @@ fun FriendProfileScreen(navHostController: NavHostController) {
             TextField(
                 value = group, onValueChange = { group = it }, readOnly = true,
                 label = {
-                    Text("그룹", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
+                    Text(
+                        "그룹",
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_4)
+                    )
                 },
                 textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
                 modifier = Modifier
@@ -124,17 +132,21 @@ fun FriendProfileScreen(navHostController: NavHostController) {
                     .fillMaxWidth()
             )
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
                 TextButton(
                     onClick = {
 
                     },
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .wrapContentHeight()
+                        .padding()
                 ) {
                     Text(
                         dateTitle,
-                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(color = Color(0xFF1D1B20))
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(color = Color(0xFF1D1B20))
                     )
+//                    Icon(painter = painterResource(id = R.drawable.baseline_expand_more_24), contentDescription = "", tint = Color.Black)
                 }
 
                 TextField(
@@ -143,9 +155,7 @@ fun FriendProfileScreen(navHostController: NavHostController) {
                         Text("이벤트", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
                     },
                     textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
-                    modifier = Modifier
-                        .padding(top = 12.dp)
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         IconButton(
                             onClick = {}

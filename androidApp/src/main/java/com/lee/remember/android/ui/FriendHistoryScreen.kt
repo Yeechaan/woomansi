@@ -47,7 +47,7 @@ fun FriendHistoryScreen(navHostController: NavHostController) {
         TopAppBar(
             title = { Text(friendProfile?.name ?: "", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = Color.White
             ),
             navigationIcon = {
                 IconButton(onClick = {
@@ -77,7 +77,7 @@ fun FriendHistoryScreen(navHostController: NavHostController) {
                         ),
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                     ) {
-                        FeedItem(item)
+                        FeedItem(friendProfile?.name ?: "", item)
                     }
                 }
             }
@@ -100,7 +100,6 @@ fun FriendHistoryScreen(navHostController: NavHostController) {
             }
         }
     }
-
 
 }
 

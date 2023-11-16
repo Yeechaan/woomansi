@@ -1,5 +1,6 @@
 package com.lee.remember.android.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,23 +10,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButtonBorder
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -39,20 +47,17 @@ import coil.compose.AsyncImage
 import com.lee.remember.android.R
 import com.lee.remember.android.data.FriendHistory
 import com.lee.remember.android.friendProfiles
-import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(navHostController: NavHostController) {
-
-    val items = mutableListOf<FriendHistory>()
+    val items = mutableListOf<Pair<String, FriendHistory>>()
     friendProfiles.map {
-        items.addAll(it.history)
+        it.history.map { item -> items.add(it.name to item) }
     }
 
-//    val items = listOf("1", "2", "1", "2", "1", "2")
 
     Column(
         Modifier.background(lightColor)
@@ -65,12 +70,10 @@ fun FeedScreen(navHostController: NavHostController) {
                 )
             },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = Color.White
             ),
             navigationIcon = {
-                IconButton(onClick = {
-//                    navHostController.navigateUp()
-                }) {
+                IconButton(onClick = {}) {
                     Icon(
                         painterResource(id = R.drawable.logo_app),
                         contentDescription = stringResource(R.string.back_button)
@@ -86,12 +89,22 @@ fun FeedScreen(navHostController: NavHostController) {
             }
         )
 
-        Row(Modifier.fillMaxWidth().padding(16.dp)) {
-            Button(onClick = { /*TODO*/ }, Modifier.weight(1f).padding(end = 8.dp)) {
-                Text(text = "이름 순")
-            }
-            Button(onClick = { /*TODO*/ }, Modifier.weight(1f).padding(start = 8.dp)) {
-                Text(text = "최신 순")
+        var selectedIndex by remember { mutableStateOf(0) }
+        val options = listOf("이름 순", "최신 순")
+
+        SingleChoiceSegmentedButtonRow(
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            options.forEachIndexed { index, label ->
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    onClick = { selectedIndex = index },
+                    selected = index == selectedIndex
+                ) {
+                    Text(label)
+                }
             }
         }
 
@@ -111,7 +124,7 @@ fun FeedScreen(navHostController: NavHostController) {
                         ),
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                     ) {
-                        FeedItem(item)
+                        FeedItem(item.first, item.second)
                     }
                 }
             }
@@ -121,7 +134,7 @@ fun FeedScreen(navHostController: NavHostController) {
 }
 
 @Composable
-fun FeedItem(friendHistory: FriendHistory) {
+fun FeedItem(name: String, friendHistory: FriendHistory) {
     Column(
         Modifier.background(Color.White)
     ) {
@@ -130,22 +143,14 @@ fun FeedItem(friendHistory: FriendHistory) {
                 .padding(top = 24.dp, start = 16.dp, end = 16.dp)
                 .fillMaxWidth()
         ) {
-//            Image(
-//                painter = painterResource(id = R.drawable.ic_camera),
-//                contentDescription = "camera_image",
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier
-//                    .size(36.dp)
-//                    .clip(CircleShape)
-////                    .background(pointColor)
-//            )
-            AsyncImage(
-                model = friendHistory.imageUri,
-                contentDescription = null,
+            Image(
+                painter = painterResource(id = R.drawable.ic_camera),
+                contentDescription = "camera_image",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(218.dp),
-                contentScale = ContentScale.Fit
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(pointColor)
             )
 
             Column(
@@ -159,14 +164,25 @@ fun FeedItem(friendHistory: FriendHistory) {
             Icon(painter = painterResource(id = R.drawable.ic_more), contentDescription = "more")
         }
 
-//        Image(
-//            painter = painterResource(id = R.drawable.img_feed), contentDescription = "",
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(218.dp)
-//                .padding(top = 10.dp)
-//                .background(lightColor)
-//        )
+        if (friendHistory.imageUri == null) {
+            Image(
+                painter = painterResource(id = R.drawable.img_feed), contentDescription = "",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(218.dp)
+                    .padding(top = 10.dp)
+                    .background(lightColor)
+            )
+        } else {
+            AsyncImage(
+                model = friendHistory.imageUri,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(218.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
 
         Row(
             Modifier
@@ -194,4 +210,6 @@ fun FeedItem(friendHistory: FriendHistory) {
 @Composable
 fun PreviewFeedScreen() {
     FeedScreen(rememberNavController())
+
+//    FeedItem(FriendHistory(title = "libris", contents = "curae", imageUri = null))
 }

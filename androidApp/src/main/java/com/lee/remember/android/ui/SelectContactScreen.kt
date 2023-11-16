@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
@@ -67,8 +68,9 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
+                        painter = painterResource(id = R.drawable.img_flim), contentDescription = "",
                         modifier = Modifier
+                            .size(100.dp)
                             .padding(top = 48.dp)
                     )
                     Text(
