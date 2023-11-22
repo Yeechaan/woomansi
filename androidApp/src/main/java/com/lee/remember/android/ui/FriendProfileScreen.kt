@@ -12,11 +12,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.TextField
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -38,6 +45,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.data.FriendHistory
+import com.lee.remember.android.friendProfiles
+import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
@@ -49,8 +59,14 @@ val fontColorPoint = Color(0xFFF2BE2F)
 @Composable
 fun FriendProfileScreen(navHostController: NavHostController) {
 
+    val friendProfile = friendProfiles.find { it.phoneNumber == selectedFriendPhoneNumber }
+
+    val scrollState = rememberScrollState()
     Column(
-        Modifier.fillMaxSize().background(Color.White)
+        Modifier
+            .fillMaxSize()
+            .background(lightColor)
+//            .verticalScroll(scrollState)
     ) {
         TopAppBar(
             title = { Text("친구 기록", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
@@ -93,9 +109,9 @@ fun FriendProfileScreen(navHostController: NavHostController) {
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
         ) {
-            var name by remember { mutableStateOf("Harry") }
-            var group by remember { mutableStateOf("favorite") }
-            var number by remember { mutableStateOf("010-1111-1111") }
+            var name by remember { mutableStateOf(friendProfile?.name ?: "") }
+            var group by remember { mutableStateOf(friendProfile?.grouped ?: "") }
+            var number by remember { mutableStateOf(friendProfile?.phoneNumber ?: "") }
             var dateTitle by remember { mutableStateOf("기념일") }
             var date by remember { mutableStateOf("2023/11/10") }
 
@@ -176,6 +192,25 @@ fun FriendProfileScreen(navHostController: NavHostController) {
                     .fillMaxWidth(),
                 style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)
             )
+
+            val friendProfile = friendProfiles.find { it.phoneNumber == selectedFriendPhoneNumber }
+            val items = friendProfile?.history ?: listOf<FriendHistory>()
+
+            LazyColumn(
+                Modifier
+                    .padding(top = 24.dp, start = 16.dp, end = 16.dp)
+            ) {
+                items(items) { item ->
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                    ) {
+                        FeedItem(friendProfile?.name ?: "", item)
+                    }
+                }
+            }
         }
     }
 }

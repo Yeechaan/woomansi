@@ -14,11 +14,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -26,6 +31,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,8 +54,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.data.FriendHistory
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.friendProfiles
+import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import java.text.SimpleDateFormat
@@ -133,7 +141,7 @@ fun FriendEditScreen(navHostController: NavHostController) {
                 val items = listOf("가족", "가장 친한", "친해지고 싶은")
                 var selectedIndex by remember { mutableStateOf(0) }
 
-                TextField(
+                OutlinedTextField(
                     value = items[selectedIndex], onValueChange = { group = it }, readOnly = true,
                     label = {
                         Text("그룹", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
@@ -180,7 +188,7 @@ fun FriendEditScreen(navHostController: NavHostController) {
                 }
             }
 
-            TextField(
+            OutlinedTextField(
                 value = number, onValueChange = { number = it },
                 label = {
                     Text("연락처", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
@@ -267,8 +275,7 @@ fun FriendEditScreen(navHostController: NavHostController) {
                     ) { DatePicker(state = state) }
                 }
 
-
-                TextField(
+                OutlinedTextField(
                     value = selectedDate, onValueChange = { selectedDate = it }, readOnly = true,
                     label = {
                         Text("이벤트", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
@@ -307,12 +314,31 @@ fun FriendEditScreen(navHostController: NavHostController) {
                     .border(width = 1.dp, color = Color(0xFFD8D8D8), shape = RoundedCornerShape(size = 16.dp)),
 //                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
-                Image(painter = painterResource(id = R.drawable.ic_plus), contentDescription = "")
+                Image(painter = painterResource(id = R.drawable.ic_add), contentDescription = "")
                 Text(
                     text = "기록추가",
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(Color.Black),
                     modifier = Modifier.padding(start = 8.dp, top = 12.dp, bottom = 12.dp)
                 )
+            }
+
+            val friendProfile = friendProfiles.find { it.phoneNumber == selectedFriendPhoneNumber }
+            val items = friendProfile?.history ?: listOf<FriendHistory>()
+
+            LazyColumn(
+                Modifier
+                    .padding(top = 24.dp, start = 16.dp, end = 16.dp)
+            ) {
+                items(items) { item ->
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                    ) {
+                        FeedItem(friendProfile?.name ?: "", item)
+                    }
+                }
             }
         }
     }

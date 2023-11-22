@@ -3,11 +3,13 @@ package com.lee.remember.android.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,7 +26,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -55,23 +57,14 @@ import kotlin.math.absoluteValue
 @Composable
 fun HistoryScreen(navHostController: NavHostController) {
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.background(lightColor)) {
         TopAppBar(
-            title = {
-                Text(
-                    "\n우리가 만났던 시절",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_4),
-                )
-            },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = Color.White
-            ),
+            title = {},
+            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
             navigationIcon = {
-                IconButton(onClick = {
-//                    navHostController.navigateUp()
-                }) {
+                IconButton(modifier = Modifier.width(62.dp), onClick = {}) {
                     Icon(
-                        painterResource(id = R.drawable.logo_app),
+                        painterResource(id = R.drawable.logo_title),
                         contentDescription = stringResource(R.string.back_button)
                     )
                 }
@@ -95,10 +88,46 @@ fun HistoryScreen(navHostController: NavHostController) {
             HistoryItem("SNS", R.drawable.ic_message) {}
             HistoryItem("안부", R.drawable.ic_sns) {}
         }
-        HistoryPagerScreen(navHostController)
+
+        if (friendProfiles.isEmpty()) {
+            HistoryEmptyScreen()
+        } else {
+            HistoryPagerScreen(navHostController)
+        }
     }
 }
 
+@Composable
+fun HistoryEmptyScreen() {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 90.dp), horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "등록된 친구가 없네요.\n새로운 친구를 등록해보세요!",
+            style = getTextStyle(textStyle = RememberTextStyle.BODY_1).copy(Color(0x94000000), textAlign = TextAlign.Center)
+        )
+
+        Image(painterResource(id = R.drawable.ic_empty_friend), contentDescription = null, modifier = Modifier.padding(top = 22.dp))
+
+        Button(
+            onClick = {},
+            modifier = Modifier.padding(top = 32.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            shape = RoundedCornerShape(size = 100.dp),
+            border = BorderStroke(1.dp, fontPointColor)
+        ) {
+            androidx.compose.material3.Text(
+                text = "친구 추가",
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(fontPointColor),
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.fillMaxSize())
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -210,4 +239,6 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
 @Composable
 fun HistoryScreenPreview() {
     HistoryScreen(rememberNavController())
+
+//    HistoryEmptyScreen()
 }

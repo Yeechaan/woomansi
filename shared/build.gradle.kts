@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     kotlin("plugin.serialization")
+    id("io.realm.kotlin")
 }
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
@@ -39,6 +40,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+
+                implementation("io.realm.kotlin:library-base:1.11.0")
             }
         }
         val commonTest by getting {
