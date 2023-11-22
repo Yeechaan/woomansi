@@ -3,14 +3,13 @@ package com.lee.remember.android
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -55,7 +54,6 @@ import com.lee.remember.android.ui.HistoryScreen
 import com.lee.remember.android.ui.LoginScreen
 import com.lee.remember.android.ui.SelectContractScreen
 import com.lee.remember.android.ui.SignInScreen
-import com.lee.remember.android.ui.fontPointColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
@@ -138,7 +136,7 @@ fun MainApp(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = RememberScreen.Friend.name,
+            startDestination = RememberScreen.History.name,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -186,46 +184,54 @@ fun MainApp(
 @Composable
 fun SplashScreen(navController: NavHostController) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 80.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+//        verticalArrangement = Arrangement.Center
     ) {
 
         Image(
-            painter = painterResource(id = R.drawable.logo_app), contentDescription = "logo",
+            painter = painterResource(id = R.drawable.logo_splash), contentDescription = "logo",
             modifier = Modifier
                 .width(100.dp)
                 .padding(top = 100.dp)
         )
 
         Text(
-            text = "우리가 만난 시절",
-            modifier = Modifier.padding(top = 8.dp),
+            text = "우리가 만난 소중한 시절",
+            modifier = Modifier.padding(top = 24.dp),
             textAlign = TextAlign.Center,
-            style = getTextStyle(textStyle = RememberTextStyle.BODY_4),
+            style = getTextStyle(textStyle = RememberTextStyle.BODY_1B),
         )
 
-        Text(
-            text = "우만시",
-            modifier = Modifier.padding(top = 60.dp),
-            textAlign = TextAlign.Center,
-            style = getTextStyle(textStyle = RememberTextStyle.HEAD_1),
-        )
+        Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = { navController.navigate(RememberScreen.SignIn.name) },
+            onClick = { },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 120.dp, start = 16.dp, end = 16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             shape = RoundedCornerShape(size = 100.dp),
-            border = BorderStroke(1.dp, fontPointColor)
+            border = BorderStroke(1.dp, Color.Black)
         ) {
             Text(
-                text = "회원가입",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(fontPointColor),
+                text = "구글로그인",
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black),
                 modifier = Modifier.padding(vertical = 8.dp)
             )
+        }
+
+        TextButton(
+            onClick = { navController.navigate(RememberScreen.SignIn.name) }) {
+            Column(modifier = Modifier.wrapContentWidth()) {
+                Text(
+                    text = "새로 가입하기",
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color.Black),
+                )
+                BorderStroke(1.dp, Color.Black)
+            }
         }
     }
 }

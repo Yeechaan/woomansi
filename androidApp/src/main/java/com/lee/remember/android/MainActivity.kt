@@ -25,15 +25,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.android.ui.HistoryPagerScreen
-import com.lee.remember.android.ui.HistoryScreen
 
 class MainActivity : ComponentActivity() {
     lateinit var requestLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             MyApplicationTheme {
                 Surface(
@@ -45,12 +46,8 @@ class MainActivity : ComponentActivity() {
                     // MainApp
                     val controller = rememberNavController()
                     MainApp(controller)
-
-//                    PhotoSelectorView(maxSelectionCount = 3)
-
-//                    HistoryScreen()
-
                     checkContactStatus()
+
                 }
             }
         }

@@ -68,9 +68,8 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.img_flim), contentDescription = "",
+                        painter = painterResource(id = R.drawable.img_select_contract), contentDescription = "",
                         modifier = Modifier
-                            .size(100.dp)
                             .padding(top = 48.dp)
                     )
                     Text(

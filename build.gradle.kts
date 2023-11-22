@@ -5,6 +5,7 @@ plugins {
     kotlin("android").version("1.8.21").apply(false)
     kotlin("multiplatform").version("1.8.21").apply(false)
     kotlin("plugin.serialization").version("1.8.21").apply(false)
+    id ("io.realm.kotlin").version("1.11.0").apply(false)
 
 //    id("org.jetbrains.kotlin.android") version "1.8.21" apply false
 }

@@ -52,7 +52,7 @@ import com.lee.remember.request.SignInRequest
 import kotlinx.coroutines.launch
 
 @Composable
-fun SignInScreen(navController: NavHostController) {
+fun MyScreen(navController: NavHostController) {
 
     Column(
         modifier = Modifier
@@ -61,10 +61,12 @@ fun SignInScreen(navController: NavHostController) {
 //        horizontalAlignment = Alignment.CenterHorizontally,
 //        verticalArrangement = Arrangement.Center
     ) {
+        HeadingLogoScreen()
 
         var id by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var passwordConfirm by remember { mutableStateOf("") }
+        var nickname by remember { mutableStateOf("") }
 
         // Ktor Test
         val scope = rememberCoroutineScope()
@@ -72,24 +74,16 @@ fun SignInScreen(navController: NavHostController) {
 
         GreetingView(text)
 
-        Text(
-            "우만시",
-            style = getTextStyle(textStyle = RememberTextStyle.HEAD_2).copy(fontPointColor),
-            modifier = Modifier.padding(top = 20.dp, start = 16.dp)
-        )
-        Text("가입하기", style = getTextStyle(textStyle = RememberTextStyle.HEAD_2), modifier = Modifier.padding(start = 16.dp))
+        Text("내 정보", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5), modifier = Modifier.padding(top = 24.dp, start = 16.dp))
 
         OutlinedTextField(
             value = id, onValueChange = { id = it },
             label = {
                 Text("이메일", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
             },
-            placeholder = {
-                Text("이메일 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_4B).copy(fontHintColor))
-            },
             textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
             modifier = Modifier
-                .padding(top = 48.dp)
+                .padding(top = 16.dp)
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
         )
@@ -98,9 +92,6 @@ fun SignInScreen(navController: NavHostController) {
             value = password, onValueChange = { password = it },
             label = {
                 Text("비밀번호", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            placeholder = {
-                Text("비밀번호 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_4B).copy(fontHintColor))
             },
             textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
             modifier = Modifier
@@ -114,9 +105,6 @@ fun SignInScreen(navController: NavHostController) {
             label = {
                 Text("비밀번호 확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
             },
-            placeholder = {
-                Text("비밀번호 확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4B).copy(fontHintColor))
-            },
             textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
             modifier = Modifier
                 .padding(top = 16.dp)
@@ -124,7 +112,19 @@ fun SignInScreen(navController: NavHostController) {
                 .fillMaxWidth()
         )
 
+        OutlinedTextField(
+            value = nickname, onValueChange = { nickname = it },
+            label = {
+                Text("닉네임", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
+            },
+            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
+            modifier = Modifier
+                .padding(top = 16.dp).padding(horizontal = 16.dp)
+                .fillMaxWidth()
+        )
+
         val context = LocalContext.current
+
         Button(
             onClick = {
                 if (password != passwordConfirm) {
@@ -164,7 +164,7 @@ fun SignInScreen(navController: NavHostController) {
             border = BorderStroke(1.dp, fontPointColor)
         ) {
             Text(
-                text = "가입하기",
+                text = "회원가입",
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(fontPointColor),
                 modifier = Modifier.padding(vertical = 2.dp)
             )
@@ -173,8 +173,36 @@ fun SignInScreen(navController: NavHostController) {
     }
 }
 
+@Composable
+fun HeadingLogoScreen() {
+    Column(
+        Modifier
+            .shadow(elevation = 1.dp, spotColor = Color(0x36263E2B), ambientColor = Color(0x36263E2B))
+            .shadow(elevation = 1.dp, spotColor = Color(0x33444444), ambientColor = Color(0x33444444))
+            .fillMaxWidth()
+            .background(color = Color.White)
+            .padding(top = 26.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_camera),
+            contentDescription = "camera_image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(pointColor)
+        )
+
+        Text("우만시", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5), modifier = Modifier.padding(top = 16.dp, bottom = 24.dp))
+
+        Divider(color = pointColor, thickness = 8.dp)
+    }
+}
+
 @Preview
 @Composable
-fun PreviewSignInScreen() {
-    SignInScreen(rememberNavController())
+fun PreviewMyScreen() {
+    MyScreen(rememberNavController())
 }
