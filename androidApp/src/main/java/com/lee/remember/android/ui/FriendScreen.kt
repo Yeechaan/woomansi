@@ -15,16 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -32,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -43,6 +39,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.RememberTopAppBar
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.selectedFriendPhoneNumber
@@ -58,34 +55,7 @@ fun FriendScreen(navHostController: NavHostController) {
     val grouped = friendProfiles.groupBy { it.grouped }
 
     Column {
-        TopAppBar(
-            title = {
-                Text(
-                    "우리가 만났던 시절",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_4),
-                )
-            },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = Color.White
-            ),
-            navigationIcon = {
-                IconButton(onClick = {
-//                    navHostController.navigateUp()
-                }) {
-                    Icon(
-                        painterResource(id = R.drawable.logo_app),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
-            actions = {
-                IconButton(onClick = {
-//                    navHostController.navigate(RememberScreen.FriendEdit.name)
-                }) {
-                    Icon(painter = painterResource(id = R.drawable.ic_account), contentDescription = "")
-                }
-            }
-        )
+        RememberTopAppBar()
 
         Box(
             modifier = Modifier

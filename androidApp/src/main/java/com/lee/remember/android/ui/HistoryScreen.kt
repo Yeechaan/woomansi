@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,6 +47,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.RememberTopAppBar
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.selectedFriendPhoneNumber
@@ -58,25 +60,7 @@ import kotlin.math.absoluteValue
 fun HistoryScreen(navHostController: NavHostController) {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.background(lightColor)) {
-        TopAppBar(
-            title = {},
-            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
-            navigationIcon = {
-                IconButton(modifier = Modifier.width(62.dp), onClick = {}) {
-                    Icon(
-                        painterResource(id = R.drawable.logo_title),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
-            actions = {
-                IconButton(onClick = {
-//                    navHostController.navigate(RememberScreen.FriendEdit.name)
-                }) {
-                    Icon(painter = painterResource(id = R.drawable.ic_account), contentDescription = "")
-                }
-            }
-        )
+        RememberTopAppBar()
 
         Row(
             modifier = Modifier
