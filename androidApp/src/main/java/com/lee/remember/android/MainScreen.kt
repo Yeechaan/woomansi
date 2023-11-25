@@ -1,39 +1,26 @@
 package com.lee.remember.android
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,12 +41,20 @@ import com.lee.remember.android.ui.HistoryScreen
 import com.lee.remember.android.ui.LoginScreen
 import com.lee.remember.android.ui.SelectContractScreen
 import com.lee.remember.android.ui.SignInScreen
+import com.lee.remember.android.ui.intro.IntroScreen
+import com.lee.remember.android.ui.intro.SplashScreen
+import com.lee.remember.android.ui.intro.TermsScreen
+import com.lee.remember.android.ui.intro.UserNameScreen
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
 enum class RememberScreen(@StringRes val title: Int) {
     Splash(title = R.string.splash),
+    Intro(title = R.string.intro),
+    Terms(title = R.string.terms),
     SignIn(title = R.string.sign_in),
+    UserName(title = R.string.user_name),
+
     Login(title = R.string.login),
     SelectContact(title = R.string.select_contact),
     Contact(title = R.string.select_contact),
@@ -74,7 +69,6 @@ enum class RememberScreen(@StringRes val title: Int) {
 
 val mainScreens = listOf(RememberScreen.History, RememberScreen.Feed, RememberScreen.Friend)
 
-var userId: Int = -1
 var accessToken: String = ""
 val friendProfiles = mutableListOf<FriendProfile>()
 var selectedFriendPhoneNumber = ""
@@ -111,10 +105,18 @@ fun MainApp(
                 ) {
                     mainScreens.forEach { mainScreen ->
                         BottomNavigationItem(
-                            label = { Text(stringResource(id = mainScreen.title), fontSize = 14.sp) },
+                            label = { Text(stringResource(id = mainScreen.title), style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F))) },
                             icon = {
+                                val resourceId = when(mainScreen) {
+                                    RememberScreen.History -> R.drawable.ic_friend_off
+                                    RememberScreen.Feed -> R.drawable.ic_feed_off
+                                    RememberScreen.Friend -> R.drawable.ic_contact_off
+                                    else -> R.drawable.ic_dot
+                                }
+
+                                // Todo when item clicked
                                 Icon(
-                                    painterResource(id = R.drawable.ic_dot),
+                                    painterResource(id = resourceId),
                                     contentDescription = stringResource(R.string.back_button)
                                 )
                             },
@@ -136,7 +138,7 @@ fun MainApp(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = RememberScreen.History.name,
+            startDestination = RememberScreen.Splash.name,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -144,9 +146,19 @@ fun MainApp(
             composable(route = RememberScreen.Splash.name) {
                 SplashScreen(navController)
             }
+            composable(route = RememberScreen.Intro.name) {
+                IntroScreen(navController)
+            }
+            composable(route = RememberScreen.Terms.name) {
+                TermsScreen(navController)
+            }
             composable(route = RememberScreen.SignIn.name) {
                 SignInScreen(navController)
             }
+            composable(route = RememberScreen.UserName.name) {
+                UserNameScreen(navController)
+            }
+
             composable(route = RememberScreen.Login.name) {
                 LoginScreen(navController)
             }
@@ -181,66 +193,32 @@ fun MainApp(
     }
 }
 
-@Composable
-fun SplashScreen(navController: NavHostController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 80.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
-    ) {
-
-        Image(
-            painter = painterResource(id = R.drawable.logo_splash), contentDescription = "logo",
-            modifier = Modifier
-                .width(100.dp)
-                .padding(top = 100.dp)
-        )
-
-        Text(
-            text = "우리가 만난 소중한 시절",
-            modifier = Modifier.padding(top = 24.dp),
-            textAlign = TextAlign.Center,
-            style = getTextStyle(textStyle = RememberTextStyle.BODY_1B),
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = { },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 120.dp, start = 16.dp, end = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            shape = RoundedCornerShape(size = 100.dp),
-            border = BorderStroke(1.dp, Color.Black)
-        ) {
-            Text(
-                text = "구글로그인",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black),
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-
-        TextButton(
-            onClick = { navController.navigate(RememberScreen.SignIn.name) }) {
-            Column(modifier = Modifier.wrapContentWidth()) {
-                Text(
-                    text = "새로 가입하기",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color.Black),
-                )
-                BorderStroke(1.dp, Color.Black)
-            }
-        }
-    }
-}
-
 
 @Preview
 @Composable
 fun TestDefaultPreview() {
     SplashScreen(rememberNavController())
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RememberTopAppBar(){
+    TopAppBar(
+        title = {},
+        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
+        navigationIcon = {
+            Icon(
+                modifier = Modifier.padding(start = 16.dp),
+                painter = painterResource(id = R.drawable.ic_appbar),
+                contentDescription = stringResource(R.string.back_button)
+            )
+        },
+        actions = {
+            IconButton(onClick = {}) {
+                Icon(painter = painterResource(id = R.drawable.ic_account), contentDescription = "")
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

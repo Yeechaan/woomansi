@@ -45,6 +45,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
+import com.lee.remember.android.RememberTopAppBar
 import com.lee.remember.android.data.FriendHistory
 import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.utils.RememberTextStyle
@@ -62,32 +63,7 @@ fun FeedScreen(navHostController: NavHostController) {
     Column(
         Modifier.background(lightColor)
     ) {
-        TopAppBar(
-            title = {
-                Text(
-                    "우리가 만났던 시절",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_4),
-                )
-            },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = Color.White
-            ),
-            navigationIcon = {
-                IconButton(onClick = {}) {
-                    Icon(
-                        painterResource(id = R.drawable.logo_app),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
-            actions = {
-                IconButton(onClick = {
-//                    navHostController.navigate(RememberScreen.FriendEdit.name)
-                }) {
-                    Icon(painter = painterResource(id = R.drawable.ic_account), contentDescription = "")
-                }
-            }
-        )
+        RememberTopAppBar()
 
         var selectedIndex by remember { mutableStateOf(0) }
         val options = listOf("이름 순", "최신 순")

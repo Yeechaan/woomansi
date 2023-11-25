@@ -44,7 +44,7 @@ fun LoginScreen(navController: NavHostController) {
                     e.localizedMessage ?: "error"
                 }
 
-                Log.d("####", text)
+//                Log.d("####", text)
             }
         }
         GreetingView(text)

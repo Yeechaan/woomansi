@@ -1,40 +1,34 @@
 package com.lee.remember.android.ui
 
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.TextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -44,27 +38,44 @@ import com.lee.remember.android.GreetingView
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
-import com.lee.remember.android.userId
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.local.dao.UserDao
+import com.lee.remember.local.model.User
+import com.lee.remember.request.LoginRequest
 import com.lee.remember.request.RegisterRequest
-import com.lee.remember.request.SignInRequest
+import com.lee.remember.request.RegisterResponse
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(navController: NavHostController) {
 
     Column(
         modifier = Modifier
-            .background(color = Color.White)
+            .fillMaxSize()
+            .background(lightColor)
             .padding(bottom = 32.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
     ) {
 
+        TopAppBar(
+            modifier = Modifier.shadow(elevation = 10.dp),
+            title = { Text("회원가입", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
+            navigationIcon = {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(
+                        painterResource(id = R.drawable.baseline_arrow_back_24),
+                        contentDescription = stringResource(R.string.back_button)
+                    )
+                }
+            },
+        )
+
         var id by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-        var passwordConfirm by remember { mutableStateOf("") }
+        val password = remember { mutableStateOf("") }
+        val passwordConfirm = remember { mutableStateOf("") }
+        val isPasswordError = remember { mutableStateOf(false) }
 
         // Ktor Test
         val scope = rememberCoroutineScope()
@@ -72,37 +83,30 @@ fun SignInScreen(navController: NavHostController) {
 
         GreetingView(text)
 
-        Text(
-            "우만시",
-            style = getTextStyle(textStyle = RememberTextStyle.HEAD_2).copy(fontPointColor),
-            modifier = Modifier.padding(top = 20.dp, start = 16.dp)
-        )
-        Text("가입하기", style = getTextStyle(textStyle = RememberTextStyle.HEAD_2), modifier = Modifier.padding(start = 16.dp))
-
         OutlinedTextField(
             value = id, onValueChange = { id = it },
             label = {
                 Text("이메일", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
             },
             placeholder = {
-                Text("이메일 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_4B).copy(fontHintColor))
+                Text("이메일 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontHintColor))
             },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
+            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
             modifier = Modifier
-                .padding(top = 48.dp)
+                .padding(top = 40.dp)
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
         )
 
         OutlinedTextField(
-            value = password, onValueChange = { password = it },
+            value = password.value, onValueChange = { password.value = it },
             label = {
                 Text("비밀번호", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
             },
             placeholder = {
-                Text("비밀번호 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_4B).copy(fontHintColor))
+                Text("비밀번호 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontHintColor))
             },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
+            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
             modifier = Modifier
                 .padding(top = 16.dp)
                 .padding(horizontal = 16.dp)
@@ -110,39 +114,59 @@ fun SignInScreen(navController: NavHostController) {
         )
 
         OutlinedTextField(
-            value = passwordConfirm, onValueChange = { passwordConfirm = it },
+            value = passwordConfirm.value,
+            onValueChange = {
+                isPasswordError.value = password.value != it
+
+                passwordConfirm.value = it
+            },
             label = {
                 Text("비밀번호 확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
             },
             placeholder = {
-                Text("비밀번호 확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4B).copy(fontHintColor))
+                Text("비밀번호 확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontHintColor))
             },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
+            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
             modifier = Modifier
                 .padding(top = 16.dp)
                 .padding(horizontal = 16.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            isError = isPasswordError.value,
+            supportingText = {
+                if (isPasswordError.value) {
+                    Text("입력하신 비밀번호가 일치하지 않습니다.", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFFD59519)))
+                }
+            },
+            colors = TextFieldDefaults.outlinedTextFieldColors(errorBorderColor = Color(0xFFB3661E), errorLabelColor = Color(0xFFB3661E)),
         )
 
         val context = LocalContext.current
+
         Button(
             onClick = {
-                if (password != passwordConfirm) {
+                if (password.value != passwordConfirm.value) {
                     Toast.makeText(context, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
+                if (id.isEmpty() || password.value.isEmpty() || passwordConfirm.value.isEmpty()) {
+                    Toast.makeText(context, "이메일 또는 비밀번호는 입력해주세요.", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
 
                 scope.launch {
                     text = try {
-                        val signInRequest = RegisterRequest(id, "name", password, "")
+                        val signInRequest = RegisterRequest(id, "", password.value, "")
                         val response = GreetingKtor().register(signInRequest)
 
                         if (response != null) {
-                            val signInResponse = GreetingKtor().signIn(SignInRequest(id, password))
+                            saveUser(response, password.value)
+
+                            val signInResponse = GreetingKtor().login(LoginRequest(id, password.value))
                             if (signInResponse != null) {
-                                userId = signInResponse.result?.userId ?: -1
                                 accessToken = signInResponse.result?.jwtToken ?: ""
-                                navController.navigate(RememberScreen.SelectContact.name)
+
+                                navController.navigate(RememberScreen.UserName.name)
                             } else {
                                 "에러"
                             }
@@ -159,17 +183,23 @@ fun SignInScreen(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
             shape = RoundedCornerShape(size = 100.dp),
-            border = BorderStroke(1.dp, fontPointColor)
         ) {
             Text(
                 text = "가입하기",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(fontPointColor),
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
                 modifier = Modifier.padding(vertical = 2.dp)
             )
         }
 
+    }
+}
+
+suspend fun saveUser(signResponse: RegisterResponse, password: String) {
+    signResponse.result?.let {
+        val user = User().apply { this.email = it.email; this.password = password; this.userId = it.id }
+        UserDao().setUser(user)
     }
 }
 

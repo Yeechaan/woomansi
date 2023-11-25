@@ -5,7 +5,11 @@
     <string name="back_button">Back</string>
 
     <string name="splash">Splash</string>
+    <string name="intro">intro</string>
+    <string name="terms">terms</string>
     <string name="sign_in">sign_in</string>
+    <string name="user_name">user_name</string>
+
     <string name="login">login</string>
     <string name="select_contact">select_contact</string>
 

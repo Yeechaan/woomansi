@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     kotlin("android")
+    id("io.realm.kotlin")
+
 }
 
 android {
@@ -58,5 +60,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+    val napierVersion = "2.6.1"
+    implementation("io.github.aakira:napier:$napierVersion")
+
+    implementation("io.realm.kotlin:library-base:1.11.0")
 
 }

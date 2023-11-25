@@ -6,22 +6,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material.TextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,11 +39,10 @@ import com.lee.remember.android.GreetingView
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
-import com.lee.remember.android.userId
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.request.LoginRequest
 import com.lee.remember.request.RegisterRequest
-import com.lee.remember.request.SignInRequest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -119,7 +113,8 @@ fun MyScreen(navController: NavHostController) {
             },
             textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
             modifier = Modifier
-                .padding(top = 16.dp).padding(horizontal = 16.dp)
+                .padding(top = 16.dp)
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth()
         )
 
@@ -138,9 +133,8 @@ fun MyScreen(navController: NavHostController) {
                         val response = GreetingKtor().register(signInRequest)
 
                         if (response != null) {
-                            val signInResponse = GreetingKtor().signIn(SignInRequest(id, password))
+                            val signInResponse = GreetingKtor().login(LoginRequest(id, password))
                             if (signInResponse != null) {
-                                userId = signInResponse.result?.userId ?: -1
                                 accessToken = signInResponse.result?.jwtToken ?: ""
                                 navController.navigate(RememberScreen.SelectContact.name)
                             } else {

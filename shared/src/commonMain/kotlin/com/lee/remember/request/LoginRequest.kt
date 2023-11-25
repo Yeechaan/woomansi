@@ -3,13 +3,13 @@ package com.lee.remember.request
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SignInRequest(
+data class LoginRequest(
     val email: String,
     val password: String,
 )
 
 @Serializable
-data class SignInResponse(
+data class LoginResponse(
     val result: Result?,
     val resultCode: String
 ) {

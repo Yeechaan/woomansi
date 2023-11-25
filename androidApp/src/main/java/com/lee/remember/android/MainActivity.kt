@@ -27,6 +27,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 
 class MainActivity : ComponentActivity() {
     lateinit var requestLauncher: ActivityResultLauncher<Intent>
@@ -42,6 +44,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 //                    Greeting(name = "iOS")
+
+                    Napier.base(DebugAntilog())
 
                     // MainApp
                     val controller = rememberNavController()

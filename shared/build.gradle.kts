@@ -30,6 +30,7 @@ kotlin {
     sourceSets {
         val ktorVersion = "2.3.5"
         val serialization_version = "1.6.0"
+        val napierVersion = "2.6.1"
 
         val commonMain by getting {
             dependencies {
@@ -42,6 +43,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
                 implementation("io.realm.kotlin:library-base:1.11.0")
+
+                implementation("io.github.aakira:napier:$napierVersion")
             }
         }
         val commonTest by getting {
