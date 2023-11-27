@@ -19,20 +19,18 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -40,11 +38,16 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.RememberTopAppBar
+import com.lee.remember.android.accessToken
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.remote.FriendApi
+import com.lee.remember.request.FriendListResponse
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 val lightColor = Color(0xFFF7F7F7)
 val pointColor = Color(0xFFF3F2EE)
@@ -52,7 +55,21 @@ val pointColor = Color(0xFFF3F2EE)
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun FriendScreen(navHostController: NavHostController) {
-    val grouped = friendProfiles.groupBy { it.grouped }
+
+    val friendList = remember { mutableStateOf(mutableListOf<FriendListResponse.FriendSummaryInfo>()) }
+    val scope = rememberCoroutineScope()
+    scope.launch {
+        try {
+            val response = FriendApi().getFriendList(accessToken)
+            if (response != null) {
+                friendList.value.addAll(response.result)
+            }
+        } catch (e: Exception) {
+            e.localizedMessage ?: "error"
+        }
+
+        scope.cancel()
+    }
 
     Column {
         RememberTopAppBar()
@@ -65,13 +82,16 @@ fun FriendScreen(navHostController: NavHostController) {
             LazyColumn(
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
             ) {
+                val grouped = mapOf("목록" to friendList.value)
+
                 grouped.forEach { (initial, contactsForInitial) ->
                     stickyHeader {
                         CharacterHeader(initial)
                     }
 
                     items(contactsForInitial) { contact ->
-                        FriendItem(contact, navHostController)
+                        val friendProfile = FriendProfile(name = contact.name, phoneNumber = contact.phoneNumber ?: "")
+                        FriendItem(friendProfile, navHostController)
                     }
                 }
             }

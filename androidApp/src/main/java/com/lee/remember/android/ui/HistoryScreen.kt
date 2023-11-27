@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,11 +25,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,11 +47,15 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.RememberTopAppBar
+import com.lee.remember.android.accessToken
 import com.lee.remember.android.data.FriendProfile
-import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.remote.FriendApi
+import com.lee.remember.request.FriendListResponse
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,10 +76,30 @@ fun HistoryScreen(navHostController: NavHostController) {
             HistoryItem("안부", R.drawable.ic_sns) {}
         }
 
-        if (friendProfiles.isEmpty()) {
+        val friendList = remember { mutableStateOf(mutableListOf<FriendListResponse.FriendSummaryInfo>()) }
+
+        val scope = rememberCoroutineScope()
+        scope.launch {
+            try {
+                val response = FriendApi().getFriendList(accessToken)
+                if (response != null) {
+                    friendList.value.addAll(response.result)
+
+                    response.toString()
+                } else {
+                    "에러"
+                }
+            } catch (e: Exception) {
+                e.localizedMessage ?: "error"
+            }
+
+            scope.cancel()
+        }
+
+        if (friendList.value.isEmpty()) {
             HistoryEmptyScreen()
         } else {
-            HistoryPagerScreen(navHostController)
+            HistoryPagerScreen(navHostController, friendList.value)
         }
     }
 }
@@ -115,9 +138,9 @@ fun HistoryEmptyScreen() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HistoryPagerScreen(navHostController: NavHostController) {
+fun HistoryPagerScreen(navHostController: NavHostController, friendList: MutableList<FriendListResponse.FriendSummaryInfo>) {
 
-    val pagerState = rememberPagerState(pageCount = { friendProfiles.size })
+    val pagerState = rememberPagerState(pageCount = { friendList.size })
     HorizontalPager(
         state = pagerState,
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -155,7 +178,10 @@ fun HistoryPagerScreen(navHostController: NavHostController) {
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Bottom
                 ) {
-                    val friendProfile = friendProfiles[page]
+                    val friend = friendList[page]
+                    val friendProfile = FriendProfile(name = friend.name, phoneNumber = friend.phoneNumber ?: "")
+//                    val friendProfile = friendProfiles[page]
+
                     FriendSummaryItem(friendProfile, navHostController)
                 }
             }

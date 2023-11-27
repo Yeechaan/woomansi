@@ -81,7 +81,6 @@ class GreetingKtor {
         Napier.d("### ${response.bodyAsText()}")
 
         return if (response.status == HttpStatusCode.OK) response.body() else null
-//        return response.body()
     }
 
     suspend fun setUser(token: String, request: UserInfoRequest): UserInfoResponse? {
@@ -110,34 +109,4 @@ class GreetingKtor {
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
 
-    suspend fun addFriendMulti(token: String, request: FriendMultiAddRequest): FriendMultiAddResponse? {
-        val response = client.post(friendUrl + "add-multi") {
-            headers {
-                append(HttpHeaders.ContentType, "application/json")
-                append(HttpHeaders.Authorization, token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request.friends)
-        }
-
-        Napier.d("### ${response.bodyAsText()}")
-
-//        return if (response.status == HttpStatusCode.OK) response.body() else null
-        return response.body()
-    }
-
-
-    suspend fun addFriend(token: String, request: FriendAddRequest): FriendAddResponse? {
-        val response = client.post(userUrl + "friends/add") {
-            headers {
-                append(HttpHeaders.ContentType, "application/json")
-                append(HttpHeaders.Authorization, token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
-
-//        return if (response.status == HttpStatusCode.OK) response.body() else null
-        return response.body()
-    }
 }

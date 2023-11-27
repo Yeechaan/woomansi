@@ -125,7 +125,7 @@ fun FriendEditScreen(navHostController: NavHostController) {
                 .fillMaxWidth()
         ) {
 
-            TextField(
+            OutlinedTextField(
                 value = name, onValueChange = { name = it },
                 textStyle = getTextStyle(textStyle = RememberTextStyle.HEAD_5),
                 modifier = Modifier
