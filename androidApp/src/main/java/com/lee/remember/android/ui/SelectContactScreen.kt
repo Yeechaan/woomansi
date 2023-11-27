@@ -2,7 +2,6 @@ package com.lee.remember.android.ui
 
 import android.annotation.SuppressLint
 import android.provider.ContactsContract
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +35,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.GreetingKtor
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
@@ -45,8 +43,8 @@ import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.remote.FriendApi
 import com.lee.remember.request.FriendMultiAddRequest
-import com.lee.remember.request.UserInfoRequest
 import kotlinx.coroutines.launch
 
 val contracts = mutableListOf<Contract>()
@@ -71,7 +69,8 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
             item {
                 Column(
                     Modifier
-                        .fillMaxWidth().background(Color.White)
+                        .fillMaxWidth()
+                        .background(Color.White)
                         .padding(top = 48.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -105,7 +104,9 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
                         .background(Color.White)
                 ) {
                     Column(
-                        Modifier.weight(1f).background(Color.White)
+                        Modifier
+                            .weight(1f)
+                            .background(Color.White)
                     ) {
                         Text(
                             modifier = Modifier.padding(start = 16.dp, top = 8.dp),
@@ -157,9 +158,7 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
                             FriendMultiAddRequest.Friend(it.name, it.phoneNumber, it.image)
                         }
 
-                        // TODO
-                        val aa = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1MSIsImlhdCI6MTcwMDY1MTAzMywiZXhwIjoxNzAxNTE1MDMzfQ.reVAg1JzThO-3QHvI6WIV4VzcTJo24JpDl_bYSf61U0"
-                        val response = GreetingKtor().addFriendMulti(aa, FriendMultiAddRequest(friends))
+                        val response = FriendApi().addFriendMulti(accessToken, FriendMultiAddRequest(friends))
 
                         if (response != null) {
                             navController.navigate(RememberScreen.History.name)
