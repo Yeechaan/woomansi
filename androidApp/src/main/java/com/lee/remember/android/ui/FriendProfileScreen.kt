@@ -1,8 +1,10 @@
 package com.lee.remember.android.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,9 +17,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.TextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -115,13 +119,33 @@ fun FriendProfileScreen(navHostController: NavHostController) {
             var dateTitle by remember { mutableStateOf("기념일") }
             var date by remember { mutableStateOf("2023/11/10") }
 
-            TextField(
-                value = name, onValueChange = { name = it }, readOnly = true,
-                textStyle = getTextStyle(textStyle = RememberTextStyle.HEAD_5),
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp),
-            )
+                    .padding(top = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = name,
+                    style = getTextStyle(textStyle = RememberTextStyle.HEAD_5).copy(fontColorBlack),
+                )
+
+                Button(
+                    onClick = { navHostController.navigate(RememberScreen.FriendEdit.name) },
+                    modifier = Modifier,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(size = 8.dp),
+                    border = BorderStroke(1.dp, Color(0xFF79747E))
+                ) {
+                    Text(
+                        text = "수정하기",
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF49454F)),
+                        modifier = Modifier
+                    )
+                }
+            }
+
 
             TextField(
                 value = group, onValueChange = { group = it }, readOnly = true,

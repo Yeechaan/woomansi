@@ -36,6 +36,7 @@ import androidx.navigation.NavHostController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.ui.lightColor
+import com.lee.remember.android.ui.whiteColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
@@ -50,7 +51,7 @@ fun TermsScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(lightColor),
+            .background(whiteColor),
     ) {
         TopAppBar(
             modifier = Modifier.shadow(elevation = 10.dp),
@@ -73,13 +74,15 @@ fun TermsScreen(navController: NavHostController) {
         ) {
 
             Text(
-                modifier = Modifier.padding(top = 136.dp),
+                modifier = Modifier.padding(top = 36.dp),
                 text = "우만시 약관동의",
                 style = getTextStyle(textStyle = RememberTextStyle.HEAD_2)
             )
 
+            Spacer(modifier = Modifier.weight(1f))
+
             Row(
-                modifier = Modifier.padding(top = 136.dp),
+                modifier = Modifier,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
@@ -142,15 +145,13 @@ fun TermsScreen(navController: NavHostController) {
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
             Button(
                 onClick = {
                     if (allCheckedState.value) {
                         navController.navigate(RememberScreen.SignIn.name)
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
                 shape = RoundedCornerShape(size = 100.dp),
             ) {
