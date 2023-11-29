@@ -2,6 +2,7 @@ package com.lee.remember.android.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -134,10 +137,37 @@ fun FeedItem(name: String, friendHistory: FriendHistory) {
                     .padding(start = 10.dp)
                     .weight(1f)
             ) {
-                Text(text = "with", fontSize = 10.sp, color = Color.Black)
-                Text(text = "harry", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = Color.Black)
+                Text(text = "with", fontSize = 10.sp, color = Color(0xFF1D1B20))
+                Text(text = "harry", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
             }
-            Icon(painter = painterResource(id = R.drawable.ic_more), contentDescription = "more")
+
+            var expanded by remember { mutableStateOf(true) }
+
+            Icon(
+                modifier = Modifier.clickable { expanded = true },
+                painter = painterResource(id = R.drawable.ic_more), contentDescription = "more"
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+            ) {
+                DropdownMenuItem(text = { Text(text = "수정", style = getTextStyle(textStyle = RememberTextStyle.BODY_3B).copy(fontColorBlack)) },
+                    onClick = {
+                        // Todo navigate to FriendEditScreen
+                        expanded = false
+                    })
+
+                DropdownMenuItem(text = { Text(text = "삭제", style = getTextStyle(textStyle = RememberTextStyle.BODY_3B).copy(Color(0xFFB3661E))) },
+                    onClick = {
+                        // Todo delete feed item from server, local
+                        expanded = false
+                    })
+            }
         }
 
         if (friendHistory.imageUri == null) {
@@ -167,16 +197,16 @@ fun FeedItem(name: String, friendHistory: FriendHistory) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = friendHistory.title, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = Color.Black)
-            Text(text = "2023. 10. 23", fontSize = 10.sp, color = Color.Black)
+            Text(text = friendHistory.title, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
+            Text(text = "2023. 10. 23", fontSize = 10.sp, color = fontColorBlack)
         }
 
         Text(
             text = friendHistory.contents,
-            style = getTextStyle(textStyle = RememberTextStyle.BODY_4),
+            style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
             modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 28.dp)
-                .fillMaxWidth(), color = Color.Black
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 32.dp)
+                .fillMaxWidth()
         )
     }
 }
@@ -185,7 +215,7 @@ fun FeedItem(name: String, friendHistory: FriendHistory) {
 @Preview
 @Composable
 fun PreviewFeedScreen() {
-    FeedScreen(rememberNavController())
+//    FeedScreen(rememberNavController())
 
-//    FeedItem(FriendHistory(title = "libris", contents = "curae", imageUri = null))
+    FeedItem("hoho", FriendHistory(title = "libris", contents = "curae", imageUri = null))
 }

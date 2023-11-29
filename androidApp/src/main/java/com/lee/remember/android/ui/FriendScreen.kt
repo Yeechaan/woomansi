@@ -49,6 +49,7 @@ import com.lee.remember.request.FriendListResponse
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
+val whiteColor = Color(0xFFFFFFFF)
 val lightColor = Color(0xFFF7F7F7)
 val pointColor = Color(0xFFF3F2EE)
 

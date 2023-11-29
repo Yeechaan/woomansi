@@ -23,7 +23,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,9 +37,9 @@ import com.lee.remember.android.ui.FriendProfileScreen
 import com.lee.remember.android.ui.FriendScreen
 import com.lee.remember.android.ui.HistoryAddScreen
 import com.lee.remember.android.ui.HistoryScreen
-import com.lee.remember.android.ui.LoginScreen
+import com.lee.remember.android.ui.intro.LoginScreen
 import com.lee.remember.android.ui.SelectContractScreen
-import com.lee.remember.android.ui.SignInScreen
+import com.lee.remember.android.ui.intro.SignInScreen
 import com.lee.remember.android.ui.intro.IntroScreen
 import com.lee.remember.android.ui.intro.SplashScreen
 import com.lee.remember.android.ui.intro.TermsScreen

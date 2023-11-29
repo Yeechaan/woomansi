@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -29,51 +31,50 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.ui.lightColor
+import com.lee.remember.android.ui.whiteColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
 @Composable
 fun IntroScreen(navController: NavHostController) {
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(lightColor)
-            .padding(bottom = 80.dp),
+            .background(whiteColor)
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
         Image(
-            painter = painterResource(id = R.drawable.logo_main), contentDescription = "logo",
-            modifier = Modifier
-                .width(52.dp)
-                .padding(top = 118.dp)
-        )
-
-        Image(
             painter = painterResource(id = R.drawable.logo_splash), contentDescription = "logo",
-            modifier = Modifier.width(88.dp).padding(top = 32.dp)
+            modifier = Modifier
+                .width(88.dp)
+                .padding(top = 64.dp)
         )
 
         Text(
             text = "우리가 만난 소중한 시절",
-            modifier = Modifier.padding(top = 24.dp),
+            modifier = Modifier.padding(top = 12.dp),
             textAlign = TextAlign.Center,
             style = getTextStyle(textStyle = RememberTextStyle.BODY_1B),
         )
 
         Image(
-            painter = painterResource(id = R.drawable.img_login), contentDescription = null,
-            modifier = Modifier.width(200.dp).padding(top = 48.dp)
+            modifier = Modifier
+                .width(142.dp)
+                .padding(top = 40.dp),
+            painter = painterResource(id = R.drawable.img_splash), contentDescription = "logo"
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = { },
+            onClick = { navController.navigate(RememberScreen.Login.name) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 120.dp, start = 16.dp, end = 16.dp),
+                .padding(start = 16.dp, end = 16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             shape = RoundedCornerShape(size = 100.dp),
             border = BorderStroke(1.dp, Color.Black)
@@ -86,7 +87,9 @@ fun IntroScreen(navController: NavHostController) {
         }
 
         TextButton(
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .padding(bottom = 64.dp),
             onClick = { navController.navigate(RememberScreen.Terms.name) }) {
             Text(
                 text = "새로 시작하기",
