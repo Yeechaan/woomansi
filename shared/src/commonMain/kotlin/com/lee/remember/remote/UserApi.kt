@@ -1,16 +1,15 @@
 package com.lee.remember.remote
 
-import com.lee.remember.request.FriendAddResponse
-import com.lee.remember.request.FriendListResponse
-import com.lee.remember.request.FriendRequest
-import com.lee.remember.request.FriendResponse
+import com.lee.remember.request.UserInfoRequest
+import com.lee.remember.request.UserInfoResponse
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
-import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -20,9 +19,9 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-class FriendApi {
+class UserApi {
 
-    val client = HttpClient() {
+    private val client = HttpClient() {
         install(ContentNegotiation) {
             json(Json {
                 prettyPrint = true
@@ -31,25 +30,10 @@ class FriendApi {
         }
     }
 
-    private val friendUrl = baseUrl + "friends"
+    private val userUrl = baseUrl + "users/"
 
-    suspend fun addFriend(token: String, friends: List<FriendRequest>): FriendAddResponse? {
-        val response = client.post(friendUrl) {
-            headers {
-                append(HttpHeaders.ContentType, "application/json")
-                append(HttpHeaders.Authorization, token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(friends)
-        }
-
-        Napier.d("### ${response.bodyAsText()}")
-
-        return if (response.status == HttpStatusCode.OK) response.body() else null
-    }
-
-    suspend fun getFriendList(token: String): FriendResponse? {
-        val response = client.get(friendUrl) {
+    suspend fun getUser(token: String): UserInfoResponse? {
+        val response = client.get(userUrl + "me") {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
                 append(HttpHeaders.Authorization, token)
@@ -61,4 +45,30 @@ class FriendApi {
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
 
+    suspend fun updateUser(token: String, request: UserInfoRequest): UserInfoResponse? {
+        val response = client.put(userUrl + "me") {
+            headers {
+                append(HttpHeaders.ContentType, "application/json")
+                append(HttpHeaders.Authorization, token)
+            }
+            setBody(request)
+        }
+
+        Napier.d("### ${response.bodyAsText()}")
+
+        return if (response.status == HttpStatusCode.OK) response.body() else null
+    }
+
+    suspend fun deleteUser(token: String): Boolean? {
+        val response = client.delete(userUrl + "me") {
+            headers {
+                append(HttpHeaders.ContentType, "application/json")
+                append(HttpHeaders.Authorization, token)
+            }
+        }
+
+        Napier.d("### ${response.bodyAsText()}")
+
+        return if (response.status == HttpStatusCode.OK) response.body() else null
+    }
 }

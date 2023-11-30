@@ -11,13 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.GreetingKtor
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
@@ -25,9 +23,9 @@ import com.lee.remember.android.ui.lightColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.local.dao.UserDao
+import com.lee.remember.remote.AuthApi
 import com.lee.remember.request.LoginRequest
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -67,11 +65,10 @@ fun SplashScreen(navController: NavHostController) {
 //            delay(1000)
 
             if (user != null) {
-                val loginResponse = GreetingKtor().login(LoginRequest(user.email, user.password))
+                val loginResponse = AuthApi().login(LoginRequest(user.email, user.password))
                 if (loginResponse != null) {
                     accessToken = loginResponse.result?.jwtToken ?: ""
 
-                    scope.cancel()
                     navController.navigate(RememberScreen.History.name) {
                         popUpTo(RememberScreen.Splash.name) {
                             inclusive = true

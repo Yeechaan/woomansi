@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.TextField
 import androidx.compose.material3.Button
@@ -70,7 +71,7 @@ fun FriendProfileScreen(navHostController: NavHostController) {
         Modifier
             .fillMaxSize()
             .background(lightColor)
-//            .verticalScroll(scrollState)
+            .verticalScroll(scrollState)
     ) {
         TopAppBar(
             title = { Text("친구 기록", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
@@ -209,32 +210,6 @@ fun FriendProfileScreen(navHostController: NavHostController) {
                 )
             }
 
-            Text(
-                text = "기록",
-                modifier = Modifier
-                    .padding(top = 24.dp)
-                    .fillMaxWidth(),
-                style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)
-            )
-
-            val friendProfile = friendProfiles.find { it.phoneNumber == selectedFriendPhoneNumber }
-            val items = friendProfile?.history ?: listOf<FriendHistory>()
-
-            LazyColumn(
-                Modifier
-                    .padding(top = 24.dp, start = 16.dp, end = 16.dp)
-            ) {
-                items(items) { item ->
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        ),
-                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-                    ) {
-                        FeedItem(friendProfile?.name ?: "", item)
-                    }
-                }
-            }
         }
     }
 }

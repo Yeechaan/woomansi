@@ -44,7 +44,7 @@ import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.remote.FriendApi
-import com.lee.remember.request.FriendMultiAddRequest
+import com.lee.remember.request.FriendRequest
 import kotlinx.coroutines.launch
 
 val contracts = mutableListOf<Contract>()
@@ -153,15 +153,19 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
                 }
 
                 scope.launch {
-                    text = try {
+                    try {
                         val friends = friendProfiles.map {
-                            FriendMultiAddRequest.Friend(it.name, it.phoneNumber, it.image)
+                            FriendRequest(it.name, it.phoneNumber)
                         }
 
-                        val response = FriendApi().addFriendMulti(accessToken, FriendMultiAddRequest(friends))
+                        val response = FriendApi().addFriend(accessToken, friends)
 
                         if (response != null) {
-                            navController.navigate(RememberScreen.History.name)
+                            navController.navigate(RememberScreen.History.name) {
+                                popUpTo(RememberScreen.History.name) {
+                                    inclusive = true
+                                }
+                            }
 
                             response.toString()
                         } else {

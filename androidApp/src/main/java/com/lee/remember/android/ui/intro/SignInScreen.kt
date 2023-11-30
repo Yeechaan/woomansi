@@ -42,14 +42,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.GreetingKtor
-import com.lee.remember.android.GreetingView
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
 import com.lee.remember.android.ui.fontColorPoint
 import com.lee.remember.android.ui.fontHintColor
-import com.lee.remember.android.ui.lightColor
 import com.lee.remember.android.ui.whiteColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
@@ -57,9 +54,11 @@ import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.android.utils.rememberTextFieldStyle
 import com.lee.remember.local.dao.UserDao
 import com.lee.remember.local.model.User
-import com.lee.remember.request.LoginRequest
-import com.lee.remember.request.RegisterRequest
-import com.lee.remember.request.RegisterResponse
+import com.lee.remember.remote.AuthApi
+import com.lee.remember.request.SignupRequest
+import com.lee.remember.request.SignupResponse
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,21 +95,18 @@ fun SignInScreen(navController: NavHostController) {
             },
         )
 
-        var id by remember { mutableStateOf("") }
+        var email by remember { mutableStateOf("") }
         val password = remember { mutableStateOf("") }
         val passwordConfirm = remember { mutableStateOf("") }
         val isPasswordError = remember { mutableStateOf(false) }
 
         // Ktor Test
         val scope = rememberCoroutineScope()
-        var text by remember { mutableStateOf("") }
-
-        GreetingView(text)
 
         var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
         OutlinedTextField(
-            value = id, onValueChange = { id = it },
+            value = email, onValueChange = { email = it },
             label = {
                 Text("이메일", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
             },
@@ -190,35 +186,36 @@ fun SignInScreen(navController: NavHostController) {
                     return@Button
                 }
 
-                if (id.isEmpty() || password.value.isEmpty() || passwordConfirm.value.isEmpty()) {
+                if (email.isEmpty() || password.value.isEmpty() || passwordConfirm.value.isEmpty()) {
                     Toast.makeText(context, "이메일 또는 비밀번호는 입력해주세요.", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
 
                 scope.launch {
-                    text = try {
-                        val signInRequest = RegisterRequest(id, "", password.value, "")
-                        val response = GreetingKtor().register(signInRequest)
+                    try {
+                        val signupRequest = SignupRequest(email, password.value)
+                        val response = AuthApi().signup(signupRequest)
 
-                        if (response != null) {
+                        Napier.d("$response")
+
+                        if (response != null && response.resultCode == "SUCCESS") {
                             saveUser(response, password.value)
 
-                            val signInResponse = GreetingKtor().login(LoginRequest(id, password.value))
-                            if (signInResponse != null) {
-                                accessToken = signInResponse.result?.jwtToken ?: ""
-
-                                navController.navigate(RememberScreen.UserName.name)
-                            } else {
-                                "에러"
+                            accessToken = response.result?.jwtToken ?: ""
+                            navController.navigate(RememberScreen.UserName.name) {
+                                popUpTo(RememberScreen.UserName.name) {
+                                    inclusive = true
+                                }
                             }
-
-                            response.toString()
                         } else {
-                            "에러"
+                            // Todo api error message
+                            Toast.makeText(context, "${response?.resultCode}", Toast.LENGTH_SHORT).show()
                         }
                     } catch (e: Exception) {
                         e.localizedMessage ?: "error"
                     }
+
+                    scope.cancel()
                 }
             },
             modifier = Modifier
@@ -237,8 +234,8 @@ fun SignInScreen(navController: NavHostController) {
     }
 }
 
-suspend fun saveUser(signResponse: RegisterResponse, password: String) {
-    signResponse.result?.let {
+suspend fun saveUser(signupResponse: SignupResponse, password: String) {
+    signupResponse.result?.let {
         val user = User().apply { this.email = it.email; this.password = password; this.userId = it.id }
         UserDao().setUser(user)
     }

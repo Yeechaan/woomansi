@@ -46,6 +46,7 @@ import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.request.FriendListResponse
+import com.lee.remember.request.FriendResponse
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -57,13 +58,13 @@ val pointColor = Color(0xFFF3F2EE)
 @Composable
 fun FriendScreen(navHostController: NavHostController) {
 
-    val friendList = remember { mutableStateOf(mutableListOf<FriendListResponse.FriendSummaryInfo>()) }
+    val friendList = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
     val scope = rememberCoroutineScope()
     scope.launch {
         try {
             val response = FriendApi().getFriendList(accessToken)
             if (response != null) {
-                friendList.value.addAll(response.result)
+                friendList.value.addAll(response.result!!)
             }
         } catch (e: Exception) {
             e.localizedMessage ?: "error"
