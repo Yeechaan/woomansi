@@ -6,9 +6,9 @@ import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
 
 class UserDao {
-
-    // use the RealmConfiguration.Builder() for more options
-    private val configuration = RealmConfiguration.create(schema = setOf(User::class))
+    private val configuration = RealmConfiguration.Builder(setOf(User::class))
+        .deleteRealmIfMigrationNeeded()
+        .build()
     private val realm = Realm.open(configuration)
 
     suspend fun setUser(user: User) {
@@ -17,6 +17,6 @@ class UserDao {
         }
     }
 
-    // flow 사용 여부
+    // Todo flow 사용 여부 검토
     fun getUser() = realm.query<User>().find().firstOrNull()
 }

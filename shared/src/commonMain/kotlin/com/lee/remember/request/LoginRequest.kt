@@ -15,7 +15,6 @@ data class LoginResponse(
 ) {
     @Serializable
     data class Result(
-        val userId: Int,
         val jwtToken: String
     )
 }

@@ -4,16 +4,16 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserInfoRequest(
+data class SignupRequest(
     val email: String,
     val password: String,
-    val name: String,
-    val phoneNumber: String,
-    val profileImage: String,
+    val name: String = "",
+    val phoneNumber: String = "",
+    val profileImage: String = "",
 )
 
 @Serializable
-data class UserInfoResponse(
+data class SignupResponse(
     @SerialName("result")
     val result: Result?,
     @SerialName("resultCode")
@@ -21,22 +21,22 @@ data class UserInfoResponse(
 ) {
     @Serializable
     data class Result(
-        @SerialName("id")
-        val id: Int,
         @SerialName("email")
         val email: String,
-        @SerialName("password")
-        val password: String?,
+        @SerialName("id")
+        val id: Int,
+        @SerialName("jwtToken")
+        val jwtToken: String,
         @SerialName("name")
         val name: String?,
         @SerialName("phoneNumber")
         val phoneNumber: String?,
         @SerialName("profileImage")
-        val profileImage: ProfileImage?,
+        val profileImage: ProfileImage,
         @SerialName("provider")
         val provider: String,
         @SerialName("providerId")
-        val providerId: String?
+        val providerId: Int?
     ) {
         @Serializable
         data class ProfileImage(

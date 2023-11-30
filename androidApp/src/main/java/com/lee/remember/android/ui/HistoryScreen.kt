@@ -12,13 +12,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -54,6 +57,8 @@ import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.request.FriendListResponse
+import com.lee.remember.request.FriendResponse
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -62,7 +67,14 @@ import kotlin.math.absoluteValue
 @Composable
 fun HistoryScreen(navHostController: NavHostController) {
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.background(lightColor)) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .background(lightColor)
+            .fillMaxSize()
+            .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         RememberTopAppBar()
 
         Row(
@@ -76,18 +88,18 @@ fun HistoryScreen(navHostController: NavHostController) {
             HistoryItem("안부", R.drawable.ic_sns) {}
         }
 
-        val friendList = remember { mutableStateOf(mutableListOf<FriendListResponse.FriendSummaryInfo>()) }
+        val friendList = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
 
         val scope = rememberCoroutineScope()
         scope.launch {
             try {
                 val response = FriendApi().getFriendList(accessToken)
-                if (response != null) {
-                    friendList.value.addAll(response.result)
+                if (response?.result != null) {
+                    friendList.value = response.result?.toMutableList() ?: mutableListOf()
 
                     response.toString()
                 } else {
-                    "에러"
+                    Napier.d("### ${response?.resultCode}")
                 }
             } catch (e: Exception) {
                 e.localizedMessage ?: "error"
@@ -138,7 +150,7 @@ fun HistoryEmptyScreen() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HistoryPagerScreen(navHostController: NavHostController, friendList: MutableList<FriendListResponse.FriendSummaryInfo>) {
+fun HistoryPagerScreen(navHostController: NavHostController, friendList: MutableList<FriendResponse.Result>) {
 
     val pagerState = rememberPagerState(pageCount = { friendList.size })
     HorizontalPager(
@@ -149,6 +161,7 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
         Card(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(460.dp)
                 .padding(horizontal = 4.dp)
                 .graphicsLayer {
                     // Calculate the absolute offset for the current page from the
@@ -171,12 +184,12 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
                 Image(
                     painter = painterResource(id = R.drawable.img_sample),
                     contentDescription = stringResource(id = R.string.history),
-                    contentScale = ContentScale.FillHeight,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
                 Column(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Bottom
+                    verticalArrangement = Arrangement.Top
                 ) {
                     val friend = friendList[page]
                     val friendProfile = FriendProfile(name = friend.name, phoneNumber = friend.phoneNumber ?: "")
@@ -215,17 +228,17 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 32.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(text = friendProfile.name, fontSize = 24.sp, color = Color.White)
-            Text(text = friendProfile.phoneNumber, fontSize = 16.sp, modifier = Modifier.padding(top = 8.dp), color = Color.White)
+            Text(text = friendProfile.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_3), color = Color.White)
+            Text(text = friendProfile.phoneNumber, style = getTextStyle(textStyle = RememberTextStyle.BODY_1B), modifier = Modifier.padding(top = 8.dp), color = Color.White)
             Text(
 //                text = stringResource(id = R.string.birth_date, birthMonth, birthDate),
                 text = friendProfile.birthDate,
-                fontSize = 16.sp,
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_1),
                 color = Color.White
             )
         }
@@ -239,7 +252,7 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
             contentPadding = PaddingValues(0.dp),  //avoid the little icon
             colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
         ) {
-            Text(text = "기록\n보기")
+            Text(text = "기록\n보기", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
         }
     }
 }

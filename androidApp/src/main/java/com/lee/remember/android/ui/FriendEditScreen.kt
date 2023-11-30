@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextField
@@ -67,10 +69,12 @@ import java.util.Date
 @Composable
 fun FriendEditScreen(navHostController: NavHostController) {
 
+    val scrollState = rememberScrollState()
     Column(
         Modifier
             .fillMaxSize()
             .background(Color.White)
+            .verticalScroll(scrollState)
     ) {
         var name by remember { mutableStateOf("") }
         var group by remember { mutableStateOf("favorite") }
@@ -320,25 +324,6 @@ fun FriendEditScreen(navHostController: NavHostController) {
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(Color.Black),
                     modifier = Modifier.padding(start = 8.dp, top = 12.dp, bottom = 12.dp)
                 )
-            }
-
-            val friendProfile = friendProfiles.find { it.phoneNumber == selectedFriendPhoneNumber }
-            val items = friendProfile?.history ?: listOf<FriendHistory>()
-
-            LazyColumn(
-                Modifier
-                    .padding(top = 24.dp, start = 16.dp, end = 16.dp)
-            ) {
-                items(items) { item ->
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        ),
-                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-                    ) {
-                        FeedItem(friendProfile?.name ?: "", item)
-                    }
-                }
             }
         }
     }

@@ -34,15 +34,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.GreetingKtor
 import com.lee.remember.android.GreetingView
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.accessToken
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.request.LoginRequest
-import com.lee.remember.request.RegisterRequest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -128,26 +123,26 @@ fun MyScreen(navController: NavHostController) {
                 }
 
                 scope.launch {
-                    text = try {
-                        val signInRequest = RegisterRequest(id, "name", password, "")
-                        val response = GreetingKtor().register(signInRequest)
-
-                        if (response != null) {
-                            val signInResponse = GreetingKtor().login(LoginRequest(id, password))
-                            if (signInResponse != null) {
-                                accessToken = signInResponse.result?.jwtToken ?: ""
-                                navController.navigate(RememberScreen.SelectContact.name)
-                            } else {
-                                "에러"
-                            }
-
-                            response.toString()
-                        } else {
-                            "에러"
-                        }
-                    } catch (e: Exception) {
-                        e.localizedMessage ?: "error"
-                    }
+//                    text = try {
+//                        val signInRequest = RegisterRequest(id, "name", password, "")
+//                        val response = GreetingKtor().register(signInRequest)
+//
+//                        if (response != null) {
+//                            val signInResponse = GreetingKtor().login(LoginRequest(id, password))
+//                            if (signInResponse != null) {
+//                                accessToken = signInResponse.result?.jwtToken ?: ""
+//                                navController.navigate(RememberScreen.SelectContact.name)
+//                            } else {
+//                                "에러"
+//                            }
+//
+//                            response.toString()
+//                        } else {
+//                            "에러"
+//                        }
+//                    } catch (e: Exception) {
+//                        e.localizedMessage ?: "error"
+//                    }
                 }
             },
             modifier = Modifier

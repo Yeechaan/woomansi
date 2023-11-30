@@ -33,8 +33,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.GreetingKtor
-import com.lee.remember.android.GreetingView
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
@@ -42,7 +40,11 @@ import com.lee.remember.android.ui.fontHintColor
 import com.lee.remember.android.ui.lightColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.local.dao.UserDao
+import com.lee.remember.remote.UserApi
 import com.lee.remember.request.UserInfoRequest
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,21 +74,21 @@ fun UserNameScreen(navController: NavHostController) {
 
         var nickname by remember { mutableStateOf("") }
 
-        // Ktor Test
         val scope = rememberCoroutineScope()
-        var text by remember { mutableStateOf("") }
 
 //        GreetingView(text)
 
         Text(
-            modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp),
             text = "사용하실 닉네임을\n입력해주세요.", style = getTextStyle(textStyle = RememberTextStyle.HEAD_3), textAlign = TextAlign.Center
         )
 
         OutlinedTextField(
             value = nickname, onValueChange = { nickname = it },
             label = {
-                Text("넥네임", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
+                Text("닉네임", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
             },
             placeholder = {
                 Text("호랑이", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontHintColor))
@@ -108,20 +110,23 @@ fun UserNameScreen(navController: NavHostController) {
                 }
 
                 scope.launch {
-                    text = try {
-                        val userInfoRequest = UserInfoRequest(nickname, "")
-                        val response = GreetingKtor().setUser(accessToken, userInfoRequest)
+                    try {
+                        val user = UserDao().getUser() ?: return@launch
+
+                        val userInfoRequest = UserInfoRequest(user.email, user.password, nickname, user.phoneNumber, user.profileImage)
+                        val response = UserApi().updateUser(accessToken, userInfoRequest)
 
                         if (response != null) {
                             navController.navigate(RememberScreen.SelectContact.name)
 
                             response.toString()
-                        } else {
-                            "에러"
                         }
                     } catch (e: Exception) {
+                        Napier.d("### ${e.localizedMessage}")
                         e.localizedMessage ?: "error"
                     }
+
+                    scope.cancel()
                 }
             },
             modifier = Modifier
