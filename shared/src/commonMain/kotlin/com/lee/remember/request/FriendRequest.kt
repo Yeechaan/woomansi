@@ -105,19 +105,10 @@ data class FriendResponse(
     }
 }
 
-
 @Serializable
-data class FriendListResponse(
-    @SerialName("result")
-    val result: List<FriendSummaryInfo>,
+data class FriendDetailResponse(
     @SerialName("resultCode")
-    val resultCode: String
-) {
-    @Serializable
-    data class FriendSummaryInfo(
-        val id: Int,
-        val name: String,
-        val phoneNumber: String?,
-        val image: String?,
-    )
-}
+    val resultCode: String,
+    @SerialName("result")
+    val result: FriendResponse.Result?
+)

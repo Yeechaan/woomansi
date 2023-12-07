@@ -3,6 +3,7 @@ package com.lee.remember.android.data
 import android.net.Uri
 
 data class FriendProfile(
+    val id: Int = 0,
     val name: String = "",
     val phoneNumber: String = "",
     var description: String = "",

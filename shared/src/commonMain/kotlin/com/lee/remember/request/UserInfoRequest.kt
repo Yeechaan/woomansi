@@ -25,16 +25,14 @@ data class UserInfoResponse(
         val id: Int,
         @SerialName("email")
         val email: String,
-        @SerialName("password")
-        val password: String?,
         @SerialName("name")
         val name: String?,
         @SerialName("phoneNumber")
         val phoneNumber: String?,
         @SerialName("profileImage")
         val profileImage: ProfileImage?,
-        @SerialName("provider")
-        val provider: String,
+        @SerialName("authProvider")
+        val authProvider: String,
         @SerialName("providerId")
         val providerId: String?
     ) {

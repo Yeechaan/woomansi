@@ -1,12 +1,15 @@
 package com.lee.remember.android.ui.intro
 
 import android.widget.Toast
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,8 +42,10 @@ import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
 import com.lee.remember.android.ui.fontHintColor
 import com.lee.remember.android.ui.lightColor
+import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.local.dao.UserDao
 import com.lee.remember.remote.UserApi
 import com.lee.remember.request.UserInfoRequest
@@ -51,11 +57,21 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserNameScreen(navController: NavHostController) {
 
+    val imeState = rememberImeState()
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(key1 = imeState.value) {
+        if (imeState.value) {
+            scrollState.animateScrollTo(scrollState.maxValue, tween(300))
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(lightColor)
-            .padding(bottom = 32.dp),
+            .padding(bottom = 32.dp)
+            .verticalScroll(scrollState),
     ) {
 
         TopAppBar(
@@ -76,8 +92,6 @@ fun UserNameScreen(navController: NavHostController) {
 
         val scope = rememberCoroutineScope()
 
-//        GreetingView(text)
-
         Text(
             modifier = Modifier
                 .fillMaxWidth()
@@ -87,13 +101,11 @@ fun UserNameScreen(navController: NavHostController) {
 
         OutlinedTextField(
             value = nickname, onValueChange = { nickname = it },
-            label = {
-                Text("닉네임", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            placeholder = {
-                Text("호랑이", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontHintColor))
-            },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
+            label = { RememberTextField.label(text = "닉네임") },
+            placeholder = { RememberTextField.placeHolder(text = "호랑이") },
+            textStyle = RememberTextField.textStyle(),
+            colors = RememberTextField.colors(),
+            singleLine = true,
             modifier = Modifier
                 .padding(top = 40.dp)
                 .padding(horizontal = 16.dp)
@@ -141,23 +153,6 @@ fun UserNameScreen(navController: NavHostController) {
                 modifier = Modifier.padding(vertical = 2.dp)
             )
         }
-
-//        Button(
-//            onClick = {
-//                navController.navigate(RememberScreen.SelectContact.name)
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(top = 8.dp, start = 16.dp, end = 16.dp),
-//            colors = ButtonDefaults.buttonColors(containerColor = lightColor),
-//            shape = RoundedCornerShape(size = 100.dp),
-//        ) {
-//            Text(
-//                text = "건너뛰기",
-//                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFFF2BE2F)),
-//                modifier = Modifier.padding(vertical = 2.dp)
-//            )
-//        }
     }
 }
 

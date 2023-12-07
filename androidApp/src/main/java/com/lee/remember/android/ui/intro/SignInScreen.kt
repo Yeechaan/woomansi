@@ -18,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -45,13 +44,11 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
-import com.lee.remember.android.ui.fontColorPoint
-import com.lee.remember.android.ui.fontHintColor
 import com.lee.remember.android.ui.whiteColor
+import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.android.utils.rememberTextFieldStyle
 import com.lee.remember.local.dao.UserDao
 import com.lee.remember.local.model.User
 import com.lee.remember.remote.AuthApi
@@ -107,38 +104,30 @@ fun SignInScreen(navController: NavHostController) {
 
         OutlinedTextField(
             value = email, onValueChange = { email = it },
-            label = {
-                Text("이메일", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            placeholder = {
-                Text("이메일 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontHintColor))
-            },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
+            label = { RememberTextField.label(text = "이메일") },
+            placeholder = { RememberTextField.placeHolder(text = "이메일 입력") },
+            textStyle = RememberTextField.textStyle(),
+            colors = RememberTextField.colors(),
+            singleLine = true,
             modifier = Modifier
                 .padding(top = 40.dp)
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
-            singleLine = true,
-            colors = rememberTextFieldStyle()
         )
 
         OutlinedTextField(
             value = password.value, onValueChange = { password.value = it },
-            label = {
-                Text("비밀번호", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            placeholder = {
-                Text("비밀번호 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontHintColor))
-            },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
+            label = { RememberTextField.label(text = "비밀번호") },
+            placeholder = { RememberTextField.placeHolder(text = "비밀번호 입력") },
+            textStyle = RememberTextField.textStyle(),
+            colors = RememberTextField.colors(),
+            singleLine = true,
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier
                 .padding(top = 16.dp)
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
-            singleLine = true,
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            colors = rememberTextFieldStyle()
         )
 
         OutlinedTextField(
@@ -148,33 +137,23 @@ fun SignInScreen(navController: NavHostController) {
 
                 passwordConfirm.value = it
             },
-            label = {
-                Text("비밀번호 확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            placeholder = {
-                Text("비밀번호 확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontHintColor))
-            },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth(),
+            label = { RememberTextField.label(text = "비밀번호 확인") },
+            placeholder = { RememberTextField.placeHolder(text = "비밀번호 확인") },
+            textStyle = RememberTextField.textStyle(),
+            colors = RememberTextField.colors(),
+            singleLine = true,
             isError = isPasswordError.value,
             supportingText = {
                 if (isPasswordError.value) {
                     Text("입력하신 비밀번호가 일치하지 않습니다.", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFFD59519)))
                 }
             },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                errorBorderColor = Color(0xFFB3661E),
-                errorLabelColor = Color(0xFFB3661E),
-                focusedBorderColor = fontColorPoint,
-                focusedLabelColor = fontColorPoint,
-                cursorColor = fontColorPoint
-            ),
-            singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth(),
         )
 
         val context = LocalContext.current

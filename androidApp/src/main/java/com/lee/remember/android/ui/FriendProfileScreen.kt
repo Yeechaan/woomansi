@@ -1,5 +1,9 @@
 package com.lee.remember.android.ui
 
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -7,54 +11,54 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
-import androidx.compose.material.TextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.data.FriendHistory
-import com.lee.remember.android.friendProfiles
-import com.lee.remember.android.selectedFriendPhoneNumber
+import com.lee.remember.android.accessToken
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.utils.parseUtcString
+import com.lee.remember.remote.FriendApi
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 // 0xFF1D1B20
 val fontColorBlack = Color(0xFF1D1B20)
@@ -62,15 +66,47 @@ val fontColorPoint = Color(0xFFF2BE2F)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendProfileScreen(navHostController: NavHostController) {
+fun FriendProfileScreen(navHostController: NavHostController, friendId: String?) {
 
-    val friendProfile = friendProfiles.find { it.phoneNumber == selectedFriendPhoneNumber }
+    var image by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var group by remember { mutableStateOf("") }
+    var number by remember { mutableStateOf("") }
+    var dateTitle by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
+    scope.launch {
+        try {
+            val response = FriendApi().getFriend(accessToken, friendId ?: "")
+
+            if (response != null) {
+                Napier.d("###hi ${response}")
+
+                response.result?.let {
+                    name = it.name
+                    group = "-"  // Todo need response field
+                    number = it.phoneNumber ?: ""
+                    dateTitle = it.events?.firstOrNull()?.name ?: "기념일"
+                    date = parseUtcString(it.events?.firstOrNull()?.date ?: "")
+                    image = it.profileImage?.image ?: ""
+                }
+
+                response.toString()
+            }
+        } catch (e: Exception) {
+            Napier.d("### ${e.localizedMessage}")
+            e.localizedMessage ?: "error"
+        }
+
+        scope.cancel()
+    }
 
     val scrollState = rememberScrollState()
     Column(
         Modifier
             .fillMaxSize()
-            .background(lightColor)
+            .background(whiteColor)
             .verticalScroll(scrollState)
     ) {
         TopAppBar(
@@ -79,13 +115,6 @@ fun FriendProfileScreen(navHostController: NavHostController) {
             navigationIcon = {
                 IconButton(onClick = { navHostController.navigateUp() }) {
                     Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = stringResource(R.string.back_button))
-                }
-            },
-            actions = {
-                TextButton(onClick = {
-                    navHostController.navigate(RememberScreen.FriendEdit.name)
-                }) {
-                    Text(text = "편집", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(color = Color(0xFF49454F)))
                 }
             },
             modifier = Modifier
@@ -101,10 +130,21 @@ fun FriendProfileScreen(navHostController: NavHostController) {
                 .clickable {},
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
-                modifier = Modifier.size(74.dp)
-            )
+            if (image.isNotEmpty()) {
+                val bitmap: Bitmap? = stringToBitmap(image)
+                AsyncImage(
+                    model = Uri.parse(image),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+
         }
 
         Divider(thickness = 1.dp, color = Color.Black)
@@ -114,16 +154,10 @@ fun FriendProfileScreen(navHostController: NavHostController) {
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
         ) {
-            var name by remember { mutableStateOf(friendProfile?.name ?: "") }
-            var group by remember { mutableStateOf(friendProfile?.grouped ?: "") }
-            var number by remember { mutableStateOf(friendProfile?.phoneNumber ?: "") }
-            var dateTitle by remember { mutableStateOf("기념일") }
-            var date by remember { mutableStateOf("2023/11/10") }
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp),
+                    .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -133,11 +167,12 @@ fun FriendProfileScreen(navHostController: NavHostController) {
                 )
 
                 Button(
-                    onClick = { navHostController.navigate(RememberScreen.FriendEdit.name) },
-                    modifier = Modifier,
+                    onClick = { navHostController.navigate("${RememberScreen.FriendEdit.name}/${friendId}") },
+                    modifier = Modifier.defaultMinSize(minHeight = 22.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     shape = RoundedCornerShape(size = 8.dp),
-                    border = BorderStroke(1.dp, Color(0xFF79747E))
+                    border = BorderStroke(1.dp, Color(0xFF79747E)),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Text(
                         text = "수정하기",
@@ -147,75 +182,54 @@ fun FriendProfileScreen(navHostController: NavHostController) {
                 }
             }
 
+            FriendProfileItem("그룹", group)
+            FriendProfileItem("연락처", number)
+            FriendProfileItem(dateTitle, date)
 
-            TextField(
-                value = group, onValueChange = { group = it }, readOnly = true,
-                label = {
-                    Text(
-                        "그룹",
-                        style = getTextStyle(textStyle = RememberTextStyle.BODY_4)
-                    )
-                },
-                textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
+            Button(
+                onClick = { },
                 modifier = Modifier
-                    .padding(top = 12.dp)
                     .fillMaxWidth()
-            )
-
-            TextField(
-                value = number, onValueChange = { number = it }, readOnly = true,
-                label = {
-                    Text("연락처", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-                },
-                textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
-                modifier = Modifier
-                    .padding(top = 12.dp)
-                    .fillMaxWidth()
-            )
-
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
-                TextButton(
-                    onClick = {
-
-                    },
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .wrapContentHeight()
-                        .padding()
-                ) {
-                    Text(
-                        dateTitle,
-                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(color = Color(0xFF1D1B20))
-                    )
-//                    Icon(painter = painterResource(id = R.drawable.baseline_expand_more_24), contentDescription = "", tint = Color.Black)
-                }
-
-                TextField(
-                    value = date, onValueChange = { date = it }, readOnly = true,
-                    label = {
-                        Text("이벤트", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-                    },
-                    textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2),
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {}
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_calander),
-                                contentDescription = "Clear"
-                            )
-                        }
-                    }
+                    .padding(top = 12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                shape = RoundedCornerShape(size = 100.dp),
+                border = BorderStroke(1.dp, fontColorPoint)
+            ) {
+                Text(
+                    text = "친구 기록보기",
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontColorPoint),
+                    modifier = Modifier.padding(vertical = 2.dp)
                 )
             }
-
         }
+    }
+}
+
+@Composable
+fun FriendProfileItem(title: String, contents: String) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(title, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(color = Color(0xFF49454F)))
+            Text(contents, style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(color = Color(0xFF1D1B20)))
+        }
+
+        Divider(thickness = 1.dp, color = Color(0xFFD1D3D8))
     }
 }
 
 @Preview
 @Composable
 fun PreviewFriendProfileScreen() {
-    FriendProfileScreen(rememberNavController())
+    FriendProfileScreen(rememberNavController(), null)
 }

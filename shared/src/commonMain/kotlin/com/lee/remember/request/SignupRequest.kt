@@ -33,8 +33,8 @@ data class SignupResponse(
         val phoneNumber: String?,
         @SerialName("profileImage")
         val profileImage: ProfileImage,
-        @SerialName("provider")
-        val provider: String,
+        @SerialName("authProvider")
+        val authProvider: String,
         @SerialName("providerId")
         val providerId: Int?
     ) {

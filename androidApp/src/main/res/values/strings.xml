@@ -15,8 +15,8 @@
 
     <string name="contact">contact</string>
     <string name="history">친구</string>
-    <string name="friend">목록</string>
     <string name="feed">피드</string>
+    <string name="friend">목록</string>
 
     <string name="friend_profile">friend_profile</string>
     <string name="friend_history">friend_history</string>

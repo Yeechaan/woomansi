@@ -1,6 +1,7 @@
 package com.lee.remember.android
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
@@ -18,16 +19,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.ui.ContactScreen
 import com.lee.remember.android.ui.FeedScreen
@@ -37,10 +43,10 @@ import com.lee.remember.android.ui.FriendProfileScreen
 import com.lee.remember.android.ui.FriendScreen
 import com.lee.remember.android.ui.HistoryAddScreen
 import com.lee.remember.android.ui.HistoryScreen
-import com.lee.remember.android.ui.intro.LoginScreen
-import com.lee.remember.android.ui.SelectContractScreen
-import com.lee.remember.android.ui.intro.SignInScreen
 import com.lee.remember.android.ui.intro.IntroScreen
+import com.lee.remember.android.ui.intro.LoginScreen
+import com.lee.remember.android.ui.intro.SelectContractScreen
+import com.lee.remember.android.ui.intro.SignInScreen
 import com.lee.remember.android.ui.intro.SplashScreen
 import com.lee.remember.android.ui.intro.TermsScreen
 import com.lee.remember.android.ui.intro.UserNameScreen
@@ -66,11 +72,12 @@ enum class RememberScreen(@StringRes val title: Int) {
     HistoryAdd(title = R.string.history_add)
 }
 
-val mainScreens = listOf(RememberScreen.History, RememberScreen.Feed, RememberScreen.Friend)
+val mainScreens = listOf(RememberScreen.History.name, RememberScreen.Feed.name, RememberScreen.Friend.name)
 
 var accessToken: String = ""
 val friendProfiles = mutableListOf<FriendProfile>()
 var selectedFriendPhoneNumber = ""
+var bottomPadding: Dp = 0.dp
 
 @Composable
 fun MainApp(
@@ -79,49 +86,50 @@ fun MainApp(
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
-    val currentScreen = RememberScreen.valueOf(
-        backStackEntry?.destination?.route ?: RememberScreen.Splash.name
-    )
+    val currentScreen = backStackEntry?.destination?.route ?: RememberScreen.Splash.name
 
     val bottomBarState = rememberSaveable {
         (mutableStateOf(mainScreens.contains(currentScreen)))
     }
 
     Scaffold(
-        topBar = {
-//            MainAppBar(
-//                currentScreen = currentScreen,
-//                canNavigateBack = navController.previousBackStackEntry != null,
-//                navigateUp = { navController.navigateUp() }
-//            )
-        },
         bottomBar = {
-
             if (mainScreens.contains(currentScreen)) {
-
                 BottomNavigation(
                     backgroundColor = Color.White
                 ) {
                     mainScreens.forEach { mainScreen ->
                         BottomNavigationItem(
-                            label = { Text(stringResource(id = mainScreen.title), style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F))) },
-                            icon = {
-                                val resourceId = when(mainScreen) {
-                                    RememberScreen.History -> R.drawable.ic_friend_off
-                                    RememberScreen.Feed -> R.drawable.ic_feed_off
-                                    RememberScreen.Friend -> R.drawable.ic_contact_off
-                                    else -> R.drawable.ic_dot
+                            label = {
+                                val title = when (mainScreen) {
+                                    RememberScreen.History.name -> stringResource(id = R.string.history)
+                                    RememberScreen.Feed.name -> stringResource(id = R.string.feed)
+                                    RememberScreen.Friend.name -> stringResource(id = R.string.friend)
+                                    else -> ""
                                 }
 
-                                // Todo when item clicked
-                                Icon(
-                                    painterResource(id = resourceId),
-                                    contentDescription = stringResource(R.string.back_button)
+                                Text(
+                                    title,
+                                    style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F))
                                 )
+                            },
+                            icon = {
+                                val resourceId = when (mainScreen) {
+                                    RememberScreen.History.name -> R.drawable.ic_friend_off to R.drawable.ic_friend_on
+                                    RememberScreen.Feed.name -> R.drawable.ic_feed_off to R.drawable.ic_feed_on
+                                    RememberScreen.Friend.name -> R.drawable.ic_contact_off to R.drawable.ic_contact_on
+                                    else -> R.drawable.ic_dot to R.drawable.ic_dot
+                                }
+
+                                if (currentScreen == mainScreen) {
+                                    Image(painterResource(id = resourceId.second), contentDescription = null)
+                                } else {
+                                    Image(painterResource(id = resourceId.first), contentDescription = null)
+                                }
                             },
                             selected = currentScreen == mainScreen,
                             onClick = {
-                                navController.navigate(mainScreen.name) {
+                                navController.navigate(mainScreen) {
                                     navController.graph.startDestinationRoute?.let {
                                         popUpTo(it) { saveState = true }
                                     }
@@ -176,19 +184,29 @@ fun MainApp(
             composable(route = RememberScreen.Feed.name) {
                 FeedScreen(navController)
             }
-            composable(route = RememberScreen.FriendProfile.name) {
-                FriendProfileScreen(navHostController = navController)
+            composable(
+                route = "${RememberScreen.FriendProfile.name}/{friendId}",
+                arguments = listOf(navArgument("friendId") { type = NavType.StringType })
+            ) {
+                val friendId = it.arguments?.getString("friendId")
+                FriendProfileScreen(navHostController = navController, friendId)
             }
             composable(route = RememberScreen.FriendHistory.name) {
                 FriendHistoryScreen(navHostController = navController)
             }
-            composable(route = RememberScreen.FriendEdit.name) {
-                FriendEditScreen(navHostController = navController)
+            composable(
+                route = "${RememberScreen.FriendEdit.name}/{friendId}",
+                arguments = listOf(navArgument("friendId") { type = NavType.StringType })
+            ) {
+                val friendId = it.arguments?.getString("friendId")
+                FriendEditScreen(navHostController = navController, friendId)
             }
             composable(route = RememberScreen.HistoryAdd.name) {
                 HistoryAddScreen(navHostController = navController)
             }
         }
+
+        bottomPadding = innerPadding.calculateBottomPadding()
     }
 }
 
@@ -201,8 +219,9 @@ fun TestDefaultPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RememberTopAppBar(){
+fun RememberTopAppBar() {
     TopAppBar(
+        modifier = Modifier.shadow(10.dp),
         title = {},
         colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
         navigationIcon = {
