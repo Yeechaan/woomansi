@@ -1,5 +1,7 @@
 package com.lee.remember.android.ui
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -28,35 +30,41 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.RememberTopAppBar
 import com.lee.remember.android.accessToken
+import com.lee.remember.android.bottomPadding
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.remote.FriendApi
-import com.lee.remember.request.FriendListResponse
 import com.lee.remember.request.FriendResponse
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
@@ -66,6 +74,12 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(navHostController: NavHostController) {
+
+    val friendList = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
+    val currentFriendIndex = remember { mutableStateOf<Int>(-1) }
+
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var isCall by remember { mutableStateOf(true) }
 
     val scrollState = rememberScrollState()
     Column(
@@ -83,15 +97,77 @@ fun HistoryScreen(navHostController: NavHostController) {
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            HistoryItem("전화", R.drawable.ic_call) {}
-            HistoryItem("SMS", R.drawable.ic_message) {}
+            HistoryItem("전화", R.drawable.ic_call) {
+                showBottomSheet = true
+                isCall = true
+            }
+            HistoryItem("SMS", R.drawable.ic_message) {
+                showBottomSheet = true
+                isCall = false
+            }
             HistoryItem("안부", R.drawable.ic_sns) {}
         }
 
-        val friendList = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
-
+        val sheetState = rememberModalBottomSheetState()
         val scope = rememberCoroutineScope()
-        scope.launch {
+        val context = LocalContext.current
+
+        val imageId = if (isCall) R.drawable.ic_call else R.drawable.ic_message
+        val title = if (isCall) "안심하세요!\n바로 통화로 연결되지 않아요." else "친구에게 문자를 보내보세요."
+        val buttonText = if (isCall) "전화하기" else "문자하기"
+
+        if (showBottomSheet) {
+            val phoneNumber = friendList.value[currentFriendIndex.value].phoneNumber ?: ""
+
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = sheetState,
+            ) {
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(modifier = Modifier.padding(top = 36.dp), painter = painterResource(id = imageId), contentDescription = null)
+
+                    Text(
+                        modifier = Modifier.padding(top = 24.dp),
+                        text = title,
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Text(
+                        modifier = Modifier.padding(top = 40.dp),
+                        text = phoneNumber,
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
+                    )
+
+                    TextButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 32.dp, bottom = bottomPadding)
+                            .background(Color(0xFFF8D393)),
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                if (!sheetState.isVisible) {
+                                    val callIntent: Intent = if (isCall) {
+                                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
+                                    } else {
+                                        Intent(Intent.ACTION_SENDTO, Uri.parse("sms:$phoneNumber"))
+                                    }
+
+                                    startActivity(context, callIntent, null)
+
+                                    showBottomSheet = false
+                                }
+                            }
+                        }
+                    ) {
+                        Text(buttonText, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E)))
+                    }
+                }
+            }
+        }
+
+        val apiScope = rememberCoroutineScope()
+        apiScope.launch {
             try {
                 val response = FriendApi().getFriendList(accessToken)
                 if (response?.result != null) {
@@ -105,19 +181,21 @@ fun HistoryScreen(navHostController: NavHostController) {
                 e.localizedMessage ?: "error"
             }
 
-            scope.cancel()
+            apiScope.cancel()
         }
 
         if (friendList.value.isEmpty()) {
-            HistoryEmptyScreen()
+            HistoryEmptyScreen(navHostController)
         } else {
-            HistoryPagerScreen(navHostController, friendList.value)
+            HistoryPagerScreen(navHostController, friendList.value) {
+                currentFriendIndex.value = it
+            }
         }
     }
 }
 
 @Composable
-fun HistoryEmptyScreen() {
+fun HistoryEmptyScreen(navHostController: NavHostController) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -131,7 +209,10 @@ fun HistoryEmptyScreen() {
         Image(painterResource(id = R.drawable.ic_friends), contentDescription = null, modifier = Modifier.padding(top = 16.dp))
 
         Button(
-            onClick = {},
+            onClick = {
+                val friendId = "-1"
+                navHostController.navigate("${RememberScreen.FriendEdit.name}/${friendId}")
+            },
             modifier = Modifier.padding(top = 16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             shape = RoundedCornerShape(size = 100.dp),
@@ -150,9 +231,11 @@ fun HistoryEmptyScreen() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HistoryPagerScreen(navHostController: NavHostController, friendList: MutableList<FriendResponse.Result>) {
+fun HistoryPagerScreen(navHostController: NavHostController, friendList: MutableList<FriendResponse.Result>, onCurrentPage: (Int) -> Unit) {
 
     val pagerState = rememberPagerState(pageCount = { friendList.size })
+    onCurrentPage(pagerState.currentPage)
+
     HorizontalPager(
         state = pagerState,
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -168,9 +251,7 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
                     // scroll position. We use the absolute value which allows us to mirror
                     // any effects for both directions
                     val pageOffset = (
-                        (pagerState.currentPage - page) + pagerState
-                            .currentPageOffsetFraction
-                        ).absoluteValue
+                        (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
 
                     // We animate the alpha, between 50% and 100%
                     alpha = lerp(
@@ -180,12 +261,12 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
                     )
                 }
         ) {
-            Box {
+            Box(modifier = Modifier.fillMaxSize()) {
                 Image(
                     painter = painterResource(id = R.drawable.img_sample),
                     contentDescription = stringResource(id = R.string.history),
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.8f))
                 )
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -211,7 +292,8 @@ fun HistoryItem(text: String, icon: Int, onClick: () -> Unit) {
             shape = CircleShape,
             border = BorderStroke(1.dp, Color(0xFFD8D8D8)),
             contentPadding = PaddingValues(0.dp),  //avoid the little icon
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black, containerColor = Color.White),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
         ) {
             Icon(painterResource(id = icon), contentDescription = "content description", modifier = Modifier.padding(8.dp))
         }
@@ -234,7 +316,12 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
     ) {
         Column {
             Text(text = friendProfile.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_3), color = Color.White)
-            Text(text = friendProfile.phoneNumber, style = getTextStyle(textStyle = RememberTextStyle.BODY_1B), modifier = Modifier.padding(top = 8.dp), color = Color.White)
+            Text(
+                text = friendProfile.phoneNumber,
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B),
+                modifier = Modifier.padding(top = 8.dp),
+                color = Color.White
+            )
             Text(
 //                text = stringResource(id = R.string.birth_date, birthMonth, birthDate),
                 text = friendProfile.birthDate,
@@ -253,6 +340,63 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
             colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
         ) {
             Text(text = "기록\n보기", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ActionConfirmModel(phoneNumber: String, isCall: Boolean) {
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val imageId = if (isCall) R.drawable.ic_call else R.drawable.ic_message
+    val title = if (isCall) "안심하세요!\n바로 통화로 연결되지 않아요." else "친구에게 문자를 보내보세요."
+    val buttonText = if (isCall) "전화하기" else "문자하기"
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState,
+        ) {
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(modifier = Modifier.padding(top = 36.dp), painter = painterResource(id = imageId), contentDescription = null)
+
+                Text(
+                    modifier = Modifier.padding(top = 24.dp),
+                    text = title,
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
+                )
+
+                Text(
+                    modifier = Modifier.padding(top = 40.dp),
+                    text = phoneNumber,
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
+                )
+
+                TextButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 32.dp, bottom = 40.dp)
+                        .background(Color(0xFFF8D393)),
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                val callIntent: Intent = Uri.parse("tel:$phoneNumber").let { number ->
+                                    Intent(Intent.ACTION_DIAL, number)
+                                }
+                                startActivity(context, callIntent, null)
+
+                                showBottomSheet = false
+                            }
+                        }
+                    }
+                ) {
+                    Text(buttonText, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E)))
+                }
+            }
         }
     }
 }

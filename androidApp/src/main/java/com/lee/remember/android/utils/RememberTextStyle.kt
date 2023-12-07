@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.lee.remember.android.rememberFontFamily
 
 enum class RememberTextStyle {
     HEAD_1,     // 38sp
@@ -25,19 +26,19 @@ enum class RememberTextStyle {
 @Composable
 fun getTextStyle(textStyle: RememberTextStyle): TextStyle {
     return when (textStyle) {
-        RememberTextStyle.HEAD_1 -> TextStyle(fontSize = 38.sp, fontWeight = FontWeight.SemiBold)
-        RememberTextStyle.HEAD_2 -> TextStyle(fontSize = 28.sp, fontWeight = FontWeight.SemiBold)
-        RememberTextStyle.HEAD_3 -> TextStyle(fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
-        RememberTextStyle.HEAD_4 -> TextStyle(fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-        RememberTextStyle.HEAD_5 -> TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        RememberTextStyle.HEAD_1 -> TextStyle(fontSize = 38.sp, fontWeight = FontWeight.SemiBold, fontFamily = rememberFontFamily)
+        RememberTextStyle.HEAD_2 -> TextStyle(fontSize = 28.sp, fontWeight = FontWeight.SemiBold, fontFamily = rememberFontFamily)
+        RememberTextStyle.HEAD_3 -> TextStyle(fontSize = 24.sp, fontWeight = FontWeight.SemiBold, fontFamily = rememberFontFamily)
+        RememberTextStyle.HEAD_4 -> TextStyle(fontSize = 20.sp, fontWeight = FontWeight.SemiBold, fontFamily = rememberFontFamily)
+        RememberTextStyle.HEAD_5 -> TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold, fontFamily = rememberFontFamily)
 
-        RememberTextStyle.BODY_1B -> TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-        RememberTextStyle.BODY_1 -> TextStyle(fontSize = 16.sp)
-        RememberTextStyle.BODY_2B -> TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-        RememberTextStyle.BODY_2 -> TextStyle(fontSize = 14.sp)
-        RememberTextStyle.BODY_3B -> TextStyle(fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-        RememberTextStyle.BODY_3 -> TextStyle(fontSize = 13.sp)
-        RememberTextStyle.BODY_4B -> TextStyle(fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-        RememberTextStyle.BODY_4 -> TextStyle(fontSize = 12.sp)
+        RememberTextStyle.BODY_1B -> TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold, fontFamily = rememberFontFamily)
+        RememberTextStyle.BODY_1 -> TextStyle(fontSize = 16.sp, fontFamily = rememberFontFamily)
+        RememberTextStyle.BODY_2B -> TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold, fontFamily = rememberFontFamily)
+        RememberTextStyle.BODY_2 -> TextStyle(fontSize = 14.sp, fontFamily = rememberFontFamily)
+        RememberTextStyle.BODY_3B -> TextStyle(fontSize = 13.sp, fontWeight = FontWeight.SemiBold, fontFamily = rememberFontFamily)
+        RememberTextStyle.BODY_3 -> TextStyle(fontSize = 13.sp, fontFamily = rememberFontFamily)
+        RememberTextStyle.BODY_4B -> TextStyle(fontSize = 12.sp, fontWeight = FontWeight.SemiBold, fontFamily = rememberFontFamily)
+        RememberTextStyle.BODY_4 -> TextStyle(fontSize = 12.sp, fontFamily = rememberFontFamily)
     }
 }

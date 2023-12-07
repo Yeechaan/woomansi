@@ -40,12 +40,10 @@ import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.RememberTopAppBar
 import com.lee.remember.android.accessToken
 import com.lee.remember.android.data.FriendProfile
-import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.remote.FriendApi
-import com.lee.remember.request.FriendListResponse
 import com.lee.remember.request.FriendResponse
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -73,16 +71,18 @@ fun FriendScreen(navHostController: NavHostController) {
         scope.cancel()
     }
 
-    Column {
+    Column(
+        Modifier.background(lightColor)
+    ) {
         RememberTopAppBar()
 
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize().padding(top = 16.dp)
                 .background(lightColor)
         ) {
             LazyColumn(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
             ) {
                 val grouped = mapOf("목록" to friendList.value)
 
@@ -92,7 +92,7 @@ fun FriendScreen(navHostController: NavHostController) {
                     }
 
                     items(contactsForInitial) { contact ->
-                        val friendProfile = FriendProfile(name = contact.name, phoneNumber = contact.phoneNumber ?: "")
+                        val friendProfile = FriendProfile(id = contact.id, name = contact.name, phoneNumber = contact.phoneNumber ?: "")
                         FriendItem(friendProfile, navHostController)
                     }
                 }
@@ -100,7 +100,8 @@ fun FriendScreen(navHostController: NavHostController) {
 
             FloatingActionButton(
                 onClick = {
-                    navHostController.navigate(RememberScreen.FriendEdit.name)
+                    val friendId = "-1"
+                    navHostController.navigate("${RememberScreen.FriendEdit.name}/${friendId}")
                 },
                 containerColor = Color(0xFFF2C678),
                 contentColor = MaterialTheme.colorScheme.secondary,
@@ -143,7 +144,8 @@ fun FriendItem(friendProfile: FriendProfile, navHostController: NavHostControlle
                 .padding(top = 4.dp, bottom = 4.dp)
                 .clickable {
                     selectedFriendPhoneNumber = friendProfile.phoneNumber
-                    navHostController.navigate(RememberScreen.FriendProfile.name)
+
+                    navHostController.navigate("${RememberScreen.FriendProfile.name}/${friendProfile.id}")
                 },
             colors = CardDefaults.cardColors(Color.White),
         ) {
@@ -153,9 +155,9 @@ fun FriendItem(friendProfile: FriendProfile, navHostController: NavHostControlle
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_camera),
+                    painter = painterResource(id = R.drawable.ic_camera_32),
                     contentDescription = "camera_image",
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Inside,
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)

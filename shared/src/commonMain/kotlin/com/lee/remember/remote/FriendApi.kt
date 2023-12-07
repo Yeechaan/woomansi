@@ -1,7 +1,7 @@
 package com.lee.remember.remote
 
 import com.lee.remember.request.FriendAddResponse
-import com.lee.remember.request.FriendListResponse
+import com.lee.remember.request.FriendDetailResponse
 import com.lee.remember.request.FriendRequest
 import com.lee.remember.request.FriendResponse
 import io.github.aakira.napier.Napier
@@ -11,6 +11,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -48,12 +49,40 @@ class FriendApi {
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
 
+    suspend fun getFriend(token: String, friendId: String): FriendDetailResponse? {
+        val response = client.get("$friendUrl/$friendId") {
+            headers {
+                append(HttpHeaders.ContentType, "application/json")
+                append(HttpHeaders.Authorization, token)
+            }
+        }
+
+        Napier.d("### ${response.bodyAsText()}")
+
+        return if (response.status == HttpStatusCode.OK) response.body() else null
+    }
+
     suspend fun getFriendList(token: String): FriendResponse? {
         val response = client.get(friendUrl) {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
                 append(HttpHeaders.Authorization, token)
             }
+        }
+
+        Napier.d("### ${response.bodyAsText()}")
+
+        return if (response.status == HttpStatusCode.OK) response.body() else null
+    }
+
+    suspend fun updateFriend(token: String, friendId: String, friend: FriendRequest): FriendDetailResponse? {
+        val response = client.put("$friendUrl/$friendId") {
+            headers {
+                append(HttpHeaders.ContentType, "application/json")
+                append(HttpHeaders.Authorization, token)
+            }
+            contentType(ContentType.Application.Json)
+            setBody(friend)
         }
 
         Napier.d("### ${response.bodyAsText()}")

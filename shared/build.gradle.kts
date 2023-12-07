@@ -45,6 +45,7 @@ kotlin {
                 implementation("io.realm.kotlin:library-base:1.11.0")
 
                 implementation("io.github.aakira:napier:$napierVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             }
         }
         val commonTest by getting {

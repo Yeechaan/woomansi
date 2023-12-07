@@ -10,7 +10,7 @@ android {
     compileSdk = 34
     defaultConfig {
         applicationId = "com.lee.remember.android"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -65,5 +65,6 @@ dependencies {
     implementation("io.github.aakira:napier:$napierVersion")
 
     implementation("io.realm.kotlin:library-base:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
 
 }
