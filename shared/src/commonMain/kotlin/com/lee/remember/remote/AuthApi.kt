@@ -1,5 +1,9 @@
 package com.lee.remember.remote
 
+import com.lee.remember.request.EmailCheckRequest
+import com.lee.remember.request.EmailCheckResponse
+import com.lee.remember.request.EmailRequest
+import com.lee.remember.request.EmailResponse
 import com.lee.remember.request.LoginRequest
 import com.lee.remember.request.LoginResponse
 import com.lee.remember.request.SignupRequest
@@ -46,6 +50,28 @@ class AuthApi {
 
     suspend fun login(request: LoginRequest): LoginResponse? {
         val response = client.post(authUrl + "log-in") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
+
+        Napier.d("### ${response.bodyAsText()}")
+
+        return if (response.status == HttpStatusCode.OK) response.body() else null
+    }
+
+    suspend fun sendEmailCode(email: String): EmailResponse? {
+        val response = client.post(authUrl + "validate-email") {
+            contentType(ContentType.Application.Json)
+            setBody(EmailRequest(email))
+        }
+
+        Napier.d("### ${response.bodyAsText()}")
+
+        return if (response.status == HttpStatusCode.OK) response.body() else null
+    }
+
+    suspend fun checkEmailCode(request: EmailCheckRequest): EmailCheckResponse? {
+        val response = client.post(authUrl + "validate-email-code") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }

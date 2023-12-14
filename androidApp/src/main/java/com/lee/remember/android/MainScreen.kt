@@ -43,8 +43,10 @@ import com.lee.remember.android.ui.FriendProfileScreen
 import com.lee.remember.android.ui.FriendScreen
 import com.lee.remember.android.ui.HistoryAddScreen
 import com.lee.remember.android.ui.HistoryScreen
+import com.lee.remember.android.ui.intro.FriendGroupScreen
 import com.lee.remember.android.ui.intro.IntroScreen
 import com.lee.remember.android.ui.intro.LoginScreen
+import com.lee.remember.android.ui.intro.OnBoardingScreen
 import com.lee.remember.android.ui.intro.SelectContractScreen
 import com.lee.remember.android.ui.intro.SignInScreen
 import com.lee.remember.android.ui.intro.SplashScreen
@@ -55,6 +57,7 @@ import com.lee.remember.android.utils.getTextStyle
 
 enum class RememberScreen(@StringRes val title: Int) {
     Splash(title = R.string.splash),
+    OnBoarding(title = R.string.onboard),
     Intro(title = R.string.intro),
     Terms(title = R.string.terms),
     SignIn(title = R.string.sign_in),
@@ -69,6 +72,7 @@ enum class RememberScreen(@StringRes val title: Int) {
     FriendProfile(title = R.string.select_contact),
     FriendHistory(title = R.string.friend_history),
     FriendEdit(title = R.string.friend_edit),
+    FriendGroup(title = R.string.friend_edit),
     HistoryAdd(title = R.string.history_add)
 }
 
@@ -77,6 +81,7 @@ val mainScreens = listOf(RememberScreen.History.name, RememberScreen.Feed.name, 
 var accessToken: String = ""
 val friendProfiles = mutableListOf<FriendProfile>()
 var selectedFriendPhoneNumber = ""
+var selectedFriendGroup: String? = null
 var bottomPadding: Dp = 0.dp
 
 @Composable
@@ -153,6 +158,9 @@ fun MainApp(
             composable(route = RememberScreen.Splash.name) {
                 SplashScreen(navController)
             }
+            composable(route = RememberScreen.OnBoarding.name) {
+                OnBoardingScreen(navController)
+            }
             composable(route = RememberScreen.Intro.name) {
                 IntroScreen(navController)
             }
@@ -191,8 +199,12 @@ fun MainApp(
                 val friendId = it.arguments?.getString("friendId")
                 FriendProfileScreen(navHostController = navController, friendId)
             }
-            composable(route = RememberScreen.FriendHistory.name) {
-                FriendHistoryScreen(navHostController = navController)
+            composable(
+                route = "${RememberScreen.FriendHistory.name}/{friendId}",
+                arguments = listOf(navArgument("friendId") { type = NavType.StringType })
+            ) {
+                val friendId = it.arguments?.getString("friendId")
+                FriendHistoryScreen(navHostController = navController, friendId)
             }
             composable(
                 route = "${RememberScreen.FriendEdit.name}/{friendId}",
@@ -200,6 +212,9 @@ fun MainApp(
             ) {
                 val friendId = it.arguments?.getString("friendId")
                 FriendEditScreen(navHostController = navController, friendId)
+            }
+            composable(route = RememberScreen.FriendGroup.name) {
+                FriendGroupScreen(navHostController = navController)
             }
             composable(route = RememberScreen.HistoryAdd.name) {
                 HistoryAddScreen(navHostController = navController)

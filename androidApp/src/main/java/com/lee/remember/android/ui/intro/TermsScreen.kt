@@ -96,7 +96,7 @@ fun TermsScreen(navController: NavHostController) {
                     colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
                 )
 
-                Text(modifier = Modifier.weight(1f), text = "모두 동의합니다.")
+                Text(modifier = Modifier.weight(1f), text = "모두 동의합니다.", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
             }
 
             Divider(modifier = Modifier.padding(vertical = 32.dp), color = Color.Black, thickness = 1.dp)
@@ -115,7 +115,7 @@ fun TermsScreen(navController: NavHostController) {
                     colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
                 )
 
-                Text(modifier = Modifier.weight(1f), text = "[필수] 이용약관 동의")
+                Text(modifier = Modifier.weight(1f), text = "[필수] 이용약관 동의", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
 
                 Image(
                     modifier = Modifier.clickable { localUriHandler.openUri("https://www.notion.so/620c795fbb904fb6a8d20a4c31e27e96") },
@@ -137,7 +137,7 @@ fun TermsScreen(navController: NavHostController) {
                     colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
                 )
 
-                Text(modifier = Modifier.weight(1f), text = "[필수] 개인정보 처리방침")
+                Text(modifier = Modifier.weight(1f), text = "[필수] 개인정보 처리방침", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
 
                 Image(
                     modifier = Modifier.clickable { localUriHandler.openUri("https://www.notion.so/39abfe07dd534610812ccfb5bea55212?pvs=4") },
@@ -151,7 +151,9 @@ fun TermsScreen(navController: NavHostController) {
                         navController.navigate(RememberScreen.SignIn.name)
                     }
                 },
-                modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
                 shape = RoundedCornerShape(size = 100.dp),
             ) {

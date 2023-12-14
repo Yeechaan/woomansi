@@ -2,13 +2,17 @@ package com.lee.remember.android.ui.intro
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -30,33 +34,17 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(lightColor)
-            .padding(bottom = 32.dp),
+            .background(lightColor),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
-        Text(
-            modifier = Modifier
-                .padding(horizontal = 40.dp)
-                .padding(top = 126.dp),
-            text = "우리가 만났던 소중한 시절", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(Color(0xFF40454E))
-        )
 
         Image(
-            modifier = Modifier
-                .padding(horizontal = 40.dp)
-                .padding(top = 12.dp),
-            painter = painterResource(id = R.drawable.logo_splash), contentDescription = "logo"
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Image(
-            modifier = Modifier
-                .padding(horizontal = 32.dp)
-                .padding(top = 46.dp),
-            painter = painterResource(id = R.drawable.img_splash), contentDescription = "logo"
+            modifier = Modifier.width(100.dp),
+            painter = painterResource(id = R.drawable.ic_appbar), contentDescription = "logo"
         )
 
         val scope = rememberCoroutineScope()
@@ -82,7 +70,7 @@ fun SplashScreen(navController: NavHostController) {
                     }
                 }
             } else {
-                navController.navigate(RememberScreen.Intro.name) {
+                navController.navigate(RememberScreen.OnBoarding.name) {
                     popUpTo(RememberScreen.Splash.name) {
                         inclusive = true
                     }

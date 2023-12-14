@@ -5,6 +5,7 @@
     <string name="back_button">Back</string>
 
     <string name="splash">Splash</string>
+    <string name="onboard">onboard</string>
     <string name="intro">intro</string>
     <string name="terms">terms</string>
     <string name="sign_in">sign_in</string>
@@ -21,6 +22,7 @@
     <string name="friend_profile">friend_profile</string>
     <string name="friend_history">friend_history</string>
     <string name="friend_edit">friend_edit</string>
+    <string name="friend_group">friend_group</string>
     <string name="history_add">history_add</string>
 
     <string name="birth_date">생일 %s월 %s일</string>
