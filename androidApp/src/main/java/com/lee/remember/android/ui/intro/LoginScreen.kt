@@ -51,7 +51,7 @@ import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.local.dao.UserDao
-import com.lee.remember.local.model.User
+import com.lee.remember.local.model.UserRealm
 import com.lee.remember.remote.AuthApi
 import com.lee.remember.request.LoginRequest
 import kotlinx.coroutines.cancel
@@ -145,7 +145,7 @@ fun LoginScreen(navController: NavHostController) {
                         loginResponse.result?.let {
                             accessToken = it.jwtToken ?: ""
 
-                            val user = User().apply { this.email = id; this.password = password.value }
+                            val user = UserRealm().apply { this.email = id; this.password = password.value }
                             UserDao().setUser(user)
                         }
 

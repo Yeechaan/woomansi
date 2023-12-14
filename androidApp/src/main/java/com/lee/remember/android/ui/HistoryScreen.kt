@@ -42,9 +42,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -120,6 +120,7 @@ fun HistoryScreen(navHostController: NavHostController) {
             val phoneNumber = friendList.value[currentFriendIndex.value].phoneNumber ?: ""
 
             ModalBottomSheet(
+                containerColor = Color.White,
                 onDismissRequest = { showBottomSheet = false },
                 sheetState = sheetState,
             ) {
@@ -143,7 +144,7 @@ fun HistoryScreen(navHostController: NavHostController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 32.dp, bottom = bottomPadding)
-                            .background(Color(0xFFF8D393)),
+                            .background(Color(0xFFF2BE2F)),
                         onClick = {
                             scope.launch { sheetState.hide() }.invokeOnCompletion {
                                 if (!sheetState.isVisible) {
@@ -261,12 +262,24 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
                     )
                 }
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            val brush = Brush.verticalGradient(listOf(Color(0x77000000), Color.White))
+
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(brush), contentAlignment = Alignment.Center) {
+//                Image(
+//                    painter = painterResource(id = R.drawable.img_sample),
+//                    contentDescription = stringResource(id = R.string.history),
+//                    contentScale = ContentScale.Crop,
+//                    modifier = Modifier.fillMaxSize(),
+////                    alpha = 0.7f,
+//                )
+
                 Image(
-                    painter = painterResource(id = R.drawable.img_sample),
+                    painter = painterResource(id = R.drawable.ic_camera),
                     contentDescription = stringResource(id = R.string.history),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.8f))
+//                    contentScale = ContentScale.Inside,
+                    modifier = Modifier.size(100.dp)
                 )
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -332,7 +345,9 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
         Button(
             onClick = {
                 selectedFriendPhoneNumber = friendProfile.phoneNumber
-                navHostController.navigate(RememberScreen.FriendHistory.name)
+
+                val friendId = friendProfile.id
+                navHostController.navigate("${RememberScreen.FriendHistory.name}/${friendId}")
             },
             modifier = Modifier.size(70.dp),  //avoid the oval shape
             shape = CircleShape,

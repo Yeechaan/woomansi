@@ -19,6 +19,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,22 +35,57 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
+import com.lee.remember.android.accessToken
 import com.lee.remember.android.data.FriendHistory
 import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.utils.parseUtcString
+import com.lee.remember.remote.FriendApi
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendHistoryScreen(navHostController: NavHostController) {
+fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?) {
 
     val friendProfile = friendProfiles.find { it.phoneNumber == selectedFriendPhoneNumber }
     val items = friendProfile?.history ?: listOf<FriendHistory>()
 
+    var name by remember { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
+    scope.launch {
+        try {
+            val response = FriendApi().getFriend(accessToken, friendId ?: "")
+
+            if (response != null) {
+                Napier.d("###hi ${response}")
+
+                    response.result?.let {
+                        name = it.name
+//                        group = "-"  // Todo need response field
+//                        number = it.phoneNumber ?: ""
+//                        dateTitle = it.events?.firstOrNull()?.name ?: "기념일"
+//                        date = parseUtcString(it.events?.firstOrNull()?.date ?: "")
+//                        image = it.profileImage?.image ?: ""
+                    }
+
+                response.toString()
+            }
+        } catch (e: Exception) {
+            Napier.d("### ${e.localizedMessage}")
+            e.localizedMessage ?: "error"
+        }
+
+        scope.cancel()
+    }
+
     Column {
         TopAppBar(
-            title = { Text(friendProfile?.name ?: "", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            title = { Text(name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
                 containerColor = Color.White
             ),
@@ -106,5 +146,5 @@ fun FriendHistoryScreen(navHostController: NavHostController) {
 @Preview
 @Composable
 fun PreviewFriendHistoryScreen() {
-    FriendHistoryScreen(rememberNavController())
+    FriendHistoryScreen(rememberNavController(), null)
 }

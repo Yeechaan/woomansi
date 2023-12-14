@@ -2,23 +2,35 @@ package com.lee.remember.android.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import io.github.aakira.napier.Napier
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class DateUtils {
 }
 
 fun parseUtcString(dateString: String): String {
-    val localDateTime = dateString.toInstant().toLocalDateTime(TimeZone.UTC)
-    val formatter = DateTimeFormatter.ISO_DATE
+    if (dateString.isEmpty()) return ""
 
-    return localDateTime.toJavaLocalDateTime().format(formatter)
+//    val localDateTime = dateString.toInstant().toLocalDateTime(TimeZone.UTC)
+//    val formatter = DateTimeFormatter.ISO_DATE
+//    return localDateTime.toJavaLocalDateTime().format(formatter)
+
+    // 2023-12-05T00:00:00.000+00:00
+    val format = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSZ")
+    val date = format.parse(dateString)
+    val formatter = SimpleDateFormat("yyyy-MM-dd")
+    val formatDate: String = formatter.format(date)
+
+    return formatDate
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

@@ -1,5 +1,7 @@
 package com.lee.remember.android.ui
 
+import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
@@ -7,6 +9,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Base64.NO_WRAP
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -71,18 +75,27 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
+import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
+import com.lee.remember.android.selectedFriendGroup
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.android.utils.rememberImeState
+import com.lee.remember.local.dao.FriendDao
+import com.lee.remember.local.model.EventRealm
+import com.lee.remember.local.model.FriendRealm
+import com.lee.remember.local.model.ProfileImageRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.request.FriendRequest
 import io.github.aakira.napier.Napier
+import io.realm.kotlin.ext.toRealmList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -127,12 +140,13 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
 
             date = convertMillisToDate(it)
         }
-
+        val context = LocalContext.current
         val scope = rememberCoroutineScope()
+
         scope.launch {
             try {
                 if (friendId == null || friendId == "-1") {
-                    // Todo 친구 추가
+                    // Todo 친구 추가 시 초기값
                 } else {
                     val response = FriendApi().getFriend(accessToken, friendId ?: "")
 
@@ -148,6 +162,12 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                         }
 
                         response.toString()
+                    }
+
+                    // Todo 그룹 초기화 로직 변경
+                    selectedFriendGroup?.let {
+                        group = it
+                        selectedFriendGroup = null
                     }
                 }
             } catch (e: Exception) {
@@ -253,6 +273,13 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                         .background(Color.White)
                         .padding(start = 16.dp, end = 16.dp, top = 8.dp)
                 ) {
+                    DropdownMenuItem(text = {
+                        Text(text = "새 그룹 추가")
+                    }, onClick = {
+                        navHostController.navigate(RememberScreen.FriendGroup.name)
+                        expanded = false
+                    })
+
                     items.forEachIndexed { index, s ->
                         DropdownMenuItem(text = {
                             Text(text = s)
@@ -397,7 +424,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
         Spacer(modifier = Modifier.weight(1f))
 
         val apiScope = rememberCoroutineScope()
-        val context = LocalContext.current
+//        val context = LocalContext.current
 
         TextButton(
             modifier = Modifier
@@ -405,56 +432,83 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                 .padding(top = 32.dp)
                 .background(Color(0xFFF2BE2F)),
             onClick = {
-                apiScope.launch {
-                    try {
-                        var profileImage = ""
-//                        selectedImage?.let {
-//                            val bitmap = if (Build.VERSION.SDK_INT >= 28) {
-//                                val source = ImageDecoder.createSource(context.contentResolver, it)
-//                                ImageDecoder.decodeBitmap(source)
-//                            } else {
-//                                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-//                            }
-//
-//                            profileImage = bitmapToString(bitmap)
-//                        }
-
-                        val friendRequest = FriendRequest(
-                            name = name,
-                            phoneNumber = number,
-                            description = "",
-                            events = listOf(FriendRequest.Event(dateTitle, date)),
-                            profileImage = selectedImage.toString()
-                        )
-                        Napier.d("### $friendRequest")
-
-                        if (friendId == null || friendId == "-1") {
-                            val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
-
-                            if (response != null) {
-                                Napier.d("### $response")
-
-                                response.toString()
-                                navHostController.navigateUp()
-                            } else {
-                                "에러"
-                            }
+                apiScope.launch() {
+//                    try {
+                    var profileImage = ""
+                    selectedImage?.let {
+                        val bitmap = if (Build.VERSION.SDK_INT >= 28) {
+                            val source = ImageDecoder.createSource(context.contentResolver, it)
+                            ImageDecoder.decodeBitmap(source)
                         } else {
-                            val response = FriendApi().updateFriend(accessToken, friendId ?: "", friendRequest)
-
-                            if (response != null) {
-                                Napier.d("### $response")
-
-                                response.toString()
-                                navHostController.navigateUp()
-                            } else {
-                                "에러"
-                            }
+                            MediaStore.Images.Media.getBitmap(context.contentResolver, it)
                         }
 
-                    } catch (e: Exception) {
-                        e.localizedMessage ?: "error"
+//                        val quality = 80
+//                        val scaleDownBitmap =
+//                            Bitmap.createScaledBitmap(bitmap, (bitmap.width * quality).toInt(), (bitmap.height * quality).toInt(), true)
+
+//                        profileImage = bitmapToString(scaleDownBitmap)
                     }
+
+                    profileImage = test(context, selectedImage)
+                    Napier.d("@@@ ${profileImage.length}")
+
+//                        selectedImage?.let {
+//                            saveImageToInternalStorage(context, it)
+//                        }
+
+                    val friendRequest = FriendRequest(
+                        name = name,
+                        phoneNumber = number,
+                        description = "",
+                        events = listOf(FriendRequest.Event(dateTitle, date)),
+                        profileImage = profileImage
+                    )
+//                        Napier.d("### $friendRequest")
+
+                    val friendRealm = FriendRealm().apply {
+                        this.name = name
+                        this.phoneNumber = number
+                        this.group = group
+                        this.events.add(EventRealm().apply { this.name = dateTitle; this.date = date })
+                        // Todo 이미지 처리 방식 변경
+                        this.profileImage = ProfileImageRealm().apply { this.image = profileImage }
+                    }
+
+                    if (friendId == null || friendId == "-1") {
+                        // add
+                        FriendDao().setFriend(friendRealm)
+
+                        val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
+
+                        if (response != null) {
+                            Napier.d("### $response")
+
+                            response.toString()
+                            // Todo
+//                            navHostController.navigateUp()
+                        } else {
+                            "에러"
+                        }
+                    } else {
+                        // update
+                        FriendDao().updateFriend(friendRealm)
+
+                        val response = FriendApi().updateFriend(accessToken, friendId ?: "", friendRequest)
+
+                        if (response != null) {
+                            Napier.d("### $response")
+
+                            response.toString()
+                            navHostController.navigateUp()
+                        } else {
+                            "에러"
+                        }
+                    }
+
+//                    } catch (e: Exception) {
+//                        e.localizedMessage ?: "error"
+//                    }
                 }
             },
         ) {
@@ -465,6 +519,32 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
             )
         }
     }
+}
+
+
+fun saveImageToInternalStorage(context: Context, uri: Uri) {
+    val inputStream = context.contentResolver.openInputStream(uri)
+    val outputStream = context.openFileOutput("image.jpg", Context.MODE_PRIVATE)
+    inputStream?.use { input ->
+        outputStream.use { output ->
+            input.copyTo(output)
+        }
+    }
+}
+
+fun test(context: Context, uri: Uri?): String {
+    val ins: InputStream? = uri?.let {
+        context.contentResolver.openInputStream(it)
+    }
+    val img: Bitmap = BitmapFactory.decodeStream(ins)
+    ins?.close()
+    val resized = Bitmap.createScaledBitmap(img, 256, 256, true)
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    resized.compress(Bitmap.CompressFormat.JPEG, 1, byteArrayOutputStream)
+    val byteArray: ByteArray = byteArrayOutputStream.toByteArray()
+//    val outStream = ByteArrayOutputStream()
+//    val res: Resources = resources
+    return Base64.encodeToString(byteArray, NO_WRAP)
 }
 
 fun bitmapToString(bitmap: Bitmap): String {
