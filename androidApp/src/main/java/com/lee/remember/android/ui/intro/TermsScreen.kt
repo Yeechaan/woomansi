@@ -159,8 +159,8 @@ fun TermsScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "동의하기",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
-                    modifier = Modifier.padding(vertical = 2.dp)
+                    modifier = Modifier.padding(vertical = 2.dp),
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White)
                 )
             }
         }

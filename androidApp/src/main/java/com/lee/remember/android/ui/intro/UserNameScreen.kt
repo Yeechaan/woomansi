@@ -112,15 +112,8 @@ fun UserNameScreen(navController: NavHostController) {
                 .fillMaxWidth()
         )
 
-        val context = LocalContext.current
-
         Button(
             onClick = {
-                if (nickname.isEmpty()) {
-                    Toast.makeText(context, "이메일 또는 비밀번호는 입력해주세요.", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
-
                 scope.launch {
                     try {
                         val user = UserDao().getUser() ?: return@launch

@@ -94,6 +94,7 @@ import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
@@ -151,7 +152,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                     val response = FriendApi().getFriend(accessToken, friendId ?: "")
 
                     if (response != null) {
-                        Napier.d("###hi ${response}")
+//                        Napier.d("###hi ${response}")
 
                         response.result?.let {
                             name = it.name
@@ -317,7 +318,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
 
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
                 var expanded by remember { mutableStateOf(false) }
-                val items = listOf("생일", "기념일", "기일")
+                val items = listOf("생일", "기념일", "기일", "기타")
                 var selectedIndex by remember { mutableStateOf(0) }
 
                 TextButton(
@@ -443,14 +444,16 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                             MediaStore.Images.Media.getBitmap(context.contentResolver, it)
                         }
 
-//                        val quality = 80
-//                        val scaleDownBitmap =
-//                            Bitmap.createScaledBitmap(bitmap, (bitmap.width * quality).toInt(), (bitmap.height * quality).toInt(), true)
+                        withContext(Dispatchers.IO) {
+//                            val quality = 50
+//                            val scaleDownBitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width * quality).toInt(), (bitmap.height * quality).toInt(), true)
+                            profileImage = bitmapToString(bitmap)
+                        }
 
-//                        profileImage = bitmapToString(scaleDownBitmap)
+//                        profileImage = bitmapToString(bitmap)
                     }
 
-                    profileImage = test(context, selectedImage)
+//                    profileImage = test(context, selectedImage)
                     Napier.d("@@@ ${profileImage.length}")
 
 //                        selectedImage?.let {
@@ -467,6 +470,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
 //                        Napier.d("### $friendRequest")
 
                     val friendRealm = FriendRealm().apply {
+                        this.id = friendId?.toInt() ?: -1
                         this.name = name
                         this.phoneNumber = number
                         this.group = group
@@ -476,20 +480,18 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                     }
 
                     if (friendId == null || friendId == "-1") {
-                        // add
-                        FriendDao().setFriend(friendRealm)
-
                         val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
 
-                        if (response != null) {
-                            Napier.d("### $response")
+                        if (response != null && response.resultCode == "SUCCESS") {
+                            Napier.d("### ${response.resultCode}")
 
-                            response.toString()
-                            // Todo
-//                            navHostController.navigateUp()
+                            friendRealm.apply { this.id = response.result?.firstOrNull()?.id ?: -1 }
+                            navHostController.navigateUp()
                         } else {
-                            "에러"
+                            Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
                         }
+
+                        FriendDao().setFriend(friendRealm)
                     } else {
                         // update
                         FriendDao().updateFriend(friendRealm)
@@ -502,7 +504,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                             response.toString()
                             navHostController.navigateUp()
                         } else {
-                            "에러"
+                            Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
                         }
                     }
 
@@ -515,7 +517,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
             Text(
                 modifier = Modifier.padding(vertical = 12.dp),
                 text = "완료",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
             )
         }
     }
@@ -540,16 +542,43 @@ fun test(context: Context, uri: Uri?): String {
     ins?.close()
     val resized = Bitmap.createScaledBitmap(img, 256, 256, true)
     val byteArrayOutputStream = ByteArrayOutputStream()
-    resized.compress(Bitmap.CompressFormat.JPEG, 1, byteArrayOutputStream)
+    resized.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
     val byteArray: ByteArray = byteArrayOutputStream.toByteArray()
 //    val outStream = ByteArrayOutputStream()
 //    val res: Resources = resources
     return Base64.encodeToString(byteArray, NO_WRAP)
 }
 
+fun uriToBitmapString(context: Context, uri: Uri?): String {
+    if (uri == null) return ""
+
+    val bitmap = if (Build.VERSION.SDK_INT >= 28) {
+        val source = ImageDecoder.createSource(context.contentResolver, uri)
+        ImageDecoder.decodeBitmap(source)
+    } else {
+        MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+    }
+
+    return bitmapToString(bitmap)
+}
+
+private fun resizeBitmap(bitmap: Bitmap): Bitmap? {
+    val resizeWidth = 256
+    val aspectRatio = bitmap.height.toDouble() / bitmap.width.toDouble()
+    val targetHeight = (resizeWidth * aspectRatio).toInt()
+    val result: Bitmap = Bitmap.createScaledBitmap(bitmap, resizeWidth, resizeWidth, false)
+    if (result != bitmap) {
+        bitmap.recycle()
+    }
+    return result
+}
+
 fun bitmapToString(bitmap: Bitmap): String {
+//    val resized = Bitmap.createScaledBitmap(bitmap, 256, 256, true)
+    val resized = resizeBitmap(bitmap)
+
     val byteArrayOutputStream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+    resized?.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
     val byteArray = byteArrayOutputStream.toByteArray()
     return Base64.encodeToString(byteArray, Base64.DEFAULT)
 }

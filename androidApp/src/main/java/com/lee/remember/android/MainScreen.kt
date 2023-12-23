@@ -216,8 +216,12 @@ fun MainApp(
             composable(route = RememberScreen.FriendGroup.name) {
                 FriendGroupScreen(navHostController = navController)
             }
-            composable(route = RememberScreen.HistoryAdd.name) {
-                HistoryAddScreen(navHostController = navController)
+            composable(
+                route = "${RememberScreen.HistoryAdd.name}/{friendId}",
+                arguments = listOf(navArgument("friendId") { type = NavType.StringType })
+            ) {
+                val friendId = it.arguments?.getString("friendId")
+                HistoryAddScreen(navHostController = navController, friendId)
             }
         }
 

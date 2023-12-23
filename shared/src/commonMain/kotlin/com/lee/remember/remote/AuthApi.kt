@@ -45,7 +45,7 @@ class AuthApi {
 
         Napier.d("### ${response.bodyAsText()}")
 
-        return if (response.status == HttpStatusCode.OK) response.body() else null
+        return response.body()
     }
 
     suspend fun login(request: LoginRequest): LoginResponse? {

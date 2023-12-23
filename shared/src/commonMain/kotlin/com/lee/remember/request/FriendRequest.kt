@@ -40,10 +40,14 @@ data class FriendAddResponse(
         val name: String,
         @SerialName("phoneNumber")
         val phoneNumber: String,
+        @SerialName("description")
+        val description: String?,
         @SerialName("events")
         val events: List<Event>?,
         @SerialName("profileImage")
-        val profileImage: ProfileImage?
+        val profileImage: ProfileImage?,
+        @SerialName("friendGroups")
+        val friendGroups: List<String>?,
     ) {
         @Serializable
         data class Event(
@@ -80,10 +84,14 @@ data class FriendResponse(
         val name: String,
         @SerialName("phoneNumber")
         val phoneNumber: String?,
+        @SerialName("description")
+        val description: String?,
         @SerialName("events")
         val events: List<Event>? = listOf(),
         @SerialName("profileImage")
-        val profileImage: ProfileImage?
+        val profileImage: ProfileImage?,
+        @SerialName("friendGroups")
+        val friendGroups: List<String>?,
     ) {
         @Serializable
         data class Event(

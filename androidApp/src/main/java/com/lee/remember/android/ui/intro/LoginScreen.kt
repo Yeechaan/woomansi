@@ -141,6 +141,8 @@ fun LoginScreen(navController: NavHostController) {
 
                 scope.launch {
                     val loginResponse = AuthApi().login(LoginRequest(id, password.value))
+
+                    // Todo 로그인 성공 시 server 데이터 localDB 동기화
                     if (loginResponse != null) {
                         loginResponse.result?.let {
                             accessToken = it.jwtToken ?: ""

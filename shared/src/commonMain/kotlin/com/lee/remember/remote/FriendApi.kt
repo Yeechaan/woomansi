@@ -44,7 +44,8 @@ class FriendApi {
             setBody(friends)
         }
 
-        Napier.d("### ${response.bodyAsText()}")
+//        Napier.d("### ${response.bodyAsText()}")
+        Napier.d("###addFriend ${response.status}")
 
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
@@ -57,7 +58,8 @@ class FriendApi {
             }
         }
 
-        Napier.d("### ${response.bodyAsText()}")
+//        Napier.d("### ${response.bodyAsText()}")
+        Napier.d("###getFriend ${response.status}")
 
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
@@ -70,7 +72,8 @@ class FriendApi {
             }
         }
 
-        Napier.d("### ${response.bodyAsText()}")
+//        Napier.d("### ${response.bodyAsText()}")
+        Napier.d("###getFriendList ${response.status}")
 
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
@@ -85,7 +88,8 @@ class FriendApi {
             setBody(friend)
         }
 
-        Napier.d("### ${response.bodyAsText()}")
+//        Napier.d("### ${response.bodyAsText()}")
+        Napier.d("###updateFriend ${response.status}")
 
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }

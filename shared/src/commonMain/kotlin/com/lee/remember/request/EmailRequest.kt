@@ -9,9 +9,14 @@ data class EmailRequest(
 
 @Serializable
 data class EmailResponse(
-    val result: String?,
+    val result: Result?,
     val resultCode: String
-)
+) {
+    @Serializable
+    data class Result(
+        val code: String
+    )
+}
 
 @Serializable
 data class EmailCheckRequest(

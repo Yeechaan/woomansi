@@ -1,6 +1,7 @@
 package com.lee.remember.android.ui
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -44,7 +45,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -262,33 +265,34 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
                     )
                 }
         ) {
+            val friend = friendList[page]
+            val friendProfile = FriendProfile(id = friend.id, name = friend.name, phoneNumber = friend.phoneNumber ?: "", image = friend.profileImage?.image ?: "")
+
             val brush = Brush.verticalGradient(listOf(Color(0x77000000), Color.White))
 
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(brush), contentAlignment = Alignment.Center) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.img_sample),
-//                    contentDescription = stringResource(id = R.string.history),
-//                    contentScale = ContentScale.Crop,
-//                    modifier = Modifier.fillMaxSize(),
-////                    alpha = 0.7f,
-//                )
 
-                Image(
-                    painter = painterResource(id = R.drawable.ic_camera),
-                    contentDescription = stringResource(id = R.string.history),
-//                    contentScale = ContentScale.Inside,
-                    modifier = Modifier.size(100.dp)
-                )
+                val bitmap: Bitmap? = stringToBitmap(friendProfile.image)
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_camera),
+                        contentDescription = stringResource(id = R.string.history),
+                        modifier = Modifier.size(100.dp)
+                    )
+                }
+
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Top
                 ) {
-                    val friend = friendList[page]
-                    val friendProfile = FriendProfile(name = friend.name, phoneNumber = friend.phoneNumber ?: "")
-//                    val friendProfile = friendProfiles[page]
-
                     FriendSummaryItem(friendProfile, navHostController)
                 }
             }

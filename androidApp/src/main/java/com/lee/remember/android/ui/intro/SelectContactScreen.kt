@@ -50,6 +50,7 @@ import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.request.FriendRequest
 import io.github.aakira.napier.Napier
+import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.launch
 
@@ -159,26 +160,30 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
                             FriendRequest(it.name, it.number)
                         }
 
-                        // add realm
-                        val friendRealmList = selectedFriends.map {
-                            FriendRealm().apply { this.name = it.name; this.phoneNumber = it.phoneNumber }
-                        }.toRealmList()
-                        FriendDao().setFriends(friendRealmList)
-
                         Napier.d("### ${selectedFriends.size}")
 
                         val response = FriendApi().addFriend(accessToken, selectedFriends)
 
                         if (response != null) {
+                            val friendRealmList =response.result?.map {
+                                FriendRealm().apply { this.id = it.id; this.name = it.name; this.phoneNumber = it.phoneNumber }
+                            }?.toRealmList()
+//                            val friendRealmList = selectedFriends.map {
+//                                FriendRealm().apply { this.name = it.name; this.phoneNumber = it.phoneNumber }
+//                            }.toRealmList()
+                            FriendDao().setFriends(friendRealmList ?: realmListOf())
+
                             navController.navigate(RememberScreen.History.name) {
                                 popUpTo(RememberScreen.History.name) {
                                     inclusive = true
                                 }
                             }
-
-                            response.toString()
                         } else {
-                            "에러"
+                            // add realm
+                            val friendRealmList = selectedFriends.map {
+                                FriendRealm().apply { this.name = it.name; this.phoneNumber = it.phoneNumber }
+                            }.toRealmList()
+                            FriendDao().setFriends(friendRealmList)
                         }
                     } catch (e: Exception) {
                         e.localizedMessage ?: "error"
