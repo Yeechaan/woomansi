@@ -31,18 +31,14 @@ import com.lee.remember.android.ui.fontColorBlack
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.remote.AuthApi
-import com.lee.remember.request.EmailCheckRequest
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.launch
 
 @Composable
 fun EmailConfirmDialog(
-    email: String,
+    emailCode: String,
     onDismissRequest: () -> Unit,
     onConfirmation: (Boolean) -> Unit,
 ) {
-    var emailCode by remember { mutableStateOf("") }
+    var emailCodeConfirm by remember { mutableStateOf("") }
     var isValid by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -74,10 +70,10 @@ fun EmailConfirmDialog(
                 )
 
                 OutlinedTextField(
-                    value = emailCode,
+                    value = emailCodeConfirm,
                     onValueChange = {
                         if (it.length <= 6) {
-                            emailCode = it
+                            emailCodeConfirm = it
                         }
                     },
                     label = { RememberTextField.label(text = "인증번호") },
@@ -103,7 +99,9 @@ fun EmailConfirmDialog(
                 )
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
                     horizontalArrangement = Arrangement.End,
                 ) {
                     TextButton(
@@ -117,16 +115,10 @@ fun EmailConfirmDialog(
                     }
                     TextButton(
                         onClick = {
-                            scope.launch {
-                                val response = AuthApi().checkEmailCode(EmailCheckRequest(email, emailCode))
-
-                                // Todo 서버 로직 확인
-//                                if (response != null && response.resultCode == "SUCCESS" && response.result?.result == true) {
-                                if (response != null && response.resultCode == "SUCCESS") {
-                                    onConfirmation(true)
-                                } else {
-                                    Toast.makeText(context, "인증번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
-                                }
+                            if (emailCodeConfirm.isNotEmpty() && emailCodeConfirm == emailCode) {
+                                onConfirmation(true)
+                            } else {
+                                Toast.makeText(context, "인증번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
                             }
                         },
 //                        modifier = Modifier.padding(8.dp),

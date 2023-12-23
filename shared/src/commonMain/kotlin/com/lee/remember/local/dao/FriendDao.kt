@@ -31,10 +31,12 @@ class FriendDao {
                 this.name = friend.name
                 this.phoneNumber = friend.phoneNumber
                 this.group = friend.group
-                this.events.add(EventRealm().apply { this.name = friend.events.first().name; this.date = friend.events.first().date })
+//                this.events.add(EventRealm().apply { this.name = friend.events.first().name; this.date = friend.events.first().date })
                 this.profileImage = ProfileImageRealm().apply { this.image = friend.profileImage?.image ?: "" }
             }
         }
     }
 
+    fun getFriends() = realm.query<FriendRealm>().find()
+    fun getFriend(friendId: Int) = realm.query<FriendRealm>("id==$friendId").find().firstOrNull()
 }

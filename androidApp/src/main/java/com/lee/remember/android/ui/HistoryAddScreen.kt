@@ -1,22 +1,22 @@
 package com.lee.remember.android.ui
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,11 +51,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -62,11 +64,19 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
-import com.lee.remember.android.data.FriendHistory
-import com.lee.remember.android.friendProfiles
-import com.lee.remember.android.selectedFriendPhoneNumber
+import com.lee.remember.android.accessToken
+import com.lee.remember.android.bottomPadding
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.local.dao.FriendDao
+import com.lee.remember.local.dao.MemoryDao
+import com.lee.remember.local.model.MemoryRealm
+import com.lee.remember.remote.FriendApi
+import com.lee.remember.remote.MemoryApi
+import com.lee.remember.request.MemoryRequest
+import io.github.aakira.napier.Napier
+import io.realm.kotlin.ext.toRealmList
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 //0xFFD59519
@@ -75,21 +85,66 @@ val fontHintColor = Color(0x4D000000)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun HistoryAddScreen(navHostController: NavHostController) {
+fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
     val scrollState = rememberScrollState()
 
+    var name by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(null) {
+        try {
+            val response = FriendApi().getFriend(accessToken, friendId ?: "")
+
+            if (response != null) {
+//                Napier.d("###hi ${response}")
+
+                response.result?.let {
+                    name = it.name
+                    phoneNumber = it.phoneNumber ?: ""
+                }
+
+                response.toString()
+            }
+        } catch (e: Exception) {
+            Napier.d("### ${e.localizedMessage}")
+            e.localizedMessage ?: "error"
+        }
+    }
+
+    val friends by rememberSaveable {
+        mutableStateOf(
+            FriendDao().getFriends().map {
+                Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = false)
+            }.toMutableList()
+        )
+    }
+
+    var selectedImage by remember { mutableStateOf<Uri?>(null) }
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri -> selectedImage = uri }
+    )
+
+    fun launchPhotoPicker() {
+        singlePhotoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
     Column(
-        Modifier.verticalScroll(scrollState)
+        Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(scrollState)
     ) {
         var title by remember { mutableStateOf("") }
         var content by remember { mutableStateOf("") }
 
-        var selectedImages by remember {
-            mutableStateOf<List<Uri?>>(emptyList())
-        }
-
         TopAppBar(
-            title = { Text("기록 추가", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            modifier = Modifier.shadow(10.dp),
+            title = { Text(name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
                 containerColor = Color.White
             ),
@@ -105,27 +160,51 @@ fun HistoryAddScreen(navHostController: NavHostController) {
             },
             actions = {
                 TextButton(onClick = {
-                    friendProfiles.find { it.phoneNumber == selectedFriendPhoneNumber }?.history?.add(
-                        FriendHistory(
-                            title,
-                            content,
-                            selectedImages.firstOrNull()
-                        )
-                    )
+                    scope.launch {
+                        val image = uriToBitmapString(context, selectedImage)
 
-                    navHostController.navigateUp()
+                        // remote
+                        val request = MemoryRequest(
+                            title = title,
+                            description = content,
+                            date = "2023-12-18",
+                            friendIds = friends.filter { it.isChecked }.map { it.id.toInt() },
+                            images = listOf(image)
+                        )
+
+                        val response = MemoryApi().addMemory(accessToken, request)
+
+                        // Todo remote 실패한 경우 local 저장 여부
+                        // local
+                        val memoryDao = MemoryDao()
+                        val memoryRealm = MemoryRealm().apply {
+                            this.title = title
+                            this.description = content
+                            this.date = "2023-12-18"
+                            this.friendTags = friends.filter { it.isChecked }.map { it.name }.toRealmList()
+                            this.images.add(image)
+                        }
+                        if (response != null && friendId != null) {
+                            memoryDao.setMemoryByFriendId(friendId.toInt(), memoryRealm.apply { this.id = response.result?.id ?: -1 })
+                        } else {
+                            memoryDao.setMemoryByPhoneNumber(phoneNumber, memoryRealm)
+                        }
+
+                        navHostController.navigateUp()
+                    }
+
                 }) {
-                    Text(text = "완료", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B))
+                    Text(text = "완료", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF49454F)))
                 }
             }
         )
 
         OutlinedTextField(
             value = title, onValueChange = { title = it },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.HEAD_4),
+            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, start = 16.dp, end = 16.dp),
+                .padding(top = 28.dp, start = 16.dp, end = 16.dp),
             placeholder = {
                 Text(
                     text = "내 친구와 있었던 추억",
@@ -162,35 +241,22 @@ fun HistoryAddScreen(navHostController: NavHostController) {
             shape = RoundedCornerShape(size = 8.dp),
         )
 
-
-        val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.PickVisualMedia(),
-            onResult = { uri -> selectedImages = listOf(uri) }
-        )
-
-        fun launchPhotoPicker() {
-            singlePhotoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        }
-
         Button(
             onClick = { launchPhotoPicker() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp, start = 16.dp, end = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
             shape = RoundedCornerShape(size = 100.dp),
-            border = BorderStroke(1.dp, fontPointColor)
         ) {
             Text(
                 text = "사진첨부",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(fontPointColor),
-                modifier = Modifier.padding(vertical = 2.dp)
+                modifier = Modifier.padding(vertical = 2.dp),
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White)
             )
         }
 
-        if (selectedImages.isNotEmpty()) {
+        if (selectedImage != null) {
             Card(
                 Modifier
                     .height(180.dp)
@@ -198,7 +264,7 @@ fun HistoryAddScreen(navHostController: NavHostController) {
             ) {
                 Box(Modifier.fillMaxWidth()) {
                     AsyncImage(
-                        model = selectedImages.firstOrNull(),
+                        model = selectedImage,
                         contentDescription = null,
                         modifier = Modifier.fillMaxWidth(),
                         contentScale = ContentScale.Fit
@@ -206,7 +272,7 @@ fun HistoryAddScreen(navHostController: NavHostController) {
                     IconButton(
                         modifier = Modifier.align(Alignment.TopEnd),
                         onClick = {
-                            selectedImages = emptyList()
+                            selectedImage = null
                         }) {
                         Icon(painter = painterResource(id = R.drawable.ic_cancel), contentDescription = "cancel", tint = Color.White)
                     }
@@ -223,15 +289,9 @@ fun HistoryAddScreen(navHostController: NavHostController) {
         val scope = rememberCoroutineScope()
         var showBottomSheet by remember { mutableStateOf(false) }
 
-        val selectedFriends by rememberSaveable { mutableStateOf(mutableListOf<Contract>(Contract(
-            id = "disputationi",
-            name = "Conrad Forbes",
-            number = "non",
-            isChecked = false
-        ))) }
         var isFriendEmpty by remember { mutableStateOf(true) }
 
-        if (!isFriendEmpty) {
+        if (isFriendEmpty) {
             Button(
                 onClick = { showBottomSheet = true },
                 modifier = Modifier
@@ -244,7 +304,9 @@ fun HistoryAddScreen(navHostController: NavHostController) {
                 Text(
                     text = "친구 찾기",
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_4B).copy(Color(0xFF79747E)),
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .padding(horizontal = 6.dp)
                 )
                 Icon(painter = painterResource(id = R.drawable.ic_search), contentDescription = "", tint = Color.Black)
             }
@@ -256,38 +318,35 @@ fun HistoryAddScreen(navHostController: NavHostController) {
                     .horizontalScroll(rowScrollState),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(painter = painterResource(id = R.drawable.ic_add), contentDescription = "")
+                Image(modifier = Modifier.clickable {
+                    showBottomSheet = true
+                }, painter = painterResource(id = R.drawable.ic_add), contentDescription = "")
 
-                selectedFriends.forEach {
+                friends.filter { it.isChecked }.forEach {
                     InputChipExample(text = it.name) {
-                        selectedFriends.remove(it)
-                        if (selectedFriends.isEmpty()) {
-                            isFriendEmpty = true
-                        }
+                        // 친구 삭제 시
+                        it.isChecked = false
+                        isFriendEmpty = friends.none { it.isChecked }
                     }
                 }
             }
         }
 
         if (showBottomSheet) {
-            val contracts = listOf(
-                Contract(id = "1", name = "Ollie Hardin", number = "1", isChecked = false),
-                Contract(id = "2", name = "Ollie Hardin1", number = "2", isChecked = false),
-                Contract(id = "3", name = "Ollie Hardin2", number = "3", isChecked = false),
-                Contract(id = "4", name = "Ollie Hardin3", number = "4", isChecked = false),
-                Contract(id = "5", name = "Ollie Hardin4", number = "5", isChecked = false),
-                Contract(id = "6", name = "Ollie Hardin5", number = "6", isChecked = false),
-                Contract(id = "7", name = "Ollie Hardin6", number = "7", isChecked = false),
-            )
+            val tempFriends = mutableListOf<Contract>()
+            tempFriends.clear()
+            tempFriends.addAll(friends)
 
             ModalBottomSheet(
+                modifier = Modifier,
+                containerColor = Color.White,
                 onDismissRequest = { showBottomSheet = false },
                 sheetState = sheetState,
             ) {
                 LazyColumn(
                     Modifier.padding(start = 16.dp, end = 16.dp)
                 ) {
-                    items(contracts) { message ->
+                    items(tempFriends) { message ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 modifier = Modifier.weight(1f),
@@ -296,14 +355,14 @@ fun HistoryAddScreen(navHostController: NavHostController) {
                             )
                             Text(text = message.number, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
 
-                            val checkedState = remember { mutableStateOf(false) }
+                            val checkedState = remember { mutableStateOf(message.isChecked) }
                             Checkbox(
                                 checked = checkedState.value,
                                 onCheckedChange = {
-                                    contracts.find { it.number == message.number }?.isChecked = it
+                                    tempFriends.find { it.number == message.number }?.isChecked = it
                                     checkedState.value = it
                                 },
-                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2C678), uncheckedColor = Color(0xFFF2C678))
+                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
                             )
                         }
                     }
@@ -311,15 +370,15 @@ fun HistoryAddScreen(navHostController: NavHostController) {
 
                 TextButton(
                     modifier = Modifier
-                        .fillMaxWidth().padding(bottom = 40.dp)
-                        .background(Color(0xFFF8D393)),
+                        .fillMaxWidth()
+                        .padding(bottom = 40.dp)
+                        .background(Color(0xFFF2BE2F)),
                     onClick = {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             if (!sheetState.isVisible) {
-                                selectedFriends.addAll(contracts.filter { it.isChecked })
-                                if (selectedFriends.isNotEmpty()) {
-                                    isFriendEmpty = false
-                                }
+                                friends.clear()
+                                friends.addAll(tempFriends)
+                                isFriendEmpty = friends.none { it.isChecked }
 
                                 showBottomSheet = false
                             }
@@ -339,7 +398,7 @@ fun HistoryAddScreen(navHostController: NavHostController) {
 @Composable
 fun InputChipExample(
     text: String,
-    onDismiss: () -> Unit,
+    onClick: () -> Unit,
 ) {
     var enabled by remember { mutableStateOf(true) }
     if (!enabled) return
@@ -352,7 +411,7 @@ fun InputChipExample(
             labelColor = Color.White
         ),
         onClick = {
-            onDismiss()
+            onClick()
             enabled = !enabled
         },
         label = { Text(text, style = getTextStyle(textStyle = RememberTextStyle.BODY_4B)) },
@@ -365,5 +424,5 @@ fun InputChipExample(
 @Preview
 @Composable
 fun PreviewHistoryAddScreen() {
-    HistoryAddScreen(rememberNavController())
+    HistoryAddScreen(rememberNavController(), null)
 }

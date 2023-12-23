@@ -2,12 +2,15 @@ package com.lee.remember.android.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
+import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
 import com.lee.remember.android.data.FriendHistory
 import com.lee.remember.android.friendProfiles
@@ -42,6 +47,7 @@ import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
+import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.remote.FriendApi
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
@@ -50,28 +56,20 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?) {
-
-    val friendProfile = friendProfiles.find { it.phoneNumber == selectedFriendPhoneNumber }
-    val items = friendProfile?.history ?: listOf<FriendHistory>()
+    // local datasource
+    val friend = FriendDao().getFriend(friendId?.toInt() ?: -1)
+    val memories = friend?.memories?.map { FriendHistory(title = it.title, contents = it.description, image = it.images.firstOrNull() ?: "", date = it.date) } ?: listOf()
 
     var name by remember { mutableStateOf("") }
 
-    val scope = rememberCoroutineScope()
-    scope.launch {
+    LaunchedEffect(null) {
         try {
             val response = FriendApi().getFriend(accessToken, friendId ?: "")
 
             if (response != null) {
-                Napier.d("###hi ${response}")
-
-                    response.result?.let {
-                        name = it.name
-//                        group = "-"  // Todo need response field
-//                        number = it.phoneNumber ?: ""
-//                        dateTitle = it.events?.firstOrNull()?.name ?: "기념일"
-//                        date = parseUtcString(it.events?.firstOrNull()?.date ?: "")
-//                        image = it.profileImage?.image ?: ""
-                    }
+                response.result?.let {
+                    name = it.name
+                }
 
                 response.toString()
             }
@@ -79,8 +77,6 @@ fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?)
             Napier.d("### ${e.localizedMessage}")
             e.localizedMessage ?: "error"
         }
-
-        scope.cancel()
     }
 
     Column {
@@ -106,25 +102,36 @@ fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?)
                 .fillMaxSize()
                 .background(lightColor)
         ) {
-            LazyColumn(
-                Modifier
-                    .padding(top = 24.dp, start = 16.dp, end = 16.dp)
-            ) {
-                items(items) { item ->
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        ),
-                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-                    ) {
-                        FeedItem(friendProfile?.name ?: "", item)
+            if (memories.isEmpty()) {
+                EmptyFriendHistoryScreen()
+                Image(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 80.dp, bottom = 100.dp),
+                    painter = painterResource(id = R.drawable.ic_empty_button_guide), contentDescription = null
+                )
+            } else {
+                LazyColumn(
+                    Modifier
+                        .padding(top = 24.dp, start = 16.dp, end = 16.dp)
+                ) {
+                    items(memories) { item ->
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                                .border(width = 1.dp, color = Color(0xFFD8D8D8), shape = RoundedCornerShape(size = 16.dp))
+                        ) {
+                            FeedItem(friend?.name ?: "", item)
+                        }
                     }
                 }
             }
 
             FloatingActionButton(
                 onClick = {
-
+                    navHostController.navigate("${RememberScreen.HistoryAdd.name}/${friendId}")
                 },
                 containerColor = Color(0xFFF2C678),
                 contentColor = MaterialTheme.colorScheme.secondary,
@@ -140,7 +147,18 @@ fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?)
             }
         }
     }
+}
 
+@Composable
+fun EmptyFriendHistoryScreen() {
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(painter = painterResource(id = R.drawable.img_empty_history), contentDescription = null)
+        Text(
+            "친구와의 추억을 기록해보세요!",
+            style = getTextStyle(textStyle = RememberTextStyle.BODY_1).copy(Color(0x94000000)),
+            modifier = Modifier.padding(top = 28.dp),
+        )
+    }
 }
 
 @Preview

@@ -1,5 +1,6 @@
 package com.lee.remember.android.ui
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +24,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,12 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.RememberTopAppBar
@@ -43,6 +48,8 @@ import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.local.dao.FriendDao
+import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.request.FriendResponse
 import kotlinx.coroutines.cancel
@@ -56,9 +63,14 @@ val pointColor = Color(0xFFF3F2EE)
 @Composable
 fun FriendScreen(navHostController: NavHostController) {
 
+    val friendListFromLocal = remember {
+        mutableStateOf(
+            FriendDao().getFriends().toMutableList()
+        )
+    }
+
     val friendList = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
-    val scope = rememberCoroutineScope()
-    scope.launch {
+    LaunchedEffect(null) {
         try {
             val response = FriendApi().getFriendList(accessToken)
             if (response != null) {
@@ -67,8 +79,6 @@ fun FriendScreen(navHostController: NavHostController) {
         } catch (e: Exception) {
             e.localizedMessage ?: "error"
         }
-
-        scope.cancel()
     }
 
     Column(
@@ -78,13 +88,15 @@ fun FriendScreen(navHostController: NavHostController) {
 
         Box(
             modifier = Modifier
-                .fillMaxSize().padding(top = 16.dp)
+                .fillMaxSize()
+                .padding(top = 16.dp)
                 .background(lightColor)
         ) {
             LazyColumn(
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp)
             ) {
                 val grouped = mapOf("목록" to friendList.value)
+//                val grouped = mapOf("목록" to friendListFromLocal.value)
 
                 grouped.forEach { (initial, contactsForInitial) ->
                     stickyHeader {
@@ -92,7 +104,12 @@ fun FriendScreen(navHostController: NavHostController) {
                     }
 
                     items(contactsForInitial) { contact ->
-                        val friendProfile = FriendProfile(id = contact.id, name = contact.name, phoneNumber = contact.phoneNumber ?: "")
+                        val friendProfile = FriendProfile(
+                            id = contact.id,
+                            name = contact.name,
+                            phoneNumber = contact.phoneNumber ?: "",
+                            image = contact.profileImage?.image ?: ""
+                        )
                         FriendItem(friendProfile, navHostController)
                     }
                 }
@@ -154,15 +171,29 @@ fun FriendItem(friendProfile: FriendProfile, navHostController: NavHostControlle
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_camera_32),
-                    contentDescription = "camera_image",
-                    contentScale = ContentScale.Inside,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(pointColor)
-                )
+                if (friendProfile.image.isNotEmpty()) {
+
+                    val bitmap: Bitmap? = stringToBitmap(friendProfile.image)
+                    bitmap?.let {
+                        Image(
+                            bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_camera_32),
+                        contentDescription = "camera_image",
+                        contentScale = ContentScale.Inside,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(pointColor)
+                    )
+                }
 
                 Column(
                     modifier = Modifier

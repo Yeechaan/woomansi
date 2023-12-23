@@ -97,6 +97,7 @@ fun SignInScreen(navController: NavHostController) {
         )
 
         var email by remember { mutableStateOf("") }
+        var emailCode by remember { mutableStateOf("") }
         var isValid by remember { mutableStateOf(true) }
 
         val password = remember { mutableStateOf("") }
@@ -112,7 +113,7 @@ fun SignInScreen(navController: NavHostController) {
         val openAlertDialog = remember { mutableStateOf(false) }
         if (openAlertDialog.value) {
             EmailConfirmDialog(
-                email = email,
+                emailCode = emailCode,
                 onDismissRequest = {
                     openAlertDialog.value = false
                 },
@@ -160,6 +161,7 @@ fun SignInScreen(navController: NavHostController) {
 
                         scope.launch {
                             val response = AuthApi().sendEmailCode(email)
+                            emailCode = response?.result?.code ?: ""
 
                             if (response != null && response.resultCode == "SUCCESS") {
 //                                openAlertDialog.value = true
@@ -258,7 +260,9 @@ fun SignInScreen(navController: NavHostController) {
                     scope.cancel()
                 }
             },
-            enabled = isValid && isEmailConfirmed.value && password.value.isNotEmpty() && (password.value == passwordConfirm.value),
+            // Todo 버튼 활성화 정책 설정
+//            enabled = isValid && isEmailConfirmed.value && password.value.isNotEmpty() && (password.value == passwordConfirm.value),
+            enabled = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
@@ -39,8 +40,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -81,7 +84,7 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
             val response = FriendApi().getFriend(accessToken, friendId ?: "")
 
             if (response != null) {
-                Napier.d("###hi ${response}")
+//                Napier.d("###hi ${response}")
 
                 response.result?.let {
                     name = it.name
@@ -126,18 +129,18 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(lightColor)
-                .clickable {},
+                .background(lightColor),
             contentAlignment = Alignment.Center
         ) {
             if (image.isNotEmpty()) {
                 val bitmap: Bitmap? = stringToBitmap(image)
-                AsyncImage(
-                    model = Uri.parse(image),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxWidth(),
-                    contentScale = ContentScale.Fit
-                )
+                bitmap?.let {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             } else {
                 Image(
                     painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
