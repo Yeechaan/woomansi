@@ -17,4 +17,9 @@ object BaseRealm {
     }.build()
 
     val realm = Realm.open(configuration)
+
+    fun delete() {
+        realm.close()
+        Realm.deleteRealm(configuration)
+    }
 }

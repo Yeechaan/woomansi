@@ -92,7 +92,7 @@ fun HistoryScreen(navHostController: NavHostController) {
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        RememberTopAppBar()
+        RememberTopAppBar(navHostController)
 
         Row(
             modifier = Modifier

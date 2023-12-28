@@ -16,13 +16,25 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -60,25 +72,38 @@ fun OnBoardingScreen(navController: NavHostController) {
         ) { page ->
             val item = items[page]
 
-            Column(Modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(
-                    modifier = Modifier
-                        .fillMaxWidth().size(270.dp)
-                        .padding(top = 80.dp)
-                        .padding(horizontal = 40.dp),
-                    painter = painterResource(id = item.first),
-                    contentDescription = null
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+//                    .clip(GenericShape { size, _ ->
+//                        lineTo(size.width, 0f)
+//                        lineTo(size.width, Float.MAX_VALUE)
+//                        lineTo(0f, Float.MAX_VALUE)
+//                    })
+                    .shadow(10.dp)
+                    .background(Color.White)
+            ) {
+                Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .size(270.dp)
+                            .padding(top = 80.dp)
+                            .padding(horizontal = 40.dp),
+                        painter = painterResource(id = item.first),
+                        contentDescription = null
+                    )
 
-                Text(
-                    modifier = Modifier.padding(top = 80.dp),
-                    text = item.second, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)
-                )
+                    Text(
+                        modifier = Modifier.padding(top = 80.dp),
+                        text = item.second, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)
+                    )
 
-                Text(
-                    modifier = Modifier.padding(top = 8.dp, bottom = 40.dp),
-                    text = item.third, style = getTextStyle(textStyle = RememberTextStyle.BODY_2)
-                )
+                    Text(
+                        modifier = Modifier.padding(top = 8.dp, bottom = 40.dp),
+                        text = item.third, style = getTextStyle(textStyle = RememberTextStyle.BODY_2)
+                    )
+                }
             }
         }
 
@@ -101,19 +126,42 @@ fun OnBoardingScreen(navController: NavHostController) {
             }
         }
 
-        TextButton(
-            onClick = {
-                navController.navigate(RememberScreen.Intro.name) {
-                    popUpTo(RememberScreen.OnBoarding.name) {
-                        inclusive = true
+        if (pagerState.currentPage == 2) {
+            Button(
+                onClick = {
+                    navController.navigate(RememberScreen.Intro.name) {
+                        popUpTo(RememberScreen.OnBoarding.name) {
+                            inclusive = true
+                        }
                     }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(28.dp),
-        ) {
-            Text(text = "SKIP", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFFD59519)))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp, start = 16.dp, end = 16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
+                shape = RoundedCornerShape(size = 100.dp),
+            ) {
+                Text(
+                    text = "시작하기",
+                    modifier = Modifier.padding(vertical = 2.dp),
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White)
+                )
+            }
+        } else {
+            TextButton(
+                onClick = {
+                    navController.navigate(RememberScreen.Intro.name) {
+                        popUpTo(RememberScreen.OnBoarding.name) {
+                            inclusive = true
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(28.dp),
+            ) {
+                Text(text = "SKIP", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFFD59519)))
+            }
         }
     }
 }

@@ -138,7 +138,7 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
                     Image(
                         bitmap = bitmap.asImageBitmap(), contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Crop
                     )
                 }
             } else {

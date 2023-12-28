@@ -85,7 +85,7 @@ fun ImageLayoutView(selectedImages: List<Uri?>) {
                 model = uri,
                 contentDescription = null,
                 modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.Crop
             )
         }
     }

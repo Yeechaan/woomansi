@@ -46,6 +46,7 @@ class FriendApi {
 
 //        Napier.d("### ${response.bodyAsText()}")
         Napier.d("###addFriend ${response.status}")
+        Napier.d("@@@addFriend ${response.bodyAsText().length}")
 
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
@@ -74,6 +75,7 @@ class FriendApi {
 
 //        Napier.d("### ${response.bodyAsText()}")
         Napier.d("###getFriendList ${response.status}")
+        Napier.d("@@@getFriend ${response.bodyAsText().length}")
 
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
