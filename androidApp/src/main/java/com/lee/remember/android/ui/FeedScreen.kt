@@ -75,7 +75,7 @@ fun FeedScreen(navHostController: NavHostController) {
     Column(
         Modifier.background(lightColor)
     ) {
-        RememberTopAppBar()
+        RememberTopAppBar(navHostController)
 
         var selectedIndex by remember { mutableStateOf(0) }
         val options = listOf("이름 순", "최신 순")
@@ -137,7 +137,7 @@ fun FeedItem(name: String, friendHistory: FriendHistory) {
             Image(
                 painter = painterResource(id = R.drawable.ic_camera_24),
                 contentDescription = "camera_image",
-                contentScale = ContentScale.Inside,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
@@ -202,7 +202,7 @@ fun FeedItem(name: String, friendHistory: FriendHistory) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(218.dp),
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Crop
                 )
             }
         }

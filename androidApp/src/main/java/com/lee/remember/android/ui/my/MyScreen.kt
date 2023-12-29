@@ -1,7 +1,6 @@
-package com.lee.remember.android.ui
+package com.lee.remember.android.ui.my
 
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,8 +35,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.GreetingView
 import com.lee.remember.android.R
+import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.ui.pointColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.local.BaseRealm
 import kotlinx.coroutines.launch
 
 @Composable
@@ -112,53 +114,28 @@ fun MyScreen(navController: NavHostController) {
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
         )
-
-        val context = LocalContext.current
+        val activity = (LocalContext.current as? Activity)
 
         Button(
             onClick = {
-                if (password != passwordConfirm) {
-                    Toast.makeText(context, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
-
                 scope.launch {
-//                    text = try {
-//                        val signInRequest = RegisterRequest(id, "name", password, "")
-//                        val response = GreetingKtor().register(signInRequest)
-//
-//                        if (response != null) {
-//                            val signInResponse = GreetingKtor().login(LoginRequest(id, password))
-//                            if (signInResponse != null) {
-//                                accessToken = signInResponse.result?.jwtToken ?: ""
-//                                navController.navigate(RememberScreen.SelectContact.name)
-//                            } else {
-//                                "에러"
-//                            }
-//
-//                            response.toString()
-//                        } else {
-//                            "에러"
-//                        }
-//                    } catch (e: Exception) {
-//                        e.localizedMessage ?: "error"
-//                    }
+                    // Todo realm 삭제 후 앱 종료
+//                    BaseRealm.delete()
+//                    activity?.finish()
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                .padding(top = 12.dp, start = 16.dp, end = 16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
             shape = RoundedCornerShape(size = 100.dp),
-            border = BorderStroke(1.dp, fontPointColor)
         ) {
             Text(
-                text = "회원가입",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(fontPointColor),
-                modifier = Modifier.padding(vertical = 2.dp)
+                text = "로그아웃",
+                modifier = Modifier.padding(vertical = 2.dp),
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White)
             )
         }
-
     }
 }
 

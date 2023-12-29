@@ -64,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -203,7 +204,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                     model = selectedImage,
                     contentDescription = null,
                     modifier = Modifier.fillMaxWidth(),
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Crop
                 )
             } else {
                 Image(
@@ -404,22 +405,6 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                     }
                 )
             }
-
-            Button(
-                onClick = { },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                shape = RoundedCornerShape(size = 100.dp),
-                border = BorderStroke(1.dp, fontColorPoint)
-            ) {
-                Text(
-                    text = "친구 기록보기",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontColorPoint),
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -454,7 +439,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                     }
 
 //                    profileImage = test(context, selectedImage)
-                    Napier.d("@@@ ${profileImage.length}")
+                    Napier.d("@@@ui ${profileImage.length}")
 
 //                        selectedImage?.let {
 //                            saveImageToInternalStorage(context, it)
@@ -484,6 +469,12 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
 
                         if (response != null && response.resultCode == "SUCCESS") {
                             Napier.d("### ${response.resultCode}")
+
+                            // @@@
+                            response.result?.map {
+                                val size = it.profileImage?.image?.length
+                                Napier.d("@@@addFriend ${it.id} / $size")
+                            }
 
                             friendRealm.apply { this.id = response.result?.firstOrNull()?.id ?: -1 }
                             navHostController.navigateUp()

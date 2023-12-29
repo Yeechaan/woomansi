@@ -52,6 +52,7 @@ import com.lee.remember.android.ui.intro.SignInScreen
 import com.lee.remember.android.ui.intro.SplashScreen
 import com.lee.remember.android.ui.intro.TermsScreen
 import com.lee.remember.android.ui.intro.UserNameScreen
+import com.lee.remember.android.ui.my.MyScreen
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
@@ -73,7 +74,9 @@ enum class RememberScreen(@StringRes val title: Int) {
     FriendHistory(title = R.string.friend_history),
     FriendEdit(title = R.string.friend_edit),
     FriendGroup(title = R.string.friend_edit),
-    HistoryAdd(title = R.string.history_add)
+    HistoryAdd(title = R.string.history_add),
+
+    My(title = R.string.my)
 }
 
 val mainScreens = listOf(RememberScreen.History.name, RememberScreen.Feed.name, RememberScreen.Friend.name)
@@ -223,6 +226,10 @@ fun MainApp(
                 val friendId = it.arguments?.getString("friendId")
                 HistoryAddScreen(navHostController = navController, friendId)
             }
+
+            composable(route = RememberScreen.My.name) {
+                MyScreen(navController)
+            }
         }
 
         bottomPadding = innerPadding.calculateBottomPadding()
@@ -238,7 +245,7 @@ fun TestDefaultPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RememberTopAppBar() {
+fun RememberTopAppBar(navHostController: NavHostController) {
     TopAppBar(
         modifier = Modifier.shadow(10.dp),
         title = {},
@@ -251,7 +258,9 @@ fun RememberTopAppBar() {
             )
         },
         actions = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                navHostController.navigate(RememberScreen.My.name)
+            }) {
                 Icon(painter = painterResource(id = R.drawable.ic_account), contentDescription = "")
             }
         }

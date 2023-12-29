@@ -141,7 +141,7 @@ fun UserNameScreen(navController: NavHostController) {
             shape = RoundedCornerShape(size = 100.dp),
         ) {
             Text(
-                text = "시작하기",
+                text = "완료하기",
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
                 modifier = Modifier.padding(vertical = 2.dp)
             )

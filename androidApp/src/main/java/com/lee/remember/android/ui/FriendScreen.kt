@@ -52,6 +52,7 @@ import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.request.FriendResponse
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -74,6 +75,13 @@ fun FriendScreen(navHostController: NavHostController) {
         try {
             val response = FriendApi().getFriendList(accessToken)
             if (response != null) {
+
+                // Todo
+                response.result?.map {
+                    val size = it.profileImage?.image?.length
+                    Napier.d("@@@getFriendList ${it.id} / $size")
+                }
+
                 friendList.value.addAll(response.result!!)
             }
         } catch (e: Exception) {
@@ -84,7 +92,7 @@ fun FriendScreen(navHostController: NavHostController) {
     Column(
         Modifier.background(lightColor)
     ) {
-        RememberTopAppBar()
+        RememberTopAppBar(navHostController)
 
         Box(
             modifier = Modifier
@@ -180,14 +188,14 @@ fun FriendItem(friendProfile: FriendProfile, navHostController: NavHostControlle
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape),
-                            contentScale = ContentScale.Fit
+                            contentScale = ContentScale.Crop
                         )
                     }
                 } else {
                     Image(
                         painter = painterResource(id = R.drawable.ic_camera_32),
                         contentDescription = "camera_image",
-                        contentScale = ContentScale.Inside,
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(48.dp)
                             .clip(CircleShape)

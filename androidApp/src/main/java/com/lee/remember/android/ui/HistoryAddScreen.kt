@@ -267,7 +267,7 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
                         model = selectedImage,
                         contentDescription = null,
                         modifier = Modifier.fillMaxWidth(),
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Crop
                     )
                     IconButton(
                         modifier = Modifier.align(Alignment.TopEnd),
