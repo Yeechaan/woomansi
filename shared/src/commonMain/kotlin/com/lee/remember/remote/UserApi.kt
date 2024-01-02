@@ -1,7 +1,7 @@
 package com.lee.remember.remote
 
-import com.lee.remember.request.UserInfoRequest
-import com.lee.remember.request.UserInfoResponse
+import com.lee.remember.remote.request.UserInfoRequest
+import com.lee.remember.remote.request.UserInfoResponse
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -32,7 +32,7 @@ class UserApi {
 
     private val userUrl = baseUrl + "users/"
 
-    suspend fun getUser(token: String): UserInfoResponse? {
+    suspend fun getUser(token: String): Result<UserInfoResponse> {
         val response = client.get(userUrl + "me") {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
@@ -40,9 +40,13 @@ class UserApi {
             }
         }
 
-        Napier.d("### ${response.bodyAsText()}")
+//        Napier.d("### ${response.bodyAsText()}")
 
-        return if (response.status == HttpStatusCode.OK) response.body() else null
+        return if (response.status == HttpStatusCode.OK) {
+            Result.success(response.body())
+        } else {
+            Result.failure(Exception("Network response status : ${response.status}"))
+        }
     }
 
     suspend fun updateUser(token: String, request: UserInfoRequest): UserInfoResponse? {
@@ -54,7 +58,7 @@ class UserApi {
             setBody(request)
         }
 
-        Napier.d("### ${response.bodyAsText()}")
+//        Napier.d("### ${response.bodyAsText()}")
 
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }

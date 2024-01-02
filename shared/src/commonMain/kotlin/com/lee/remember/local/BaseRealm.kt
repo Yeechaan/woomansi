@@ -1,5 +1,6 @@
 package com.lee.remember.local
 
+import com.lee.remember.local.model.AuthRealm
 import com.lee.remember.local.model.EventRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.MemoryRealm
@@ -11,7 +12,7 @@ import io.realm.kotlin.RealmConfiguration
 object BaseRealm {
 
     private val configuration = RealmConfiguration.Builder(
-        setOf(UserRealm::class, FriendRealm::class, EventRealm::class, ProfileImageRealm::class, MemoryRealm::class)
+        setOf(UserRealm::class, FriendRealm::class, EventRealm::class, ProfileImageRealm::class, MemoryRealm::class, AuthRealm::class)
     ).apply {
         deleteRealmIfMigrationNeeded()
     }.build()

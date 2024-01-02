@@ -48,7 +48,7 @@ import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.FriendApi
-import com.lee.remember.request.FriendRequest
+import com.lee.remember.remote.request.FriendRequest
 import io.github.aakira.napier.Napier
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList

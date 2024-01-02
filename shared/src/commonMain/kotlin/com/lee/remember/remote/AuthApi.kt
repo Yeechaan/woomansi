@@ -1,13 +1,13 @@
 package com.lee.remember.remote
 
-import com.lee.remember.request.EmailCheckRequest
-import com.lee.remember.request.EmailCheckResponse
-import com.lee.remember.request.EmailRequest
-import com.lee.remember.request.EmailResponse
-import com.lee.remember.request.LoginRequest
-import com.lee.remember.request.LoginResponse
-import com.lee.remember.request.SignupRequest
-import com.lee.remember.request.SignupResponse
+import com.lee.remember.remote.request.EmailCheckRequest
+import com.lee.remember.remote.request.EmailCheckResponse
+import com.lee.remember.remote.request.EmailRequest
+import com.lee.remember.remote.request.EmailResponse
+import com.lee.remember.remote.request.LoginRequest
+import com.lee.remember.remote.request.LoginResponse
+import com.lee.remember.remote.request.SignupRequest
+import com.lee.remember.remote.request.SignupResponse
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -48,7 +48,7 @@ class AuthApi {
         return response.body()
     }
 
-    suspend fun login(request: LoginRequest): LoginResponse? {
+    suspend fun login(request: LoginRequest): Result<LoginResponse> {
         val response = client.post(authUrl + "log-in") {
             contentType(ContentType.Application.Json)
             setBody(request)
@@ -56,7 +56,11 @@ class AuthApi {
 
         Napier.d("### ${response.bodyAsText()}")
 
-        return if (response.status == HttpStatusCode.OK) response.body() else null
+        return if (response.status == HttpStatusCode.OK) {
+            Result.success(response.body())
+        } else {
+            Result.failure(Exception("Network response status : ${response.status}"))
+        }
     }
 
     suspend fun sendEmailCode(email: String): EmailResponse? {

@@ -53,7 +53,8 @@ import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.local.dao.UserDao
 import com.lee.remember.local.model.UserRealm
 import com.lee.remember.remote.AuthApi
-import com.lee.remember.request.LoginRequest
+import com.lee.remember.remote.request.LoginRequest
+import com.lee.remember.repository.AuthRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -140,18 +141,8 @@ fun LoginScreen(navController: NavHostController) {
                 }
 
                 scope.launch {
-                    val loginResponse = AuthApi().login(LoginRequest(id, password.value))
-
-                    // Todo 로그인 성공 시 server 데이터 localDB 동기화
-                    if (loginResponse != null) {
-                        loginResponse.result?.let {
-                            accessToken = it.jwtToken ?: ""
-
-                            val user = UserRealm().apply { this.email = id; this.password = password.value }
-                            UserDao().setUser(user)
-                        }
-
-                        scope.cancel()
+                    val result = AuthRepository().login(id, password.value)
+                    if (result.isSuccess) {
                         navController.navigate(RememberScreen.History.name) {
                             popUpTo(RememberScreen.Login.name) {
                                 inclusive = true

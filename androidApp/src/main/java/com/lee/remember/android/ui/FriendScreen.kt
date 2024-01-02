@@ -51,7 +51,7 @@ import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.FriendApi
-import com.lee.remember.request.FriendResponse
+import com.lee.remember.remote.request.FriendResponse
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch

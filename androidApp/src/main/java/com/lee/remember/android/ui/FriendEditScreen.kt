@@ -89,7 +89,7 @@ import com.lee.remember.local.model.EventRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.ProfileImageRealm
 import com.lee.remember.remote.FriendApi
-import com.lee.remember.request.FriendRequest
+import com.lee.remember.remote.request.FriendRequest
 import io.github.aakira.napier.Napier
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.Dispatchers

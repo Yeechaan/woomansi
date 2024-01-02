@@ -68,7 +68,7 @@ import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.remote.FriendApi
-import com.lee.remember.request.FriendResponse
+import com.lee.remember.remote.request.FriendResponse
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch

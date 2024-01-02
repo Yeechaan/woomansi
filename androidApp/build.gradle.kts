@@ -67,4 +67,11 @@ dependencies {
     implementation("io.realm.kotlin:library-base:1.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
 
+    val lifecycle_version = "2.6.2"
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    // ViewModel utilities for Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
+    // Lifecycle utilities for Compose
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version")
 }

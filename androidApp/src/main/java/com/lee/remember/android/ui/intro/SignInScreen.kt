@@ -56,8 +56,8 @@ import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.local.dao.UserDao
 import com.lee.remember.local.model.UserRealm
 import com.lee.remember.remote.AuthApi
-import com.lee.remember.request.SignupRequest
-import com.lee.remember.request.SignupResponse
+import com.lee.remember.remote.request.SignupRequest
+import com.lee.remember.remote.request.SignupResponse
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch

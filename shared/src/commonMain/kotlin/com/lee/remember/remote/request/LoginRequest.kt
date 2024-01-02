@@ -1,4 +1,4 @@
-package com.lee.remember.request
+package com.lee.remember.remote.request
 
 import kotlinx.serialization.Serializable
 
