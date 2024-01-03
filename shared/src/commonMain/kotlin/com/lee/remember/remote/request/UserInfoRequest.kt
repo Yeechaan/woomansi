@@ -1,19 +1,19 @@
-package com.lee.remember.request
+package com.lee.remember.remote.request
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SignupRequest(
+data class UserInfoRequest(
     val email: String,
     val password: String,
-    val name: String = "",
-    val phoneNumber: String = "",
-    val profileImage: String = "",
+    val name: String,
+    val phoneNumber: String,
+    val profileImage: String,
 )
 
 @Serializable
-data class SignupResponse(
+data class UserInfoResponse(
     @SerialName("result")
     val result: Result?,
     @SerialName("resultCode")
@@ -21,22 +21,20 @@ data class SignupResponse(
 ) {
     @Serializable
     data class Result(
-        @SerialName("email")
-        val email: String,
         @SerialName("id")
         val id: Int,
-        @SerialName("jwtToken")
-        val jwtToken: String,
+        @SerialName("email")
+        val email: String,
         @SerialName("name")
         val name: String?,
         @SerialName("phoneNumber")
         val phoneNumber: String?,
         @SerialName("profileImage")
-        val profileImage: ProfileImage,
+        val profileImage: ProfileImage?,
         @SerialName("authProvider")
         val authProvider: String,
         @SerialName("providerId")
-        val providerId: Int?
+        val providerId: String?
     ) {
         @Serializable
         data class ProfileImage(

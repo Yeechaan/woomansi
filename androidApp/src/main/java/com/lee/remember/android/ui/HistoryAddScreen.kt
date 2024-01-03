@@ -73,7 +73,7 @@ import com.lee.remember.local.dao.MemoryDao
 import com.lee.remember.local.model.MemoryRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.MemoryApi
-import com.lee.remember.request.MemoryRequest
+import com.lee.remember.remote.request.MemoryRequest
 import io.github.aakira.napier.Napier
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.cancel

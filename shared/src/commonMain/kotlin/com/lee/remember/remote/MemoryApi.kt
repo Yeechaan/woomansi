@@ -1,9 +1,9 @@
 package com.lee.remember.remote
 
-import com.lee.remember.request.MemoryAddResponse
-import com.lee.remember.request.MemoryRequest
-import com.lee.remember.request.SignupRequest
-import com.lee.remember.request.SignupResponse
+import com.lee.remember.remote.request.MemoryAddResponse
+import com.lee.remember.remote.request.MemoryRequest
+import com.lee.remember.remote.request.SignupRequest
+import com.lee.remember.remote.request.SignupResponse
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

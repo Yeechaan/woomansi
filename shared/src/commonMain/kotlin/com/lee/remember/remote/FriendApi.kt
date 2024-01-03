@@ -1,9 +1,9 @@
 package com.lee.remember.remote
 
-import com.lee.remember.request.FriendAddResponse
-import com.lee.remember.request.FriendDetailResponse
-import com.lee.remember.request.FriendRequest
-import com.lee.remember.request.FriendResponse
+import com.lee.remember.remote.request.FriendAddResponse
+import com.lee.remember.remote.request.FriendDetailResponse
+import com.lee.remember.remote.request.FriendRequest
+import com.lee.remember.remote.request.FriendResponse
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

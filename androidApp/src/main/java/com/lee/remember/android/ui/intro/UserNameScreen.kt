@@ -48,7 +48,7 @@ import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.local.dao.UserDao
 import com.lee.remember.remote.UserApi
-import com.lee.remember.request.UserInfoRequest
+import com.lee.remember.remote.request.UserInfoRequest
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
