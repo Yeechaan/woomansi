@@ -46,6 +46,7 @@ import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
 import com.lee.remember.android.ui.whiteColor
+import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
@@ -79,7 +80,7 @@ fun LoginScreen(navController: NavHostController) {
 
         TopAppBar(
             modifier = Modifier.shadow(elevation = 10.dp),
-            title = { Text("우만시 로그인", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            title = { Text("로그인", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
             navigationIcon = {
                 IconButton(onClick = { navController.navigateUp() }) {
@@ -133,38 +134,58 @@ fun LoginScreen(navController: NavHostController) {
 
         val context = LocalContext.current
 
-        Button(
-            onClick = {
-                if (id.isEmpty() || password.value.isEmpty()) {
-                    Toast.makeText(context, "이메일 또는 비밀번호는 입력해주세요.", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
+        RememberFilledButton(text = "로그인", onClick = {
+            if (id.isEmpty() || password.value.isEmpty()) {
+                Toast.makeText(context, "이메일 또는 비밀번호는 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@RememberFilledButton
+            }
 
-                scope.launch {
-                    val result = AuthRepository().login(id, password.value)
-                    if (result.isSuccess) {
-                        navController.navigate(RememberScreen.History.name) {
-                            popUpTo(RememberScreen.Login.name) {
-                                inclusive = true
-                            }
+            scope.launch {
+                val result = AuthRepository().login(id, password.value)
+                if (result.isSuccess) {
+                    navController.navigate(RememberScreen.History.name) {
+                        popUpTo(RememberScreen.Login.name) {
+                            inclusive = true
                         }
-                    } else {
-                        Toast.makeText(context, "로그인 실패", Toast.LENGTH_SHORT).show()
                     }
+                } else {
+                    Toast.makeText(context, "로그인 실패", Toast.LENGTH_SHORT).show()
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
-            shape = RoundedCornerShape(size = 100.dp),
-        ) {
-            Text(
-                text = "로그인",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
-                modifier = Modifier.padding(vertical = 2.dp)
-            )
-        }
+            }
+        })
+
+//        Button(
+//            onClick = {
+//                if (id.isEmpty() || password.value.isEmpty()) {
+//                    Toast.makeText(context, "이메일 또는 비밀번호는 입력해주세요.", Toast.LENGTH_SHORT).show()
+//                    return@Button
+//                }
+//
+//                scope.launch {
+//                    val result = AuthRepository().login(id, password.value)
+//                    if (result.isSuccess) {
+//                        navController.navigate(RememberScreen.History.name) {
+//                            popUpTo(RememberScreen.Login.name) {
+//                                inclusive = true
+//                            }
+//                        }
+//                    } else {
+//                        Toast.makeText(context, "로그인 실패", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//            },
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),
+//            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
+//            shape = RoundedCornerShape(size = 100.dp),
+//        ) {
+//            Text(
+//                text = "로그인",
+//                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
+//                modifier = Modifier.padding(vertical = 2.dp)
+//            )
+//        }
 
     }
 

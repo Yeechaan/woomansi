@@ -37,7 +37,7 @@ class AuthApi {
     private val authUrl = baseUrl + "auth/"
 
 
-    suspend fun signup(request: SignupRequest): SignupResponse? {
+    suspend fun signup(request: SignupRequest): Result<SignupResponse> {
         val response = client.post(authUrl + "sign-up") {
             contentType(ContentType.Application.Json)
             setBody(request)
@@ -45,7 +45,11 @@ class AuthApi {
 
         Napier.d("### ${response.bodyAsText()}")
 
-        return response.body()
+        return if (response.status == HttpStatusCode.OK) {
+            Result.success(response.body())
+        } else {
+            Result.failure(Exception("Network response status : ${response.status}"))
+        }
     }
 
     suspend fun login(request: LoginRequest): Result<LoginResponse> {

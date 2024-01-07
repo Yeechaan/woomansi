@@ -55,6 +55,7 @@ import coil.compose.AsyncImage
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
+import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
@@ -109,16 +110,27 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
     Column(
         Modifier
             .fillMaxSize()
-            .background(whiteColor)
+            .background(lightColor)
             .verticalScroll(scrollState)
     ) {
         TopAppBar(
-            title = { Text("친구 기록", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            title = { Text(name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
             navigationIcon = {
                 IconButton(onClick = { navHostController.navigateUp() }) {
                     Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = stringResource(R.string.back_button))
                 }
+            },
+            actions = {
+                Text(
+                    "수정하기",
+                    Modifier
+                        .padding(end = 12.dp)
+                        .clickable {
+                            navHostController.navigate("${RememberScreen.FriendEdit.name}/${friendId}")
+                        },
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF33322E)),
+                )
             },
             modifier = Modifier
                 .shadow(elevation = 1.dp, spotColor = Color(0x36444444), ambientColor = Color(0x36444444))
@@ -128,8 +140,7 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .background(lightColor),
+                .padding(top = 32.dp),
             contentAlignment = Alignment.Center
         ) {
             if (image.isNotEmpty()) {
@@ -137,20 +148,30 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
                 bitmap?.let {
                     Image(
                         bitmap = bitmap.asImageBitmap(), contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    Image(
+                        bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
                 }
             } else {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
-                    modifier = Modifier.size(48.dp)
+                    painter = painterResource(id = R.drawable.ic_camera_24), contentDescription = "",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(Color.White),
                 )
             }
-
         }
-
-        Divider(thickness = 1.dp, color = Color.Black)
 
         Column(
             Modifier
@@ -169,42 +190,30 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
                     style = getTextStyle(textStyle = RememberTextStyle.HEAD_5).copy(fontColorBlack),
                 )
 
-                Button(
-                    onClick = { navHostController.navigate("${RememberScreen.FriendEdit.name}/${friendId}") },
-                    modifier = Modifier.defaultMinSize(minHeight = 22.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(size = 8.dp),
-                    border = BorderStroke(1.dp, Color(0xFF79747E)),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = "수정하기",
-                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF49454F)),
-                        modifier = Modifier
-                    )
-                }
+//                Button(
+//                    onClick = { navHostController.navigate("${RememberScreen.FriendEdit.name}/${friendId}") },
+//                    modifier = Modifier.defaultMinSize(minHeight = 22.dp),
+//                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+//                    shape = RoundedCornerShape(size = 8.dp),
+//                    border = BorderStroke(1.dp, Color(0xFF79747E)),
+//                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+//                ) {
+//                    Text(
+//                        text = "수정하기",
+//                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF49454F)),
+//                        modifier = Modifier
+//                    )
+//                }
             }
 
-            FriendProfileItem("그룹", group)
             FriendProfileItem("연락처", number)
+            FriendProfileItem("그룹", group)
             FriendProfileItem(dateTitle, date)
-
-            Button(
-                onClick = { },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                shape = RoundedCornerShape(size = 100.dp),
-                border = BorderStroke(1.dp, fontColorPoint)
-            ) {
-                Text(
-                    text = "친구 기록보기",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(fontColorPoint),
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-            }
         }
+
+        RememberOutlinedButton(text = "친구 기록 보기", onClick = {
+
+        })
     }
 }
 

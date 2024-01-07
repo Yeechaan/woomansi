@@ -74,6 +74,7 @@ import com.lee.remember.local.model.MemoryRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.MemoryApi
 import com.lee.remember.remote.request.MemoryRequest
+import com.lee.remember.repository.AuthRepository
 import io.github.aakira.napier.Napier
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.cancel
@@ -163,16 +164,23 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
                     scope.launch {
                         val image = uriToBitmapString(context, selectedImage)
 
+
                         // remote
+                        val addedFriends = mutableListOf(MemoryRequest.Friend(id = friendId?.toInt() ?: -1))
+                        friends.filter { it.isChecked }.map {
+                            addedFriends.add(MemoryRequest.Friend(id = it.id.toInt()))
+                        }
+
+                        // Todo 사진, 날짜 추가
                         val request = MemoryRequest(
                             title = title,
                             description = content,
                             date = "2023-12-18",
-                            friendIds = friends.filter { it.isChecked }.map { it.id.toInt() },
-                            images = listOf(image)
+                            friends = addedFriends,
+                            images = listOf(MemoryRequest.Image(""))
                         )
 
-                        val response = MemoryApi().addMemory(accessToken, request)
+                        val response = MemoryApi().addMemory("", request)
 
                         // Todo remote 실패한 경우 local 저장 여부
                         // local

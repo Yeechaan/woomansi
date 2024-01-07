@@ -49,6 +49,7 @@ import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.local.dao.UserDao
 import com.lee.remember.remote.UserApi
 import com.lee.remember.remote.request.UserInfoRequest
+import com.lee.remember.repository.UserRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -91,6 +92,7 @@ fun UserNameScreen(navController: NavHostController) {
         var nickname by remember { mutableStateOf("") }
 
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         Text(
             modifier = Modifier
@@ -116,15 +118,11 @@ fun UserNameScreen(navController: NavHostController) {
             onClick = {
                 scope.launch {
                     try {
-                        val user = UserDao().getUser() ?: return@launch
-
-                        val userInfoRequest = UserInfoRequest(user.email, user.password, nickname, user.phoneNumber, user.profileImage)
-                        val response = UserApi().updateUser(accessToken, userInfoRequest)
-
-                        if (response != null) {
+                        val result = UserRepository().updateUserName(nickname)
+                        if (result.isSuccess) {
                             navController.navigate(RememberScreen.SelectContact.name)
-
-                            response.toString()
+                        } else {
+                            Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
                         }
                     } catch (e: Exception) {
                         Napier.d("### ${e.localizedMessage}")
@@ -142,7 +140,7 @@ fun UserNameScreen(navController: NavHostController) {
         ) {
             Text(
                 text = "완료하기",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0x94000000)),
                 modifier = Modifier.padding(vertical = 2.dp)
             )
         }
