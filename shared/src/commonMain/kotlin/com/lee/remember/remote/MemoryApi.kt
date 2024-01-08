@@ -4,6 +4,7 @@ import com.lee.remember.remote.request.MemoryAddResponse
 import com.lee.remember.remote.request.MemoryRequest
 import com.lee.remember.remote.request.SignupRequest
 import com.lee.remember.remote.request.SignupResponse
+import com.lee.remember.repository.AuthRepository
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -32,6 +33,8 @@ class MemoryApi {
     private val memoryUrl = baseUrl + "memories"
 
     suspend fun addMemory(token: String, request: MemoryRequest): MemoryAddResponse? {
+        val token = AuthRepository().getToken()?.accessToken ?: ""
+
         val response = client.post(memoryUrl) {
             headers {
                 append(HttpHeaders.ContentType, "application/json")

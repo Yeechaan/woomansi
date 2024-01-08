@@ -8,14 +8,26 @@ data class MemoryRequest(
     @SerialName("title")
     val title: String,
     @SerialName("description")
-    val description: String = "",
+    val description: String,
     @SerialName("date")
-    val date: String = "",
-    @SerialName("friendIds")
-    val friendIds: List<Int> = listOf(),
+    val date: String,
+    @SerialName("friends")
+    val friends: List<Friend>,
     @SerialName("images")
-    val images: List<String> = listOf(),
-)
+    val images: List<Image>,
+) {
+    @Serializable
+    data class Friend(
+        @SerialName("id")
+        val id: Int
+    )
+
+    @Serializable
+    data class Image(
+        @SerialName("image")
+        val image: String
+    )
+}
 
 @Serializable
 data class MemoryAddResponse(
@@ -35,14 +47,16 @@ data class MemoryAddResponse(
         @SerialName("date")
         val date: String?,
         @SerialName("friends")
-        val friends: List<Friend>?
+        val friends: List<Friend>?,
+        @SerialName("images")
+        val images: List<Image>?,
     ) {
         @Serializable
         data class Friend(
             @SerialName("id")
             val id: Int,
             @SerialName("name")
-            val name: String,
+            val name: String?,
             @SerialName("profileImage")
             val profileImage: ProfileImage?
         ) {
@@ -51,8 +65,16 @@ data class MemoryAddResponse(
                 @SerialName("id")
                 val id: Int,
                 @SerialName("image")
-                val image: String
+                val image: String?
             )
         }
+
+        @Serializable
+        data class Image(
+            @SerialName("id")
+            val id: Int,
+            @SerialName("image")
+            val image: String?
+        )
     }
 }

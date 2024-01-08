@@ -4,6 +4,7 @@ import com.lee.remember.remote.request.FriendAddResponse
 import com.lee.remember.remote.request.FriendDetailResponse
 import com.lee.remember.remote.request.FriendRequest
 import com.lee.remember.remote.request.FriendResponse
+import com.lee.remember.repository.AuthRepository
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -35,6 +36,8 @@ class FriendApi {
     private val friendUrl = baseUrl + "friends"
 
     suspend fun addFriend(token: String, friends: List<FriendRequest>): FriendAddResponse? {
+        val token = AuthRepository().getToken()?.accessToken ?: ""
+
         val response = client.post(friendUrl) {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
@@ -52,6 +55,8 @@ class FriendApi {
     }
 
     suspend fun getFriend(token: String, friendId: String): FriendDetailResponse? {
+        val token = AuthRepository().getToken()?.accessToken ?: ""
+
         val response = client.get("$friendUrl/$friendId") {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
@@ -66,6 +71,8 @@ class FriendApi {
     }
 
     suspend fun getFriendList(token: String): FriendResponse? {
+        val token = AuthRepository().getToken()?.accessToken ?: ""
+
         val response = client.get(friendUrl) {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
@@ -81,6 +88,8 @@ class FriendApi {
     }
 
     suspend fun updateFriend(token: String, friendId: String, friend: FriendRequest): FriendDetailResponse? {
+        val token = AuthRepository().getToken()?.accessToken ?: ""
+
         val response = client.put("$friendUrl/$friendId") {
             headers {
                 append(HttpHeaders.ContentType, "application/json")

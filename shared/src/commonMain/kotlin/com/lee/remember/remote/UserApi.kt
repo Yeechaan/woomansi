@@ -49,7 +49,7 @@ class UserApi {
         }
     }
 
-    suspend fun updateUser(token: String, request: UserInfoRequest): UserInfoResponse? {
+    suspend fun updateUser(token: String, request: UserInfoRequest): Result<UserInfoResponse> {
         val response = client.put(userUrl + "me") {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
@@ -58,9 +58,11 @@ class UserApi {
             setBody(request)
         }
 
-//        Napier.d("### ${response.bodyAsText()}")
-
-        return if (response.status == HttpStatusCode.OK) response.body() else null
+        return if (response.status == HttpStatusCode.OK) {
+            Result.success(response.body())
+        } else {
+            Result.failure(Exception("Network response status : ${response.status}"))
+        }
     }
 
     suspend fun deleteUser(token: String): Boolean? {

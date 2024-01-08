@@ -1,27 +1,24 @@
 package com.lee.remember.android.ui.intro
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,7 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.ui.whiteColor
+import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
@@ -42,7 +39,7 @@ fun IntroScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(whiteColor)
+            .paint(painterResource(id = R.drawable.img_intro), contentScale = ContentScale.FillBounds)
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -70,21 +67,9 @@ fun IntroScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Button(
-            onClick = { navController.navigate(RememberScreen.Login.name) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            shape = RoundedCornerShape(size = 100.dp),
-            border = BorderStroke(1.dp, Color.Black)
-        ) {
-            Text(
-                text = "로그인",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black),
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
+        RememberFilledButton(text = "로그인", paddingValues = PaddingValues(top = 16.dp, bottom = 0.dp), onClick = {
+            navController.navigate(RememberScreen.Login.name)
+        })
 
         TextButton(
             modifier = Modifier
@@ -93,12 +78,12 @@ fun IntroScreen(navController: NavHostController) {
             onClick = { navController.navigate(RememberScreen.Terms.name) }) {
             Text(
                 text = "새로 시작하기",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color.Black),
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color.White),
                 modifier = Modifier.drawBehind {
                     val strokeWidthPx = 1.dp.toPx()
                     val verticalOffset = size.height - 1.sp.toPx()
                     drawLine(
-                        color = Color.Black,
+                        color = Color.White,
                         strokeWidth = strokeWidthPx,
                         start = Offset(0f, verticalOffset),
                         end = Offset(size.width, verticalOffset)

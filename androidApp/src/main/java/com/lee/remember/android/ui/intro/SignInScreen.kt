@@ -58,6 +58,7 @@ import com.lee.remember.local.model.UserRealm
 import com.lee.remember.remote.AuthApi
 import com.lee.remember.remote.request.SignupRequest
 import com.lee.remember.remote.request.SignupResponse
+import com.lee.remember.repository.AuthRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -235,23 +236,15 @@ fun SignInScreen(navController: NavHostController) {
 
                 scope.launch {
                     try {
-                        val signupRequest = SignupRequest(email, password.value)
-                        val response = AuthApi().signup(signupRequest)
-
-                        Napier.d("$response")
-
-                        if (response != null && response.resultCode == "SUCCESS") {
-                            saveUser(response, password.value)
-
-                            accessToken = response.result?.jwtToken ?: ""
+                        val result = AuthRepository().signUp(email, password.value)
+                        if (result.isSuccess) {
                             navController.navigate(RememberScreen.UserName.name) {
                                 popUpTo(RememberScreen.UserName.name) {
                                     inclusive = true
                                 }
                             }
                         } else {
-                            // Todo api error message
-                            Toast.makeText(context, "${response?.resultCode}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
                         }
                     } catch (e: Exception) {
                         e.localizedMessage ?: "error"
@@ -271,18 +264,11 @@ fun SignInScreen(navController: NavHostController) {
         ) {
             Text(
                 text = "가입하기",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
-                modifier = Modifier.padding(vertical = 2.dp)
+                modifier = Modifier.padding(vertical = 2.dp),
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0x94000000))
             )
         }
 
-    }
-}
-
-suspend fun saveUser(signupResponse: SignupResponse, password: String) {
-    signupResponse.result?.let {
-        val user = UserRealm().apply { this.email = it.email; this.password = password; this.userId = it.id }
-        UserDao().setUser(user)
     }
 }
 

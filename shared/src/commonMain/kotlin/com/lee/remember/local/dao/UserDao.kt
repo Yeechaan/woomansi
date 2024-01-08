@@ -2,7 +2,6 @@ package com.lee.remember.local.dao
 
 import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.model.UserRealm
-import com.lee.remember.repository.UserUpdate
 import io.realm.kotlin.ext.query
 
 class UserDao {
