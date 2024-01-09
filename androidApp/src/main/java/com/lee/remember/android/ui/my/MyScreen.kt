@@ -1,146 +1,137 @@
 package com.lee.remember.android.ui.my
 
-import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.android.GreetingView
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.ui.pointColor
+import com.lee.remember.android.utils.RememberFilledButton
+import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.local.BaseRealm
-import kotlinx.coroutines.launch
+import com.lee.remember.repository.UserRepository
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScreen(navController: NavHostController) {
 
     Column(
         modifier = Modifier
-            .background(color = Color.White)
-            .padding(bottom = 32.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
+            .fillMaxSize()
+            .background(color = Color.White),
     ) {
-        HeadingLogoScreen()
 
+        TopAppBar(
+            modifier = Modifier.shadow(elevation = 10.dp),
+            title = { Text("마이페이지", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
+            navigationIcon = {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(
+                        painterResource(id = R.drawable.baseline_arrow_back_24),
+                        contentDescription = stringResource(R.string.back_button)
+                    )
+                }
+            },
+        )
+
+        val user = UserRepository().getUser()
         var id by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-        var passwordConfirm by remember { mutableStateOf("") }
-        var nickname by remember { mutableStateOf("") }
 
-        // Ktor Test
-        val scope = rememberCoroutineScope()
-        var text by remember { mutableStateOf("") }
-
-        GreetingView(text)
+        HeadingLogoScreen(user?.name ?: "")
 
         Text("내 정보", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5), modifier = Modifier.padding(top = 24.dp, start = 16.dp))
 
         OutlinedTextField(
-            value = id, onValueChange = { id = it },
-            label = {
-                Text("이메일", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
+            value = user?.email ?: "", onValueChange = { id = it },
+            label = { RememberTextField.label(text = "이메일") },
+            placeholder = { RememberTextField.placeHolder(text = "이메일 입력") },
+            textStyle = RememberTextField.textStyle(),
+            colors = RememberTextField.colors(),
+            readOnly = true,
+            enabled = true,
             modifier = Modifier
                 .padding(top = 16.dp)
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
         )
 
-        OutlinedTextField(
-            value = password, onValueChange = { password = it },
-            label = {
-                Text("비밀번호", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-        )
-
-        OutlinedTextField(
-            value = passwordConfirm, onValueChange = { passwordConfirm = it },
-            label = {
-                Text("비밀번호 확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-        )
-
-        OutlinedTextField(
-            value = nickname, onValueChange = { nickname = it },
-            label = {
-                Text("닉네임", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
-            },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_4B),
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-        )
-        val activity = (LocalContext.current as? Activity)
-
-        Button(
-            onClick = {
-                scope.launch {
-                    // Todo realm 삭제 후 앱 종료
+        RememberFilledButton(text = "로그아웃") {
+            // Todo realm 삭제 후 앱 종료
 //                    BaseRealm.delete()
 //                    activity?.finish()
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp, start = 16.dp, end = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
-            shape = RoundedCornerShape(size = 100.dp),
-        ) {
-            Text(
-                text = "로그아웃",
-                modifier = Modifier.padding(vertical = 2.dp),
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White)
-            )
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Column(Modifier.background(pointColor).fillMaxWidth(), horizontalAlignment = Alignment.End) {
+            TextButton(
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .padding(bottom = 32.dp),
+                onClick = {
+                    // Todo
+                }) {
+                Text(
+                    text = "회원탈퇴",
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_1).copy(Color(0xFF1D1B20)),
+                    modifier = Modifier.drawBehind {
+                        val strokeWidthPx = 1.dp.toPx()
+                        val verticalOffset = size.height - 1.sp.toPx()
+                        drawLine(
+                            color = Color(0xFF1D1B20),
+                            strokeWidth = strokeWidthPx,
+                            start = Offset(0f, verticalOffset),
+                            end = Offset(size.width, verticalOffset)
+                        )
+                    }
+                )
+            }
+        }
+
+
     }
 }
 
 @Composable
-fun HeadingLogoScreen() {
+fun HeadingLogoScreen(name: String) {
     Column(
         Modifier
             .shadow(elevation = 1.dp, spotColor = Color(0x36263E2B), ambientColor = Color(0x36263E2B))
@@ -161,7 +152,7 @@ fun HeadingLogoScreen() {
                 .background(pointColor)
         )
 
-        Text("우만시", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5), modifier = Modifier.padding(top = 16.dp, bottom = 24.dp))
+        Text(name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5), modifier = Modifier.padding(top = 16.dp, bottom = 24.dp))
 
         Divider(color = pointColor, thickness = 8.dp)
     }

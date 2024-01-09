@@ -22,7 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -30,16 +29,21 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -66,6 +70,9 @@ import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.accessToken
 import com.lee.remember.android.bottomPadding
+import com.lee.remember.android.utils.RememberOutlinedButton
+import com.lee.remember.android.utils.RememberTextField
+import com.lee.remember.android.utils.RememberTextField.placeHolder
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.local.dao.FriendDao
@@ -79,6 +86,8 @@ import io.github.aakira.napier.Napier
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Date
 
 //0xFFD59519
 val fontPointColor = Color(0xFFD59519)
@@ -209,60 +218,77 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
 
         OutlinedTextField(
             value = title, onValueChange = { title = it },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
+            label = { RememberTextField.label(text = "제목") },
+            placeholder = { placeHolder("내 친구와 있었던 추억") },
+            textStyle = RememberTextField.textStyle(),
+            colors = RememberTextField.colors(),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 28.dp, start = 16.dp, end = 16.dp),
-            placeholder = {
-                Text(
-                    text = "내 친구와 있었던 추억",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(color = fontHintColor)
-                )
-            },
-            label = {
-                Text(
-                    "제목",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(color = fontHintColor),
-                )
-            },
             maxLines = 3
         )
 
         OutlinedTextField(
             value = content, onValueChange = { content = it },
-            textStyle = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
+            label = { RememberTextField.label(text = "내용") },
+            placeholder = { placeHolder("그 날 친구와 무슨 추억을 쌓았나요?") },
+            textStyle = RememberTextField.textStyle(),
+            colors = RememberTextField.colors(),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp, start = 16.dp, end = 16.dp),
-            placeholder = {
-                Text(
-                    text = "그 날 친구와 무슨 추억을 쌓았나요?\n\n\n",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(color = fontHintColor),
-                )
-            },
-            label = {
-                Text(
-                    "내용",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(color = fontHintColor),
-                )
-            },
-            shape = RoundedCornerShape(size = 8.dp),
         )
 
-        Button(
-            onClick = { launchPhotoPicker() },
+        val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
+        var date by remember { mutableStateOf(today) }
+        val state = rememberDatePickerState()
+        state.selectedDateMillis?.let {
+            date = convertMillisToDate(it)
+        }
+
+        val openDialog = remember { mutableStateOf(false) }
+        if (openDialog.value) {
+            DatePickerDialog(
+                onDismissRequest = { openDialog.value = false },
+                confirmButton = {
+                    TextButton(onClick = { openDialog.value = false }) {
+                        Text("확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF33322E)))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { openDialog.value = false }
+                    ) {
+                        Text("취소", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFFD59519)))
+                    }
+                },
+                colors = DatePickerDefaults.colors(containerColor = Color.White)
+            ) { DatePicker(state = state) }
+        }
+
+        OutlinedTextField(
+            value = date, onValueChange = { date = it }, readOnly = true,
+            label = { RememberTextField.label(text = "추억 선택") },
+            textStyle = RememberTextField.textStyle(),
+            colors = RememberTextField.colors(),
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp, start = 16.dp, end = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
-            shape = RoundedCornerShape(size = 100.dp),
-        ) {
-            Text(
-                text = "사진첨부",
-                modifier = Modifier.padding(vertical = 2.dp),
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White)
-            )
-        }
+                .padding(top = 8.dp, start = 16.dp, end = 16.dp),
+            trailingIcon = {
+                IconButton(
+                    onClick = { openDialog.value = true }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_calander),
+                        contentDescription = "Clear"
+                    )
+                }
+            }
+        )
+
+        RememberOutlinedButton(text = "사진첨부", onClick = {
+            launchPhotoPicker()
+        })
 
         if (selectedImage != null) {
             Card(
@@ -303,7 +329,6 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
             Button(
                 onClick = { showBottomSheet = true },
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(top = 6.dp, start = 16.dp, end = 16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 shape = RoundedCornerShape(size = 8.dp),
@@ -313,8 +338,8 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
                     text = "친구 찾기",
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_4B).copy(Color(0xFF79747E)),
                     modifier = Modifier
-                        .padding(end = 8.dp)
-                        .padding(horizontal = 6.dp)
+                        .padding(vertical = 4.dp)
+                        .padding(horizontal = 4.dp)
                 )
                 Icon(painter = painterResource(id = R.drawable.ic_search), contentDescription = "", tint = Color.Black)
             }

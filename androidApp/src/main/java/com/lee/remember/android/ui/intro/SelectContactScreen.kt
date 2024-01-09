@@ -43,6 +43,7 @@ import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
 import com.lee.remember.android.ui.fontColorBlack
 import com.lee.remember.android.ui.lightColor
+import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.local.dao.FriendDao
@@ -141,7 +142,7 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
                             contract.isChecked = it
                             checkedState.value = it
                         },
-                        colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
+                        colors = RememberCheckbox()
                     )
                 }
             }

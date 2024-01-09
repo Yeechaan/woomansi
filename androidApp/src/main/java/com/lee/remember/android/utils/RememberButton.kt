@@ -12,20 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.lee.remember.android.ui.fontPointColor
 
 @Composable
 fun RememberFilledButton(
     text: String,
-    paddingValues: PaddingValues = PaddingValues(top = 16.dp, bottom = 32.dp),
+    horizontalPaddingValues: PaddingValues = PaddingValues(horizontal = 16.dp),
+    verticalPaddingValues: PaddingValues = PaddingValues(top = 16.dp, bottom = 32.dp),
     onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(paddingValues),
+            .padding(horizontalPaddingValues)
+            .padding(verticalPaddingValues),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
         shape = RoundedCornerShape(size = 100.dp),
     ) {

@@ -12,8 +12,8 @@ object RememberTextField {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun colors() = TextFieldDefaults.outlinedTextFieldColors(
-        errorBorderColor = Color(0xFFB3661E),
-        errorLabelColor = Color(0xFFB3661E),
+        errorBorderColor = Color(0xFFD59519),
+        errorLabelColor = Color(0xFFD59519),
         focusedBorderColor = fontColorPoint,
         focusedLabelColor = fontColorPoint,
         cursorColor = fontColorPoint,
@@ -21,7 +21,7 @@ object RememberTextField {
 
     @Composable
     fun label(text: String) =
-        Text(text, style = getTextStyle(textStyle = RememberTextStyle.BODY_4B))
+        Text(text, style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
 
     @Composable
     fun placeHolder(text: String) =
@@ -29,5 +29,5 @@ object RememberTextField {
 
     @Composable
     fun textStyle() =
-        getTextStyle(textStyle = RememberTextStyle.BODY_2B)
+        getTextStyle(textStyle = RememberTextStyle.BODY_2)
 }

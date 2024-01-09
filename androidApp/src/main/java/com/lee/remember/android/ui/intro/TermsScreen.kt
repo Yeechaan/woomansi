@@ -4,15 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,12 +28,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.ui.lightColor
 import com.lee.remember.android.ui.whiteColor
+import com.lee.remember.android.utils.RememberCheckbox
+import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
@@ -93,7 +93,7 @@ fun TermsScreen(navController: NavHostController) {
 
                         allCheckedState.value = it
                     },
-                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
+                    colors = RememberCheckbox()
                 )
 
                 Text(modifier = Modifier.weight(1f), text = "모두 동의합니다.", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
@@ -112,7 +112,7 @@ fun TermsScreen(navController: NavHostController) {
 
                         termsCheckedState.value = it
                     },
-                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
+                    colors = RememberCheckbox()
                 )
 
                 Text(modifier = Modifier.weight(1f), text = "[필수] 이용약관 동의", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
@@ -134,7 +134,7 @@ fun TermsScreen(navController: NavHostController) {
 
                         privacyCheckedState.value = it
                     },
-                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
+                    colors = RememberCheckbox()
                 )
 
                 Text(modifier = Modifier.weight(1f), text = "[필수] 개인정보 처리방침", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
@@ -145,26 +145,19 @@ fun TermsScreen(navController: NavHostController) {
                 )
             }
 
-            Button(
-                onClick = {
-                    if (allCheckedState.value) {
-                        navController.navigate(RememberScreen.SignIn.name)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 32.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
-                shape = RoundedCornerShape(size = 100.dp),
-            ) {
-                Text(
-                    text = "동의하기",
-                    modifier = Modifier.padding(vertical = 2.dp),
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White)
-                )
-            }
+            RememberFilledButton(text = "동의하기", horizontalPaddingValues = PaddingValues(horizontal = 0.dp), onClick = {
+                if (allCheckedState.value) {
+                    navController.navigate(RememberScreen.SignIn.name)
+                }
+            })
         }
     }
 
 
+}
+
+@Preview
+@Composable
+fun PreviewTermsScreen() {
+    TermsScreen(rememberNavController())
 }

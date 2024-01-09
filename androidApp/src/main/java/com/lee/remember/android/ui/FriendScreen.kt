@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -179,28 +180,30 @@ fun FriendItem(friendProfile: FriendProfile, navHostController: NavHostControlle
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                if (friendProfile.image.isNotEmpty()) {
-
-                    val bitmap: Bitmap? = stringToBitmap(friendProfile.image)
-                    bitmap?.let {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xffEFEEEC)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (friendProfile.image.isNotEmpty()) {
+                        val bitmap: Bitmap? = stringToBitmap(friendProfile.image)
+                        bitmap?.let {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    } else {
                         Image(
-                            bitmap = bitmap.asImageBitmap(), contentDescription = null,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
+                            painter = painterResource(id = R.drawable.ic_camera_32),
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
+                            modifier = Modifier.padding(8.dp),
                         )
                     }
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_camera_32),
-                        contentDescription = "camera_image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(pointColor)
-                    )
                 }
 
                 Column(
@@ -217,11 +220,6 @@ fun FriendItem(friendProfile: FriendProfile, navHostController: NavHostControlle
                         style = getTextStyle(textStyle = RememberTextStyle.BODY_3)
                     )
                 }
-
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_menu_24),
-                    contentDescription = "menu_image"
-                )
             }
         }
     }

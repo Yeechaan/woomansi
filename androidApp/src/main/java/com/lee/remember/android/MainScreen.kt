@@ -73,7 +73,7 @@ enum class RememberScreen(@StringRes val title: Int) {
     FriendProfile(title = R.string.select_contact),
     FriendHistory(title = R.string.friend_history),
     FriendEdit(title = R.string.friend_edit),
-    FriendGroup(title = R.string.friend_edit),
+    FriendGroup(title = R.string.friend_group),
     HistoryAdd(title = R.string.history_add),
 
     My(title = R.string.my)
@@ -110,7 +110,7 @@ fun MainApp(
                         BottomNavigationItem(
                             label = {
                                 val title = when (mainScreen) {
-                                    RememberScreen.History.name -> stringResource(id = R.string.history)
+                                    RememberScreen.History.name -> stringResource(id = R.string.home)
                                     RememberScreen.Feed.name -> stringResource(id = R.string.feed)
                                     RememberScreen.Friend.name -> stringResource(id = R.string.friend)
                                     else -> ""
@@ -123,9 +123,9 @@ fun MainApp(
                             },
                             icon = {
                                 val resourceId = when (mainScreen) {
-                                    RememberScreen.History.name -> R.drawable.ic_friend_off to R.drawable.ic_friend_on
+                                    RememberScreen.History.name -> R.drawable.ic_home_off to R.drawable.ic_home_on
                                     RememberScreen.Feed.name -> R.drawable.ic_feed_off to R.drawable.ic_feed_on
-                                    RememberScreen.Friend.name -> R.drawable.ic_contact_off to R.drawable.ic_contact_on
+                                    RememberScreen.Friend.name -> R.drawable.ic_friend_off to R.drawable.ic_friend_on
                                     else -> R.drawable.ic_dot to R.drawable.ic_dot
                                 }
 

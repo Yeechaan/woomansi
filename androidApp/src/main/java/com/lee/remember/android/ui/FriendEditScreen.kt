@@ -1,7 +1,6 @@
 package com.lee.remember.android.ui
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
@@ -16,7 +15,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,22 +23,18 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -62,9 +56,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -91,7 +86,6 @@ import com.lee.remember.local.model.ProfileImageRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.request.FriendRequest
 import io.github.aakira.napier.Napier
-import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -129,7 +123,8 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
         Modifier
             .fillMaxSize()
             .background(Color.White)
-            .verticalScroll(scrollState)
+            .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         var name by remember { mutableStateOf("") }
         var group by remember { mutableStateOf("") }
@@ -180,10 +175,112 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
             scope.cancel()
         }
 
+        val apiScope = rememberCoroutineScope()
+
+        val appBarTitle = if (friendId == null || friendId == "-1") "추가" else "수정"
         TopAppBar(
             modifier = Modifier.shadow(elevation = 1.dp),
-            title = { Text("친구 기록", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            title = { Text(appBarTitle, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
+            actions = {
+                Text(
+                    "완료",
+                    Modifier
+                        .padding(end = 12.dp)
+                        .clickable {
+                            apiScope.launch() {
+//                    try {
+                                var profileImage = ""
+                                selectedImage?.let {
+                                    val bitmap = if (Build.VERSION.SDK_INT >= 28) {
+                                        val source = ImageDecoder.createSource(context.contentResolver, it)
+                                        ImageDecoder.decodeBitmap(source)
+                                    } else {
+                                        MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                                    }
+
+                                    withContext(Dispatchers.IO) {
+//                            val quality = 50
+//                            val scaleDownBitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width * quality).toInt(), (bitmap.height * quality).toInt(), true)
+                                        profileImage = bitmapToString(bitmap)
+                                    }
+
+//                        profileImage = bitmapToString(bitmap)
+                                }
+
+//                    profileImage = test(context, selectedImage)
+                                Napier.d("@@@ui ${profileImage.length}")
+
+//                        selectedImage?.let {
+//                            saveImageToInternalStorage(context, it)
+//                        }
+
+                                val friendRequest = FriendRequest(
+                                    name = name,
+                                    phoneNumber = number,
+                                    description = "",
+                                    events = listOf(FriendRequest.Event(dateTitle, date)),
+                                    profileImage = profileImage
+                                )
+//                        Napier.d("### $friendRequest")
+
+                                val friendRealm = FriendRealm().apply {
+                                    this.id = friendId?.toInt() ?: -1
+                                    this.name = name
+                                    this.phoneNumber = number
+                                    this.group = group
+                                    this.events.add(EventRealm().apply { this.name = dateTitle; this.date = date })
+                                    // Todo 이미지 처리 방식 변경
+                                    this.profileImage = ProfileImageRealm().apply { this.image = profileImage }
+                                }
+
+                                if (friendId == null || friendId == "-1") {
+                                    val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
+
+                                    if (response != null && response.resultCode == "SUCCESS") {
+                                        Napier.d("### ${response.resultCode}")
+
+                                        // @@@
+                                        response.result?.map {
+                                            val size = it.profileImage?.image?.length
+                                            Napier.d("@@@addFriend ${it.id} / $size")
+                                        }
+
+                                        friendRealm.apply { this.id = response.result?.firstOrNull()?.id ?: -1 }
+                                        navHostController.navigateUp()
+                                    } else {
+                                        Toast
+                                            .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+
+                                    FriendDao().setFriend(friendRealm)
+                                } else {
+                                    // update
+                                    FriendDao().updateFriend(friendRealm)
+
+                                    val response = FriendApi().updateFriend(accessToken, friendId ?: "", friendRequest)
+
+                                    if (response != null) {
+                                        Napier.d("### $response")
+
+                                        response.toString()
+                                        navHostController.navigateUp()
+                                    } else {
+                                        Toast
+                                            .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                }
+
+//                    } catch (e: Exception) {
+//                        e.localizedMessage ?: "error"
+//                    }
+                            }
+                        },
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF33322E)),
+                )
+            },
             navigationIcon = {
                 IconButton(onClick = { navHostController.navigateUp() }) {
                     Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = stringResource(R.string.back_button))
@@ -193,9 +290,10 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(lightColor)
+                .padding(top = 32.dp)
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(Color(0xffEFEEEC))
                 .clickable { launchPhotoPicker() },
             contentAlignment = Alignment.Center
         ) {
@@ -203,22 +301,24 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                 AsyncImage(
                     model = selectedImage,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_camera), contentDescription = "",
-                    modifier = Modifier.size(74.dp)
+                    painter = painterResource(id = R.drawable.ic_camera_32),
+                    contentDescription = "",
+                    colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
+                    modifier = Modifier.padding(40.dp),
                 )
             }
         }
 
-        Divider(thickness = 1.dp, color = Color.Black)
-
         Column(
-            Modifier.padding(horizontal = 16.dp)
+            Modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = 32.dp)
         ) {
+            Text("필수 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
 
             OutlinedTextField(
                 value = name, onValueChange = { name = it },
@@ -230,6 +330,31 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                     .fillMaxWidth()
                     .padding(top = 8.dp),
             )
+
+            val interactionSource = remember { MutableInteractionSource() }
+            val isFocused by interactionSource.collectIsFocusedAsState()
+
+            OutlinedTextField(
+                value = number, onValueChange = { number = it },
+                label = { RememberTextField.label(text = "연락처") },
+                textStyle = RememberTextField.textStyle(),
+                colors = RememberTextField.colors(),
+                singleLine = true,
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .fillMaxWidth(),
+                trailingIcon = {
+                    if (isFocused && number.isNotEmpty()) {
+                        IconButton(onClick = { number = "" }) {
+                            Icon(painter = painterResource(id = R.drawable.ic_cancel), contentDescription = "Clear")
+                        }
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                interactionSource = interactionSource
+            )
+
+            Text(modifier = Modifier.padding(top = 16.dp), text = "선택 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
 
             Box(
                 modifier = Modifier
@@ -294,29 +419,6 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                 }
             }
 
-            val interactionSource = remember { MutableInteractionSource() }
-            val isFocused by interactionSource.collectIsFocusedAsState()
-
-            OutlinedTextField(
-                value = number, onValueChange = { number = it },
-                label = { RememberTextField.label(text = "연락처") },
-                textStyle = RememberTextField.textStyle(),
-                colors = RememberTextField.colors(),
-                singleLine = true,
-                modifier = Modifier
-                    .padding(top = 12.dp)
-                    .fillMaxWidth(),
-                trailingIcon = {
-                    if (isFocused && number.isNotEmpty()) {
-                        IconButton(onClick = { number = "" }) {
-                            Icon(painter = painterResource(id = R.drawable.ic_cancel), contentDescription = "Clear")
-                        }
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                interactionSource = interactionSource
-            )
-
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
                 var expanded by remember { mutableStateOf(false) }
                 val items = listOf("생일", "기념일", "기일", "기타")
@@ -374,15 +476,16 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                         onDismissRequest = { openDialog.value = false },
                         confirmButton = {
                             TextButton(onClick = { openDialog.value = false }) {
-                                Text("확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(fontColorPoint))
+                                Text("확인", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF33322E)))
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { openDialog.value = false }
                             ) {
-                                Text("취소", style = getTextStyle(textStyle = RememberTextStyle.BODY_4))
+                                Text("취소", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFFD59519)))
                             }
-                        }
+                        },
+                        colors = DatePickerDefaults.colors(containerColor = Color.White)
                     ) { DatePicker(state = state) }
                 }
 
@@ -407,110 +510,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        val apiScope = rememberCoroutineScope()
-//        val context = LocalContext.current
-
-        TextButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 32.dp)
-                .background(Color(0xFFF2BE2F)),
-            onClick = {
-                apiScope.launch() {
-//                    try {
-                    var profileImage = ""
-                    selectedImage?.let {
-                        val bitmap = if (Build.VERSION.SDK_INT >= 28) {
-                            val source = ImageDecoder.createSource(context.contentResolver, it)
-                            ImageDecoder.decodeBitmap(source)
-                        } else {
-                            MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-                        }
-
-                        withContext(Dispatchers.IO) {
-//                            val quality = 50
-//                            val scaleDownBitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width * quality).toInt(), (bitmap.height * quality).toInt(), true)
-                            profileImage = bitmapToString(bitmap)
-                        }
-
-//                        profileImage = bitmapToString(bitmap)
-                    }
-
-//                    profileImage = test(context, selectedImage)
-                    Napier.d("@@@ui ${profileImage.length}")
-
-//                        selectedImage?.let {
-//                            saveImageToInternalStorage(context, it)
-//                        }
-
-                    val friendRequest = FriendRequest(
-                        name = name,
-                        phoneNumber = number,
-                        description = "",
-                        events = listOf(FriendRequest.Event(dateTitle, date)),
-                        profileImage = profileImage
-                    )
-//                        Napier.d("### $friendRequest")
-
-                    val friendRealm = FriendRealm().apply {
-                        this.id = friendId?.toInt() ?: -1
-                        this.name = name
-                        this.phoneNumber = number
-                        this.group = group
-                        this.events.add(EventRealm().apply { this.name = dateTitle; this.date = date })
-                        // Todo 이미지 처리 방식 변경
-                        this.profileImage = ProfileImageRealm().apply { this.image = profileImage }
-                    }
-
-                    if (friendId == null || friendId == "-1") {
-                        val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
-
-                        if (response != null && response.resultCode == "SUCCESS") {
-                            Napier.d("### ${response.resultCode}")
-
-                            // @@@
-                            response.result?.map {
-                                val size = it.profileImage?.image?.length
-                                Napier.d("@@@addFriend ${it.id} / $size")
-                            }
-
-                            friendRealm.apply { this.id = response.result?.firstOrNull()?.id ?: -1 }
-                            navHostController.navigateUp()
-                        } else {
-                            Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
-                        }
-
-                        FriendDao().setFriend(friendRealm)
-                    } else {
-                        // update
-                        FriendDao().updateFriend(friendRealm)
-
-                        val response = FriendApi().updateFriend(accessToken, friendId ?: "", friendRequest)
-
-                        if (response != null) {
-                            Napier.d("### $response")
-
-                            response.toString()
-                            navHostController.navigateUp()
-                        } else {
-                            Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-
-//                    } catch (e: Exception) {
-//                        e.localizedMessage ?: "error"
-//                    }
-                }
-            },
-        ) {
-            Text(
-                modifier = Modifier.padding(vertical = 12.dp),
-                text = "완료",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
-            )
-        }
+//        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -583,8 +583,7 @@ fun stringToBitmap(encodedString: String): Bitmap? {
     }
     return null
 }
-
-private fun convertMillisToDate(millis: Long): String {
+fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("yyyy-MM-dd")
     return formatter.format(Date(millis))
 }

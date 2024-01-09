@@ -67,7 +67,7 @@ fun IntroScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        RememberFilledButton(text = "로그인", paddingValues = PaddingValues(top = 16.dp, bottom = 0.dp), onClick = {
+        RememberFilledButton(text = "로그인", verticalPaddingValues = PaddingValues(top = 16.dp, bottom = 0.dp), onClick = {
             navController.navigate(RememberScreen.Login.name)
         })
 

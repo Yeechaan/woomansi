@@ -124,7 +124,8 @@ fun UserNameScreen(navController: NavHostController) {
                         } else {
                             Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
                         }
-                    } catch (e: Exception) {
+                    }
+                    catch (e: Exception) {
                         Napier.d("### ${e.localizedMessage}")
                         e.localizedMessage ?: "error"
                     }

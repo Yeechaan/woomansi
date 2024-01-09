@@ -235,7 +235,7 @@ fun SignInScreen(navController: NavHostController) {
                 }
 
                 scope.launch {
-                    try {
+//                    try {
                         val result = AuthRepository().signUp(email, password.value)
                         if (result.isSuccess) {
                             navController.navigate(RememberScreen.UserName.name) {
@@ -246,9 +246,11 @@ fun SignInScreen(navController: NavHostController) {
                         } else {
                             Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
                         }
-                    } catch (e: Exception) {
-                        e.localizedMessage ?: "error"
-                    }
+//                    }
+//                    catch (e: Exception) {
+//                        Toast.makeText(context, "error", Toast.LENGTH_SHORT).show()
+//                        e.localizedMessage ?: "error"
+//                    }
 
                     scope.cancel()
                 }

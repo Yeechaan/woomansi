@@ -1,31 +1,21 @@
 package com.lee.remember.android.ui
 
 import android.graphics.Bitmap
-import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -51,7 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
@@ -66,7 +56,7 @@ import kotlinx.coroutines.launch
 
 // 0xFF1D1B20
 val fontColorBlack = Color(0xFF1D1B20)
-val fontColorPoint = Color(0xFFF2BE2F)
+val fontColorPoint = Color(0xFFFFCF40)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,8 +100,9 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
     Column(
         Modifier
             .fillMaxSize()
-            .background(lightColor)
-            .verticalScroll(scrollState)
+            .background(Color.White)
+            .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TopAppBar(
             title = { Text(name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
@@ -139,8 +130,10 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 32.dp),
+                .padding(top = 32.dp)
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(Color(0xffEFEEEC)),
             contentAlignment = Alignment.Center
         ) {
             if (image.isNotEmpty()) {
@@ -148,27 +141,16 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
                 bitmap?.let {
                     Image(
                         bitmap = bitmap.asImageBitmap(), contentDescription = null,
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-
-                    Image(
-                        bitmap = bitmap.asImageBitmap(), contentDescription = null,
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             } else {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_camera_24), contentDescription = "",
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(Color.White),
+                    painter = painterResource(id = R.drawable.ic_camera_32),
+                    contentDescription = "",
+                    colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
+                    modifier = Modifier.padding(40.dp),
                 )
             }
         }
@@ -176,36 +158,9 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
         Column(
             Modifier
                 .padding(horizontal = 16.dp)
+                .padding(top = 24.dp)
                 .fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = name,
-                    style = getTextStyle(textStyle = RememberTextStyle.HEAD_5).copy(fontColorBlack),
-                )
-
-//                Button(
-//                    onClick = { navHostController.navigate("${RememberScreen.FriendEdit.name}/${friendId}") },
-//                    modifier = Modifier.defaultMinSize(minHeight = 22.dp),
-//                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-//                    shape = RoundedCornerShape(size = 8.dp),
-//                    border = BorderStroke(1.dp, Color(0xFF79747E)),
-//                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-//                ) {
-//                    Text(
-//                        text = "수정하기",
-//                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF49454F)),
-//                        modifier = Modifier
-//                    )
-//                }
-            }
-
             FriendProfileItem("연락처", number)
             FriendProfileItem("그룹", group)
             FriendProfileItem(dateTitle, date)

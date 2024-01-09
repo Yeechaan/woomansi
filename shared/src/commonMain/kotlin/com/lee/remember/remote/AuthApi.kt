@@ -21,7 +21,8 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-const val baseUrl = "http://101.101.216.129:8080/api/v2/"
+//const val baseUrl = "https://api.our-memory.store/v2/"
+const val baseUrl = "http://118.67.133.148/v2/"
 
 class AuthApi {
 

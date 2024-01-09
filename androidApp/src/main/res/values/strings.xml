@@ -14,10 +14,12 @@
     <string name="login">login</string>
     <string name="select_contact">select_contact</string>
 
+
     <string name="contact">contact</string>
+    <string name="home">홈</string>
     <string name="history">친구</string>
     <string name="feed">피드</string>
-    <string name="friend">목록</string>
+    <string name="friend">친구</string>
 
     <string name="friend_profile">friend_profile</string>
     <string name="friend_history">friend_history</string>

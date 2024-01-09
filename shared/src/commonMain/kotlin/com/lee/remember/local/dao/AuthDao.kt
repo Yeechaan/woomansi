@@ -11,9 +11,9 @@ class AuthDao {
         realm.write {
             val authRealm = query<AuthRealm>().find().firstOrNull()
             if (authRealm != null) {
-                authRealm.accessToken = token
+                authRealm.accessToken = "Bearer $token"
             } else {
-                copyToRealm(AuthRealm().apply { this.accessToken = token })
+                copyToRealm(AuthRealm().apply { this.accessToken = "Bearer $token" })
             }
         }
     }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,14 +25,11 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,22 +39,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberTopAppBar
 import com.lee.remember.android.data.FriendHistory
-import com.lee.remember.android.friendProfiles
 import com.lee.remember.android.rememberFontFamily
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
@@ -68,7 +61,12 @@ fun FeedScreen(navHostController: NavHostController) {
     // local datasource
     val items = mutableListOf<Pair<String, FriendHistory>>()
     MemoryDao().getAllMemories().map {
-        val pair = it.friend.name to FriendHistory(title = it.title, contents = it.description, image = it.images.firstOrNull() ?: "", date = it.date)
+        val pair = it.friend.name to FriendHistory(
+            title = it.title,
+            contents = it.description,
+            image = it.images.firstOrNull() ?: "",
+            date = it.date
+        )
         items.add(pair)
     }
 
@@ -77,25 +75,25 @@ fun FeedScreen(navHostController: NavHostController) {
     ) {
         RememberTopAppBar(navHostController)
 
-        var selectedIndex by remember { mutableStateOf(0) }
-        val options = listOf("이름 순", "최신 순")
-
-        SingleChoiceSegmentedButtonRow(
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            options.forEachIndexed { index, label ->
-                SegmentedButton(
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                    onClick = { selectedIndex = index },
-                    selected = index == selectedIndex,
-                    colors = SegmentedButtonDefaults.colors(activeContainerColor = fontColorPoint, inactiveContainerColor = whiteColor)
-                ) {
-                    Text(label, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B))
-                }
-            }
-        }
+//        var selectedIndex by remember { mutableStateOf(0) }
+//        val options = listOf("이름 순", "최신 순")
+//
+//        SingleChoiceSegmentedButtonRow(
+//            Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp)
+//        ) {
+//            options.forEachIndexed { index, label ->
+//                SegmentedButton(
+//                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+//                    onClick = { selectedIndex = index },
+//                    selected = index == selectedIndex,
+//                    colors = SegmentedButtonDefaults.colors(activeContainerColor = fontColorPoint, inactiveContainerColor = whiteColor)
+//                ) {
+//                    Text(label, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B))
+//                }
+//            }
+//        }
 
         Box(
             modifier = Modifier
@@ -125,36 +123,84 @@ fun FeedScreen(navHostController: NavHostController) {
 }
 
 @Composable
-fun FeedItem(name: String, friendHistory: FriendHistory) {
+fun FeedItem(name: String, friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true) {
     Column(
         Modifier.background(Color.White)
     ) {
+        if (isFriendInfoVisible) {
+            Row(
+                Modifier
+                    .padding(top = 24.dp, start = 16.dp, end = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xffEFEEEC)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (friendHistory.imageUri != null) {
+//                        val bitmap: Bitmap? = stringToBitmap(image)
+//                        bitmap?.let {
+//                            Image(
+//                                bitmap = bitmap.asImageBitmap(), contentDescription = null,
+//                                contentScale = ContentScale.Crop,
+//                                modifier = Modifier.fillMaxSize()
+//                            )
+//                        }
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_camera_32),
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
+                            modifier = Modifier.padding(6.dp),
+                        )
+                    }
+                }
+
+                Column(
+                    Modifier
+                        .padding(start = 10.dp)
+                        .weight(1f)
+                ) {
+                    Text(text = "with", fontSize = 10.sp, color = Color(0xFF1D1B20), fontFamily = rememberFontFamily)
+                    Text(text = "harry", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
+                }
+            }
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+        }
+
+        if (friendHistory.image.isNotEmpty()) {
+            val bitmap: Bitmap? = stringToBitmap(friendHistory.image)
+            bitmap?.let {
+                Image(
+                    bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(218.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
+
         Row(
             Modifier
-                .padding(top = 24.dp, start = 16.dp, end = 16.dp)
-                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_camera_24),
-                contentDescription = "camera_image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(pointColor)
-            )
-
             Column(
                 Modifier
-                    .padding(start = 10.dp)
-                    .weight(1f)
-            ) {
-                Text(text = "with", fontSize = 10.sp, color = Color(0xFF1D1B20), fontFamily = rememberFontFamily)
-                Text(text = "harry", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
+                    .fillMaxWidth()
+                    .weight(1f)) {
+                Text(text = friendHistory.title, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
+                Text(text = "2023. 10. 23", fontSize = 10.sp, color = fontColorBlack, fontFamily = rememberFontFamily, modifier = Modifier.padding(top = 4.dp))
             }
 
-            var expanded by remember { mutableStateOf(false) }
 
+            var expanded by remember { mutableStateOf(false) }
             Icon(
                 modifier = Modifier.clickable { expanded = true },
                 painter = painterResource(id = R.drawable.ic_more), contentDescription = "more",
@@ -194,35 +240,19 @@ fun FeedItem(name: String, friendHistory: FriendHistory) {
             }
         }
 
-        if (friendHistory.image.isNotEmpty()) {
-            val bitmap: Bitmap? = stringToBitmap(friendHistory.image)
-            bitmap?.let {
-                Image(
-                    bitmap = bitmap.asImageBitmap(), contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(218.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-        }
-
-        Row(
-            Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 10.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = friendHistory.title, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
-            Text(text = "2023. 10. 23", fontSize = 10.sp, color = fontColorBlack, fontFamily = rememberFontFamily)
-        }
-
         Text(
             text = friendHistory.contents,
             style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
             modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 32.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                .fillMaxWidth()
+        )
+
+        Text(
+            text = "#친구들",
+            style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 32.dp)
                 .fillMaxWidth()
         )
     }
@@ -234,5 +264,5 @@ fun FeedItem(name: String, friendHistory: FriendHistory) {
 fun PreviewFeedScreen() {
 //    FeedScreen(rememberNavController())
 
-    FeedItem("hoho", FriendHistory(title = "libris", contents = "curae", imageUri = null))
+    FeedItem("hoho", FriendHistory(title = "libris", contents = "curae", imageUri = null), true)
 }

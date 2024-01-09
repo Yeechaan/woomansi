@@ -123,7 +123,7 @@ fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?)
                             modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                                 .border(width = 1.dp, color = Color(0xFFD8D8D8), shape = RoundedCornerShape(size = 16.dp))
                         ) {
-                            FeedItem(friend?.name ?: "", item)
+                            FeedItem(friend?.name ?: "", item, false)
                         }
                     }
                 }
