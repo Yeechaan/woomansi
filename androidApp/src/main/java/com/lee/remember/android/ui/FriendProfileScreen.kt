@@ -167,7 +167,7 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
         }
 
         RememberOutlinedButton(text = "친구 기록 보기", onClick = {
-
+            navHostController.navigate("${RememberScreen.FriendHistory.name}/${friendId}")
         })
     }
 }

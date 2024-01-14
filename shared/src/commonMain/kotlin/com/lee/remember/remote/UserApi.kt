@@ -1,5 +1,6 @@
 package com.lee.remember.remote
 
+import com.lee.remember.remote.request.UserDeleteResponse
 import com.lee.remember.remote.request.UserInfoRequest
 import com.lee.remember.remote.request.UserInfoResponse
 import io.github.aakira.napier.Napier
@@ -65,7 +66,7 @@ class UserApi {
         }
     }
 
-    suspend fun deleteUser(token: String): Boolean? {
+    suspend fun deleteUser(token: String): Result<UserDeleteResponse> {
         val response = client.delete(userUrl + "me") {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
@@ -75,6 +76,10 @@ class UserApi {
 
         Napier.d("### ${response.bodyAsText()}")
 
-        return if (response.status == HttpStatusCode.OK) response.body() else null
+        return if (response.status == HttpStatusCode.OK) {
+            Result.success(response.body())
+        } else {
+            Result.failure(Exception("Network response status : ${response.status}"))
+        }
     }
 }

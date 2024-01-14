@@ -4,4 +4,5 @@ import io.realm.kotlin.types.RealmObject
 
 class AuthRealm : RealmObject {
     var accessToken: String = ""
+    var password: String = ""
 }

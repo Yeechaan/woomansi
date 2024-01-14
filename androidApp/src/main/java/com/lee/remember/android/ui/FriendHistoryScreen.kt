@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,6 +50,7 @@ import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.remote.FriendApi
+import com.lee.remember.repository.MemoryRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -56,10 +58,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?) {
-    // local datasource
-    val friend = FriendDao().getFriend(friendId?.toInt() ?: -1)
-    val memories = friend?.memories?.map { FriendHistory(title = it.title, contents = it.description, image = it.images.firstOrNull() ?: "", date = it.date) } ?: listOf()
-
     var name by remember { mutableStateOf("") }
 
     LaunchedEffect(null) {
@@ -77,6 +75,25 @@ fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?)
             Napier.d("### ${e.localizedMessage}")
             e.localizedMessage ?: "error"
         }
+    }
+
+    val items = remember { mutableStateOf<List<FriendHistory>>(listOf()) }
+    LaunchedEffect(Unit) {
+        val memoryResponse = MemoryRepository().getMemoryList()
+        val memories = memoryResponse.getOrNull()?.result?.filter { it.friends.firstOrNull()?.id.toString() == friendId }?.map {
+            val friends = it.friends.map { it.name }
+
+            FriendHistory(
+                title = it.title ?: "",
+                contents = it.description ?: "",
+                image = it.thumbnail?.image ?: "",
+                date = parseUtcString(it.date ?: ""),
+                ownerFriendName = friends.firstOrNull() ?: "",
+                friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
+            )
+        } ?: listOf()
+
+        items.value = memories
     }
 
     Column {
@@ -102,7 +119,7 @@ fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?)
                 .fillMaxSize()
                 .background(lightColor)
         ) {
-            if (memories.isEmpty()) {
+            if (items.value.isEmpty()) {
                 EmptyFriendHistoryScreen()
                 Image(
                     modifier = Modifier
@@ -112,18 +129,19 @@ fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?)
                 )
             } else {
                 LazyColumn(
-                    Modifier
-                        .padding(top = 24.dp, start = 16.dp, end = 16.dp)
+                    Modifier.padding(start = 16.dp, end = 16.dp)
                 ) {
-                    items(memories) { item ->
+                    item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
+                    items(items.value) { item ->
                         Card(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.primary
                             ),
-                            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                            modifier = Modifier
+                                .padding(vertical = 6.dp)
                                 .border(width = 1.dp, color = Color(0xFFD8D8D8), shape = RoundedCornerShape(size = 16.dp))
                         ) {
-                            FeedItem(friend?.name ?: "", item, false)
+                            FeedItem( item, false)
                         }
                     }
                 }

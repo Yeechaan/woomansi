@@ -1,6 +1,7 @@
 package com.lee.remember.local.dao
 
 import com.lee.remember.local.BaseRealm
+import com.lee.remember.local.model.AuthRealm
 import com.lee.remember.local.model.EventRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.ProfileImageRealm
@@ -39,4 +40,11 @@ class FriendDao {
 
     fun getFriends() = realm.query<FriendRealm>().find()
     fun getFriend(friendId: Int) = realm.query<FriendRealm>("id==$friendId").find().firstOrNull()
+
+    suspend fun delete() {
+        realm.write {
+            val friendRealm = this.query<FriendRealm>().find()
+            delete(friendRealm)
+        }
+    }
 }

@@ -2,13 +2,11 @@ package com.lee.remember.repository
 
 import com.lee.remember.local.dao.AuthDao
 import com.lee.remember.local.dao.UserDao
-import com.lee.remember.local.model.UserRealm
 import com.lee.remember.local.model.asRealm
 import com.lee.remember.remote.AuthApi
 import com.lee.remember.remote.request.LoginRequest
 import com.lee.remember.remote.request.LoginResponse
 import com.lee.remember.remote.request.SignupRequest
-import com.lee.remember.remote.request.SignupResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
@@ -30,7 +28,7 @@ class AuthRepository(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
                         userDao.setUser(it.asRealm())
-                        authDao.updateToken(it.result?.jwtToken ?: "")
+                        authDao.updateAuth(it.result?.jwtToken ?: "", password)
 
                         Result.success(true)
                     } else {
@@ -51,7 +49,7 @@ class AuthRepository(
             return@withContext result.fold(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
-                        authDao.updateToken(it.result?.jwtToken ?: "")
+                        authDao.updateAuth(it.result?.jwtToken ?: "", password)
                         Result.success(it)
                     } else {
                         Result.failure(Exception(it.resultCode))

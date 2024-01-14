@@ -16,7 +16,6 @@ class MemoryDao {
         }
     }
 
-    // 친구 정보 from local(friendId == -1)
     suspend fun setMemoryByPhoneNumber(phoneNumber: String, memory: MemoryRealm) {
         realm.write {
             val friend = query<FriendRealm>("phoneNumber=='$phoneNumber'").find().firstOrNull()

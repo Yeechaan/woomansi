@@ -69,7 +69,6 @@ import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.accessToken
-import com.lee.remember.android.bottomPadding
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextField.placeHolder
@@ -81,13 +80,11 @@ import com.lee.remember.local.model.MemoryRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.MemoryApi
 import com.lee.remember.remote.request.MemoryRequest
-import com.lee.remember.repository.AuthRepository
+import com.lee.remember.repository.MemoryRepository
 import io.github.aakira.napier.Napier
 import io.realm.kotlin.ext.toRealmList
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.Date
 
 //0xFFD59519
 val fontPointColor = Color(0xFFD59519)
@@ -100,6 +97,8 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
 
     var name by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
+    val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
+    var date by remember { mutableStateOf(today) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -125,7 +124,7 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
 
     val friends by rememberSaveable {
         mutableStateOf(
-            FriendDao().getFriends().map {
+            FriendDao().getFriends().filter { it.id.toString() != friendId }.map {
                 Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = false)
             }.toMutableList()
         )
@@ -134,7 +133,7 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
     var selectedImage by remember { mutableStateOf<Uri?>(null) }
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> selectedImage = uri }
+        onResult = { uri -> uri?.let { selectedImage = uri } }
     )
 
     fun launchPhotoPicker() {
@@ -171,43 +170,31 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
             actions = {
                 TextButton(onClick = {
                     scope.launch {
-                        val image = uriToBitmapString(context, selectedImage)
-
+                        val bitmapImage = uriToBitmapString(context, selectedImage)
 
                         // remote
-                        val addedFriends = mutableListOf(MemoryRequest.Friend(id = friendId?.toInt() ?: -1))
+                        val addedFriends = mutableListOf(friendId?.toInt() ?: -1)
                         friends.filter { it.isChecked }.map {
-                            addedFriends.add(MemoryRequest.Friend(id = it.id.toInt()))
+                            addedFriends.add(it.id.toInt())
                         }
 
-                        // Todo 사진, 날짜 추가
                         val request = MemoryRequest(
                             title = title,
                             description = content,
-                            date = "2023-12-18",
-                            friends = addedFriends,
-                            images = listOf(MemoryRequest.Image(""))
+                            date = date,
+                            friendIds = addedFriends,
+                            images = listOf(MemoryRequest.Image(bitmapImage))
                         )
 
-                        val response = MemoryApi().addMemory("", request)
-
-                        // Todo remote 실패한 경우 local 저장 여부
-                        // local
-                        val memoryDao = MemoryDao()
-                        val memoryRealm = MemoryRealm().apply {
-                            this.title = title
-                            this.description = content
-                            this.date = "2023-12-18"
-                            this.friendTags = friends.filter { it.isChecked }.map { it.name }.toRealmList()
-                            this.images.add(image)
-                        }
-                        if (response != null && friendId != null) {
-                            memoryDao.setMemoryByFriendId(friendId.toInt(), memoryRealm.apply { this.id = response.result?.id ?: -1 })
-                        } else {
-                            memoryDao.setMemoryByPhoneNumber(phoneNumber, memoryRealm)
-                        }
-
-                        navHostController.navigateUp()
+                        val result = MemoryRepository().addMemory(request)
+                        result.fold(
+                            onSuccess = {
+                                navHostController.navigateUp()
+                            },
+                            onFailure = {
+                                // SnackBar
+                            }
+                        )
                     }
 
                 }) {
@@ -239,8 +226,7 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
                 .padding(top = 8.dp, start = 16.dp, end = 16.dp),
         )
 
-        val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
-        var date by remember { mutableStateOf(today) }
+
         val state = rememberDatePickerState()
         state.selectedDateMillis?.let {
             date = convertMillisToDate(it)

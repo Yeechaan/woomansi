@@ -36,7 +36,7 @@ class FriendApi {
     private val friendUrl = baseUrl + "friends"
 
     suspend fun addFriend(token: String, friends: List<FriendRequest>): FriendAddResponse? {
-        val token = AuthRepository().getToken()?.accessToken ?: ""
+        val token = AuthRepository().getToken() ?: ""
 
         val response = client.post(friendUrl) {
             headers {
@@ -47,15 +47,11 @@ class FriendApi {
             setBody(friends)
         }
 
-//        Napier.d("### ${response.bodyAsText()}")
-        Napier.d("###addFriend ${response.status}")
-        Napier.d("@@@addFriend ${response.bodyAsText().length}")
-
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
 
     suspend fun getFriend(token: String, friendId: String): FriendDetailResponse? {
-        val token = AuthRepository().getToken()?.accessToken ?: ""
+        val token = AuthRepository().getToken() ?: ""
 
         val response = client.get("$friendUrl/$friendId") {
             headers {
@@ -71,7 +67,7 @@ class FriendApi {
     }
 
     suspend fun getFriendList(token: String): FriendResponse? {
-        val token = AuthRepository().getToken()?.accessToken ?: ""
+        val token = AuthRepository().getToken() ?: ""
 
         val response = client.get(friendUrl) {
             headers {
@@ -88,7 +84,7 @@ class FriendApi {
     }
 
     suspend fun updateFriend(token: String, friendId: String, friend: FriendRequest): FriendDetailResponse? {
-        val token = AuthRepository().getToken()?.accessToken ?: ""
+        val token = AuthRepository().getToken() ?: ""
 
         val response = client.put("$friendUrl/$friendId") {
             headers {

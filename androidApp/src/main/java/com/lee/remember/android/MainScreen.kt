@@ -11,19 +11,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -43,12 +45,12 @@ import com.lee.remember.android.ui.FriendProfileScreen
 import com.lee.remember.android.ui.FriendScreen
 import com.lee.remember.android.ui.HistoryAddScreen
 import com.lee.remember.android.ui.HistoryScreen
-import com.lee.remember.android.ui.intro.FriendGroupScreen
+import com.lee.remember.android.ui.FriendGroupScreen
 import com.lee.remember.android.ui.intro.IntroScreen
 import com.lee.remember.android.ui.intro.LoginScreen
 import com.lee.remember.android.ui.intro.OnBoardingScreen
 import com.lee.remember.android.ui.intro.SelectContractScreen
-import com.lee.remember.android.ui.intro.SignInScreen
+import com.lee.remember.android.ui.intro.SignUpScreen
 import com.lee.remember.android.ui.intro.SplashScreen
 import com.lee.remember.android.ui.intro.TermsScreen
 import com.lee.remember.android.ui.intro.UserNameScreen
@@ -61,7 +63,7 @@ enum class RememberScreen(@StringRes val title: Int) {
     OnBoarding(title = R.string.onboard),
     Intro(title = R.string.intro),
     Terms(title = R.string.terms),
-    SignIn(title = R.string.sign_in),
+    SignUp(title = R.string.sign_up),
     UserName(title = R.string.user_name),
 
     Login(title = R.string.login),
@@ -100,7 +102,10 @@ fun MainApp(
         (mutableStateOf(mainScreens.contains(currentScreen)))
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
         bottomBar = {
             if (mainScreens.contains(currentScreen)) {
                 BottomNavigation(
@@ -170,15 +175,15 @@ fun MainApp(
             composable(route = RememberScreen.Terms.name) {
                 TermsScreen(navController)
             }
-            composable(route = RememberScreen.SignIn.name) {
-                SignInScreen(navController)
+            composable(route = RememberScreen.SignUp.name) {
+                SignUpScreen(navController)
             }
             composable(route = RememberScreen.UserName.name) {
                 UserNameScreen(navController)
             }
 
             composable(route = RememberScreen.Login.name) {
-                LoginScreen(navController)
+                LoginScreen(navController, snackbarHostState)
             }
             composable(route = RememberScreen.SelectContact.name) {
                 SelectContractScreen(navController)

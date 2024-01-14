@@ -11,10 +11,12 @@ data class FriendRequest(
     val phoneNumber: String = "",
     @SerialName("description")
     val description: String = "",
+    @SerialName("profileImage")
+    val profileImage: String = "",
     @SerialName("events")
     val events: List<Event> = listOf(),
-    @SerialName("profileImage")
-    val profileImage: String = ""
+    @SerialName("friendGroups")
+    val friendGroups: List<Event> = listOf(),
 ) {
     @Serializable
     data class Event(
@@ -22,6 +24,12 @@ data class FriendRequest(
         val name: String,
         @SerialName("date")
         val date: String
+    )
+
+    @Serializable
+    data class FriendGroup(
+        @SerialName("id")
+        val id: Int
     )
 }
 
@@ -44,19 +52,19 @@ data class FriendAddResponse(
         val description: String?,
         @SerialName("events")
         val events: List<Event>?,
-        @SerialName("profileImage")
-        val profileImage: ProfileImage?,
         @SerialName("friendGroups")
         val friendGroups: List<String>?,
+        @SerialName("profileImage")
+        val profileImage: ProfileImage?,
     ) {
         @Serializable
         data class Event(
             @SerialName("id")
             val id: Int,
+            @SerialName("name")
+            val name: String,
             @SerialName("date")
             val date: String,
-            @SerialName("name")
-            val name: String
         )
 
         @Serializable
@@ -88,10 +96,10 @@ data class FriendResponse(
         val description: String?,
         @SerialName("events")
         val events: List<Event>? = listOf(),
+        @SerialName("friendGroups")
+        val friendGroups: List<FriendGroup>?,
         @SerialName("profileImage")
         val profileImage: ProfileImage?,
-        @SerialName("friendGroups")
-        val friendGroups: List<String>?,
     ) {
         @Serializable
         data class Event(
@@ -110,6 +118,26 @@ data class FriendResponse(
             @SerialName("image")
             val image: String
         )
+
+        @Serializable
+        data class FriendGroup(
+            @SerialName("id")
+            val id: Int,
+            @SerialName("title")
+            val title: String,
+            @SerialName("description")
+            val description: String,
+            @SerialName("image")
+            val image: Image,
+        ) {
+            @Serializable
+            data class Image(
+                @SerialName("id")
+                val id: Int,
+                @SerialName("image")
+                val image: String
+            )
+        }
     }
 }
 

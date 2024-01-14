@@ -60,6 +60,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -107,10 +108,16 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
         }
     }
 
+    var savedImage by remember { mutableStateOf("") }
     var selectedImage by remember { mutableStateOf<Uri?>(null) }
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> selectedImage = uri }
+        onResult = {
+            it?.let {
+                selectedImage = it
+                savedImage = ""
+            }
+        }
     )
 
     fun launchPhotoPicker() {
@@ -156,6 +163,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                             number = it.phoneNumber ?: ""
                             dateTitle = it.events?.firstOrNull()?.name ?: "기념일"
                             date = parseUtcString(it.events?.firstOrNull()?.date ?: "")
+                            savedImage = it.profileImage?.image ?: ""
                         }
 
                         response.toString()
@@ -297,7 +305,16 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                 .clickable { launchPhotoPicker() },
             contentAlignment = Alignment.Center
         ) {
-            if (selectedImage != null) {
+            if (savedImage.isNotEmpty()) {
+                val bitmap: Bitmap? = stringToBitmap(savedImage)
+                bitmap?.let {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            } else if (selectedImage != null) {
                 AsyncImage(
                     model = selectedImage,
                     contentDescription = null,
@@ -354,7 +371,11 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                 interactionSource = interactionSource
             )
 
-            Text(modifier = Modifier.padding(top = 16.dp), text = "선택 입력", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
+            Text(
+                modifier = Modifier.padding(top = 16.dp),
+                text = "선택 입력",
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000))
+            )
 
             Box(
                 modifier = Modifier
@@ -583,6 +604,7 @@ fun stringToBitmap(encodedString: String): Bitmap? {
     }
     return null
 }
+
 fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("yyyy-MM-dd")
     return formatter.format(Date(millis))

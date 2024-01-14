@@ -45,3 +45,11 @@ data class UserInfoResponse(
         )
     }
 }
+
+@Serializable
+data class UserDeleteResponse(
+    @SerialName("result")
+    val result: String?,
+    @SerialName("resultCode")
+    val resultCode: String
+)

@@ -50,14 +50,14 @@ class MainActivity : ComponentActivity() {
                     // MainApp
                     val controller = rememberNavController()
                     MainApp(controller)
-                    checkContactStatus()
+//                    checkContactStatus()
 
                 }
             }
         }
     }
 
-    private fun checkContactStatus() {
+    fun checkContactStatus() {
         val status = ContextCompat.checkSelfPermission(this, "android.permission.READ_CONTACTS")
         if (status == PackageManager.PERMISSION_GRANTED) {
             Log.d("test", "permission granted")

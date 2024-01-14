@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -147,7 +146,7 @@ fun TermsScreen(navController: NavHostController) {
 
             RememberFilledButton(text = "동의하기", horizontalPaddingValues = PaddingValues(horizontal = 0.dp), onClick = {
                 if (allCheckedState.value) {
-                    navController.navigate(RememberScreen.SignIn.name)
+                    navController.navigate(RememberScreen.SignUp.name)
                 }
             })
         }

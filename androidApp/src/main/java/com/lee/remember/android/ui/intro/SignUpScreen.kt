@@ -9,21 +9,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,26 +50,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.accessToken
 import com.lee.remember.android.ui.fontHintColor
 import com.lee.remember.android.ui.whiteColor
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.local.dao.UserDao
-import com.lee.remember.local.model.UserRealm
 import com.lee.remember.remote.AuthApi
-import com.lee.remember.remote.request.SignupRequest
-import com.lee.remember.remote.request.SignupResponse
 import com.lee.remember.repository.AuthRepository
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(navController: NavHostController) {
+fun SignUpScreen(navController: NavHostController) {
 
     val imeState = rememberImeState()
     val scrollState = rememberScrollState()
@@ -154,18 +152,28 @@ fun SignInScreen(navController: NavHostController) {
                     .padding(end = 8.dp)
             )
 
+            var loading by remember { mutableStateOf(false) }
+            if (loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(64.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+            }
+
             val emailConfirmColor = if (isEmailConfirmed.value) Color(0xFFF2BE2F) else fontHintColor
             TextButton(
                 onClick = {
                     if (isValid) {
-                        openAlertDialog.value = true
-
                         scope.launch {
+                            loading = true
+
                             val response = AuthApi().sendEmailCode(email)
                             emailCode = response?.result?.code ?: ""
+                            loading = false
 
                             if (response != null && response.resultCode == "SUCCESS") {
-//                                openAlertDialog.value = true
+                                openAlertDialog.value = true
                             }
                         }
                     }
@@ -244,6 +252,7 @@ fun SignInScreen(navController: NavHostController) {
                                 }
                             }
                         } else {
+                            "DUPLICATED_EMAIL"
                             Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
                         }
 //                    }
@@ -277,5 +286,5 @@ fun SignInScreen(navController: NavHostController) {
 @Preview
 @Composable
 fun PreviewSignInScreen() {
-    SignInScreen(rememberNavController())
+    SignUpScreen(rememberNavController())
 }

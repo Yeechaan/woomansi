@@ -22,4 +22,6 @@ data class FriendHistory(
     var image: String = "",
     var imageUri: Uri? = null,
     var date: String = "",
+    var ownerFriendName: String = "",
+    var friendNames: List<String> = listOf(),
 )

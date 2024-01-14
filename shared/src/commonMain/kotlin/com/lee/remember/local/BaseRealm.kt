@@ -8,6 +8,7 @@ import com.lee.remember.local.model.ProfileImageRealm
 import com.lee.remember.local.model.UserRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
+import io.realm.kotlin.ext.query
 
 object BaseRealm {
 
@@ -19,8 +20,18 @@ object BaseRealm {
 
     val realm = Realm.open(configuration)
 
-    fun delete() {
-        realm.close()
-        Realm.deleteRealm(configuration)
+    suspend fun delete() {
+        realm.write {
+            val userRealm = this.query<UserRealm>().find()
+            delete(userRealm)
+
+            val authRealm = this.query<AuthRealm>().find()
+            delete(authRealm)
+
+            val friendRealm = this.query<FriendRealm>().find()
+            delete(friendRealm)
+        }
+//        realm.close()
+//        Realm.deleteRealm(configuration)
     }
 }

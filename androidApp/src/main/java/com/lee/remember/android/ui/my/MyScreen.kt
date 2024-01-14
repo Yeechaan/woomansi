@@ -1,8 +1,16 @@
 package com.lee.remember.android.ui.my
 
+import android.app.Activity
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +40,10 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,18 +51,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.ui.pointColor
+import com.lee.remember.android.ui.stringToBitmap
 import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.local.BaseRealm
 import com.lee.remember.repository.UserRepository
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScreen(navController: NavHostController) {
+    var savedImage by remember { mutableStateOf("") }
+    var selectedImage by remember { mutableStateOf<Uri?>(null) }
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = {
+            it?.let {
+                selectedImage = it
+                savedImage = ""
+            }
+        }
+    )
+
+    fun launchPhotoPicker() {
+        singlePhotoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -75,7 +109,61 @@ fun MyScreen(navController: NavHostController) {
         val user = UserRepository().getUser()
         var id by remember { mutableStateOf("") }
 
-        HeadingLogoScreen(user?.name ?: "")
+//        HeadingLogoScreen(user?.name ?: "")
+
+        Column(
+            Modifier
+                .shadow(elevation = 1.dp, spotColor = Color(0x36263E2B), ambientColor = Color(0x36263E2B))
+                .shadow(elevation = 1.dp, spotColor = Color(0x33444444), ambientColor = Color(0x33444444))
+                .fillMaxWidth()
+                .background(color = Color.White)
+                .padding(top = 26.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .padding(top = 28.dp)
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xffEFEEEC))
+                    .clickable { launchPhotoPicker() },
+                contentAlignment = Alignment.Center
+            ) {
+                if (savedImage.isNotEmpty()) {
+                    val bitmap: Bitmap? = stringToBitmap(savedImage)
+                    bitmap?.let {
+                        Image(
+                            bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                } else if (selectedImage != null) {
+                    AsyncImage(
+                        model = selectedImage,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_camera_32),
+                        contentDescription = "",
+                        colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
+                        modifier = Modifier.padding(8.dp),
+                    )
+                }
+            }
+
+            Text(
+                user?.name ?: "",
+                style = getTextStyle(textStyle = RememberTextStyle.HEAD_5),
+                modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
+            )
+
+            Divider(color = pointColor, thickness = 8.dp)
+        }
 
         Text("내 정보", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5), modifier = Modifier.padding(top = 24.dp, start = 16.dp))
 
@@ -93,21 +181,35 @@ fun MyScreen(navController: NavHostController) {
                 .fillMaxWidth()
         )
 
+        val scope = rememberCoroutineScope()
+        val activity = (LocalContext.current as? Activity)
         RememberFilledButton(text = "로그아웃") {
-            // Todo realm 삭제 후 앱 종료
-//                    BaseRealm.delete()
-//                    activity?.finish()
+            scope.launch {
+                BaseRealm.delete()
+                activity?.finish()
+
+                scope.cancel()
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Column(Modifier.background(pointColor).fillMaxWidth(), horizontalAlignment = Alignment.End) {
+        Column(
+            Modifier
+                .background(pointColor)
+                .fillMaxWidth(), horizontalAlignment = Alignment.End) {
             TextButton(
                 modifier = Modifier
                     .padding(top = 8.dp)
                     .padding(bottom = 32.dp),
                 onClick = {
-                    // Todo
+                    scope.launch {
+                        UserRepository().deleteUser()
+                        BaseRealm.delete()
+                        activity?.finish()
+
+                        scope.cancel()
+                    }
                 }) {
                 Text(
                     text = "회원탈퇴",

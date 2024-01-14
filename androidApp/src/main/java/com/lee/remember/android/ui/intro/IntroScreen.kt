@@ -1,5 +1,8 @@
 package com.lee.remember.android.ui.intro
 
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,11 +22,14 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
@@ -34,6 +40,16 @@ import com.lee.remember.android.utils.getTextStyle
 
 @Composable
 fun IntroScreen(navController: NavHostController) {
+    val activity = (LocalContext.current as Activity)
+    val status = ContextCompat.checkSelfPermission(activity.applicationContext, "android.permission.READ_CONTACTS")
+    if (status == PackageManager.PERMISSION_GRANTED) {
+        Log.d("test", "permission granted")
+    } else {
+        ActivityCompat.requestPermissions(activity, arrayOf("android.permission.READ_CONTACTS"), 100)
+        Log.d("test", "permission denied")
+    }
+
+
     val scrollState = rememberScrollState()
 
     Column(

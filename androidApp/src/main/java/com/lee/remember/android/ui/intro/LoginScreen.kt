@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -56,12 +57,13 @@ import com.lee.remember.local.model.UserRealm
 import com.lee.remember.remote.AuthApi
 import com.lee.remember.remote.request.LoginRequest
 import com.lee.remember.repository.AuthRepository
+import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     val imeState = rememberImeState()
     val scrollState = rememberScrollState()
 
@@ -132,24 +134,24 @@ fun LoginScreen(navController: NavHostController) {
                 .fillMaxWidth(),
         )
 
-        val context = LocalContext.current
-
         RememberFilledButton(text = "로그인", onClick = {
-            if (id.isEmpty() || password.value.isEmpty()) {
-                Toast.makeText(context, "이메일 또는 비밀번호는 입력해주세요.", Toast.LENGTH_SHORT).show()
-                return@RememberFilledButton
-            }
-
             scope.launch {
+                if (id.isEmpty() || password.value.isEmpty()) {
+                    snackbarHostState.showSnackbar("이메일 또는 비밀번호는 입력해주세요.")
+                    return@launch
+                }
+
                 val result = AuthRepository().login(id, password.value)
                 if (result.isSuccess) {
+                    UserRepository().fetchUser()
+
                     navController.navigate(RememberScreen.History.name) {
                         popUpTo(RememberScreen.Login.name) {
                             inclusive = true
                         }
                     }
                 } else {
-                    Toast.makeText(context, "로그인 실패", Toast.LENGTH_SHORT).show()
+                    snackbarHostState.showSnackbar("로그인 실패")
                 }
             }
         })
@@ -194,5 +196,5 @@ fun LoginScreen(navController: NavHostController) {
 @Preview
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen(rememberNavController())
+    LoginScreen(rememberNavController(), SnackbarHostState())
 }

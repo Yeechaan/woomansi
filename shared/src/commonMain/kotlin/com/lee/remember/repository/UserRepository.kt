@@ -19,10 +19,10 @@ class UserRepository(
 
     suspend fun updateUserName(name: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
-            val token = authDao.getToken()?.accessToken ?: return@withContext Result.failure(Exception(""))
+            val auth = authDao.getAuth() ?: return@withContext Result.failure(Exception(""))
             val user = getUser() ?: return@withContext Result.failure(Exception(""))
-            val userInfoRequest = UserInfoRequest(user.email, user.password, name, user.phoneNumber, user.profileImage)
-            val result = userApi.updateUser(token, userInfoRequest)
+            val userInfoRequest = UserInfoRequest(user.email, auth.password, name, user.phoneNumber, user.profileImage)
+            val result = userApi.updateUser(auth.accessToken, userInfoRequest)
 
             return@withContext result.fold(
                 onSuccess = {
@@ -44,7 +44,7 @@ class UserRepository(
 
     suspend fun fetchUser(): Result<Boolean> =
         withContext(Dispatchers.IO) {
-            val token = authDao.getToken()?.accessToken ?: return@withContext Result.failure(Exception(""))
+            val token = authDao.getToken() ?: return@withContext Result.failure(Exception(""))
             val result = userApi.getUser(token)
 
             return@withContext result.fold(
@@ -54,6 +54,25 @@ class UserRepository(
                         userDao.deleteUser()
                         userDao.setUser(userRealm)
 
+                        Result.success(true)
+                    } else {
+                        Result.failure(Exception(it.resultCode))
+                    }
+                },
+                onFailure = {
+                    Result.failure(Exception(it))
+                }
+            )
+        }
+
+    suspend fun deleteUser(): Result<Boolean> =
+        withContext(Dispatchers.IO) {
+            val token = authDao.getToken() ?: return@withContext Result.failure(Exception(""))
+            val result = userApi.deleteUser(token)
+
+            return@withContext result.fold(
+                onSuccess = {
+                    if (it.resultCode == "SUCCESS") {
                         Result.success(true)
                     } else {
                         Result.failure(Exception(it.resultCode))

@@ -26,11 +26,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,21 +51,30 @@ import com.lee.remember.android.data.FriendHistory
 import com.lee.remember.android.rememberFontFamily
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.local.dao.MemoryDao
+import com.lee.remember.android.utils.parseUtcString
+import com.lee.remember.repository.MemoryRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(navHostController: NavHostController) {
-    // local datasource
-    val items = mutableListOf<Pair<String, FriendHistory>>()
-    MemoryDao().getAllMemories().map {
-        val pair = it.friend.name to FriendHistory(
-            title = it.title,
-            contents = it.description,
-            image = it.images.firstOrNull() ?: "",
-            date = it.date
-        )
-        items.add(pair)
+    val items = remember { mutableStateOf<List<FriendHistory>>(listOf()) }
+
+    LaunchedEffect(Unit) {
+        val memoryResponse = MemoryRepository().getMemoryList()
+        val memories = memoryResponse.getOrNull()?.result?.map {
+            val friends = it.friends.map { it.name }
+
+            FriendHistory(
+                title = it.title ?: "",
+                contents = it.description ?: "",
+                image = it.thumbnail?.image ?: "",
+                date = parseUtcString(it.date ?: ""),
+                ownerFriendName = friends.firstOrNull() ?: "",
+                friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
+            )
+        } ?: listOf()
+
+        items.value = memories
     }
 
     Column(
@@ -101,19 +108,20 @@ fun FeedScreen(navHostController: NavHostController) {
                 .background(lightColor)
         ) {
             LazyColumn(
-                Modifier
-                    .padding(top = 10.dp, start = 16.dp, end = 16.dp)
+                Modifier.padding(start = 16.dp, end = 16.dp)
             ) {
-                items(items) { item ->
+                item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
+
+                items(items.value) { item ->
                     Card(
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.primary
                         ),
                         modifier = Modifier
-                            .padding(vertical = 4.dp, horizontal = 6.dp)
+                            .padding(vertical = 6.dp)
                             .border(width = 1.dp, color = Color(0xFFD8D8D8), shape = RoundedCornerShape(size = 16.dp))
                     ) {
-                        FeedItem(item.first, item.second)
+                        FeedItem(item)
                     }
                 }
             }
@@ -123,7 +131,7 @@ fun FeedScreen(navHostController: NavHostController) {
 }
 
 @Composable
-fun FeedItem(name: String, friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true) {
+fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true) {
     Column(
         Modifier.background(Color.White)
     ) {
@@ -165,7 +173,11 @@ fun FeedItem(name: String, friendHistory: FriendHistory, isFriendInfoVisible: Bo
                         .weight(1f)
                 ) {
                     Text(text = "with", fontSize = 10.sp, color = Color(0xFF1D1B20), fontFamily = rememberFontFamily)
-                    Text(text = "harry", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
+                    Text(
+                        text = friendHistory.ownerFriendName,
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
+                        color = fontColorBlack
+                    )
                 }
             }
             Spacer(modifier = Modifier.padding(top = 8.dp))
@@ -194,9 +206,16 @@ fun FeedItem(name: String, friendHistory: FriendHistory, isFriendInfoVisible: Bo
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f)) {
+                    .weight(1f)
+            ) {
                 Text(text = friendHistory.title, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
-                Text(text = "2023. 10. 23", fontSize = 10.sp, color = fontColorBlack, fontFamily = rememberFontFamily, modifier = Modifier.padding(top = 4.dp))
+                Text(
+                    text = "2023. 10. 23",
+                    fontSize = 10.sp,
+                    color = fontColorBlack,
+                    fontFamily = rememberFontFamily,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
 
 
@@ -248,8 +267,9 @@ fun FeedItem(name: String, friendHistory: FriendHistory, isFriendInfoVisible: Bo
                 .fillMaxWidth()
         )
 
+        val friendNames = if (friendHistory.friendNames.isNotEmpty()) friendHistory.friendNames.joinToString(prefix = "#") else ""
         Text(
-            text = "#친구들",
+            text = friendNames,
             style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
             modifier = Modifier
                 .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 32.dp)
@@ -264,5 +284,5 @@ fun FeedItem(name: String, friendHistory: FriendHistory, isFriendInfoVisible: Bo
 fun PreviewFeedScreen() {
 //    FeedScreen(rememberNavController())
 
-    FeedItem("hoho", FriendHistory(title = "libris", contents = "curae", imageUri = null), true)
+    FeedItem(FriendHistory(title = "libris", contents = "curae", imageUri = null), true)
 }
