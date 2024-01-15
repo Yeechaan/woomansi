@@ -119,7 +119,7 @@ fun HistoryScreen(navHostController: NavHostController) {
         val title = if (isCall) "안심하세요!\n바로 통화로 연결되지 않아요." else "친구에게 문자를 보내보세요."
         val buttonText = if (isCall) "전화하기" else "문자하기"
 
-        if (showBottomSheet) {
+        if (showBottomSheet && currentFriendIndex.value != -1) {
             val phoneNumber = friendList.value[currentFriendIndex.value].phoneNumber ?: ""
 
             ModalBottomSheet(

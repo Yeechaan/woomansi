@@ -36,7 +36,7 @@ class AuthRepository(
                     }
                 },
                 onFailure = {
-                    Result.failure(Exception(it))
+                    Result.failure(Exception(it.message))
                 }
             )
         }

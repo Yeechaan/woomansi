@@ -40,15 +40,16 @@ fun RememberFilledButton(
 @Composable
 fun RememberOutlinedButton(
     text: String,
-    paddingValues: PaddingValues = PaddingValues(top = 16.dp, bottom = 32.dp),
+    horizontalPaddingValues: PaddingValues = PaddingValues(horizontal = 16.dp),
+    verticalPaddingValues: PaddingValues = PaddingValues(top = 16.dp, bottom = 32.dp),
     onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(paddingValues),
+            .padding(horizontalPaddingValues)
+            .padding(verticalPaddingValues),
         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
         shape = RoundedCornerShape(size = 100.dp),
         border = BorderStroke(1.dp, Color(0xFFF2BE2F))

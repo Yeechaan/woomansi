@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,35 +79,23 @@ fun FeedScreen(navHostController: NavHostController) {
     }
 
     Column(
-        Modifier.background(lightColor)
+        Modifier
+            .background(lightColor)
+            .fillMaxSize()
     ) {
         RememberTopAppBar(navHostController)
 
-//        var selectedIndex by remember { mutableStateOf(0) }
-//        val options = listOf("이름 순", "최신 순")
-//
-//        SingleChoiceSegmentedButtonRow(
-//            Modifier
-//                .fillMaxWidth()
-//                .padding(16.dp)
-//        ) {
-//            options.forEachIndexed { index, label ->
-//                SegmentedButton(
-//                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-//                    onClick = { selectedIndex = index },
-//                    selected = index == selectedIndex,
-//                    colors = SegmentedButtonDefaults.colors(activeContainerColor = fontColorPoint, inactiveContainerColor = whiteColor)
-//                ) {
-//                    Text(label, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B))
-//                }
-//            }
-//        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(lightColor)
-        ) {
+        if (items.value.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                EmptyFeedScreen()
+                Image(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 52.dp, bottom = 28.dp),
+                    painter = painterResource(id = R.drawable.ic_arrow_bottom_left), contentDescription = null
+                )
+            }
+        } else {
             LazyColumn(
                 Modifier.padding(start = 16.dp, end = 16.dp)
             ) {
@@ -128,6 +117,19 @@ fun FeedScreen(navHostController: NavHostController) {
         }
     }
 
+}
+
+@Composable
+fun EmptyFeedScreen() {
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(painter = painterResource(id = R.drawable.img_empty_history), contentDescription = null)
+        Text(
+            "홈으로 가서 친구와의 추억을 기록하면\n피드 화면에서 모아볼 수 있어요!",
+            style = getTextStyle(textStyle = RememberTextStyle.BODY_1).copy(Color(0x94000000)),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 28.dp),
+        )
+    }
 }
 
 @Composable

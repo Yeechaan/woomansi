@@ -2,7 +2,10 @@ package com.lee.remember.android
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -39,6 +42,7 @@ import androidx.navigation.navArgument
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.ui.ContactScreen
 import com.lee.remember.android.ui.FeedScreen
+import com.lee.remember.android.ui.FriendAddScreen
 import com.lee.remember.android.ui.FriendEditScreen
 import com.lee.remember.android.ui.FriendHistoryScreen
 import com.lee.remember.android.ui.FriendProfileScreen
@@ -74,6 +78,7 @@ enum class RememberScreen(@StringRes val title: Int) {
     Feed(title = R.string.feed),
     FriendProfile(title = R.string.select_contact),
     FriendHistory(title = R.string.friend_history),
+    FriendAdd(title = R.string.friend_edit),
     FriendEdit(title = R.string.friend_edit),
     FriendGroup(title = R.string.friend_group),
     HistoryAdd(title = R.string.history_add),
@@ -176,7 +181,7 @@ fun MainApp(
                 TermsScreen(navController)
             }
             composable(route = RememberScreen.SignUp.name) {
-                SignUpScreen(navController)
+                SignUpScreen(navController, snackbarHostState)
             }
             composable(route = RememberScreen.UserName.name) {
                 UserNameScreen(navController)
@@ -213,6 +218,14 @@ fun MainApp(
             ) {
                 val friendId = it.arguments?.getString("friendId")
                 FriendHistoryScreen(navHostController = navController, friendId)
+            }
+            composable(
+                route = "${RememberScreen.FriendAdd.name}/{name}/{number}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }, navArgument("number") { type = NavType.StringType })
+            ) {
+                val name = it.arguments?.getString("name")
+                val number = it.arguments?.getString("number")
+                FriendAddScreen(navHostController = navController, name, number)
             }
             composable(
                 route = "${RememberScreen.FriendEdit.name}/{friendId}",

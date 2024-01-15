@@ -53,9 +53,9 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     // material design 3
-    implementation("androidx.compose.material3:material3-android:1.2.0-alpha10")
+    implementation("androidx.compose.material3:material3-android:1.2.0-beta02")
 
-    implementation("androidx.navigation:navigation-compose:2.6.0")
+    implementation("androidx.navigation:navigation-compose:2.7.6")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 

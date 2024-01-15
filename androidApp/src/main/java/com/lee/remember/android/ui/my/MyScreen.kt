@@ -148,7 +148,7 @@ fun MyScreen(navController: NavHostController) {
                     )
                 } else {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_camera_32),
+                        painter = painterResource(id = R.drawable.ic_account),
                         contentDescription = "",
                         colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
                         modifier = Modifier.padding(8.dp),

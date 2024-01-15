@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -57,7 +58,7 @@ fun OnBoardingScreen(navController: NavHostController) {
         val pagerState = rememberPagerState(pageCount = { items.size })
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().weight(1f)
         ) { page ->
             val item = items[page]
 
@@ -89,11 +90,12 @@ fun OnBoardingScreen(navController: NavHostController) {
             }
         }
 
+//        Spacer(modifier = Modifier.weight(1f))
+
         Row(
             Modifier
                 .wrapContentHeight()
-                .fillMaxWidth()
-                .padding(bottom = 8.dp, top = 60.dp),
+                .fillMaxWidth().padding(top = 16.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             repeat(pagerState.pageCount) { iteration ->
@@ -107,8 +109,6 @@ fun OnBoardingScreen(navController: NavHostController) {
                 )
             }
         }
-
-        Spacer(modifier = Modifier.weight(1f))
 
         if (pagerState.currentPage == 2) {
             RememberFilledButton(text = "시작하기", onClick = {

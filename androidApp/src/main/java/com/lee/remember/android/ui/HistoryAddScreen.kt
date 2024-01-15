@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -253,7 +254,7 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
 
         OutlinedTextField(
             value = date, onValueChange = { date = it }, readOnly = true,
-            label = { RememberTextField.label(text = "추억 선택") },
+            label = { RememberTextField.label(text = "추억 날짜") },
             textStyle = RememberTextField.textStyle(),
             colors = RememberTextField.colors(),
             singleLine = true,
@@ -272,7 +273,7 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
             }
         )
 
-        RememberOutlinedButton(text = "사진첨부", onClick = {
+        RememberOutlinedButton(text = "사진첨부", verticalPaddingValues = PaddingValues(top = 16.dp, bottom = 0.dp), onClick = {
             launchPhotoPicker()
         })
 

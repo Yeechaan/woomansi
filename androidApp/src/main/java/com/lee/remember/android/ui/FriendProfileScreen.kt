@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -128,15 +128,15 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
                 .shadow(elevation = 10.dp, spotColor = Color(0x0F444444), ambientColor = Color(0x0F444444))
         )
 
-        Box(
-            modifier = Modifier
-                .padding(top = 32.dp)
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(Color(0xffEFEEEC)),
-            contentAlignment = Alignment.Center
-        ) {
-            if (image.isNotEmpty()) {
+        if (image.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 32.dp)
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xffEFEEEC)),
+                contentAlignment = Alignment.Center
+            ) {
                 val bitmap: Bitmap? = stringToBitmap(image)
                 bitmap?.let {
                     Image(
@@ -145,14 +145,9 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-            } else {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_camera_32),
-                    contentDescription = "",
-                    colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
-                    modifier = Modifier.padding(40.dp),
-                )
             }
+        } else {
+            Spacer(modifier = Modifier.padding(top = 32.dp))
         }
 
         Column(

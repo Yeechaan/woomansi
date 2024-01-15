@@ -55,10 +55,9 @@ import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.launch
 
-val contracts = mutableListOf<Contract>()
-
 @Composable
 fun SelectContractScreen(navController: NavHostController) {
+    val contracts = mutableListOf<Contract>()
     contracts.addAll(getContracts())
 //    val contracts = getContracts()
 

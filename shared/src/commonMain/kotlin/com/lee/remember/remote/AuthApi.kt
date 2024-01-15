@@ -46,10 +46,11 @@ class AuthApi {
 
         Napier.d("### ${response.bodyAsText()}")
 
+        val resultCode = (response.body() as SignupResponse).resultCode
         return if (response.status == HttpStatusCode.OK) {
             Result.success(response.body())
         } else {
-            Result.failure(Exception("Network response status : ${response.status}"))
+            Result.failure(Exception(resultCode))
         }
     }
 
