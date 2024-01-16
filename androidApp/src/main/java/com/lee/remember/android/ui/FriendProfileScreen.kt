@@ -157,7 +157,7 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
                 .fillMaxWidth()
         ) {
             FriendProfileItem("연락처", number)
-            FriendProfileItem("그룹", group)
+//            FriendProfileItem("그룹", group)
             FriendProfileItem(dateTitle, date)
         }
 
