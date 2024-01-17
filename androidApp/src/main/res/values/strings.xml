@@ -27,6 +27,7 @@
     <string name="friend_edit">friend_edit</string>
     <string name="friend_group">friend_group</string>
     <string name="history_add">history_add</string>
+    <string name="meeting">안부</string>
     <string name="my">my</string>
 
     <string name="birth_date">생일 %s월 %s일</string>

@@ -50,6 +50,7 @@ import com.lee.remember.android.ui.FriendScreen
 import com.lee.remember.android.ui.HistoryAddScreen
 import com.lee.remember.android.ui.HistoryScreen
 import com.lee.remember.android.ui.FriendGroupScreen
+import com.lee.remember.android.ui.MeetingScreen
 import com.lee.remember.android.ui.intro.IntroScreen
 import com.lee.remember.android.ui.intro.LoginScreen
 import com.lee.remember.android.ui.intro.OnBoardingScreen
@@ -83,6 +84,7 @@ enum class RememberScreen(@StringRes val title: Int) {
     FriendGroup(title = R.string.friend_group),
     HistoryAdd(title = R.string.history_add),
 
+    Meeting(title = R.string.feed),
     My(title = R.string.my)
 }
 
@@ -245,6 +247,9 @@ fun MainApp(
                 HistoryAddScreen(navHostController = navController, friendId)
             }
 
+            composable(route = RememberScreen.Meeting.name) {
+                MeetingScreen(navController)
+            }
             composable(route = RememberScreen.My.name) {
                 MyScreen(navController)
             }

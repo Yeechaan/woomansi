@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class AndroidGreetingTest {
 
@@ -30,6 +31,15 @@ class AndroidGreetingTest {
             println("### world1 ${this.coroutineContext.job}")
         }
         println("### hello ${this.coroutineContext.job}")
+    }
+
+    @Test
+    fun testEmptyFriendIndex() {
+        val imageSize = 5
+        val friendHasImageList = listOf(false, true, true, false, false, true, false)
+
+        val currentIndex = 6
+        assertEquals(1, currentIndex % imageSize)
     }
 
 }

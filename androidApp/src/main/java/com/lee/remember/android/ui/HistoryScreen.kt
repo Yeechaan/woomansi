@@ -7,6 +7,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,8 +90,7 @@ fun HistoryScreen(navHostController: NavHostController) {
     Column(
         modifier = Modifier
             .background(lightColor)
-            .fillMaxSize()
-            .verticalScroll(scrollState),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         RememberTopAppBar(navHostController)
@@ -108,7 +109,9 @@ fun HistoryScreen(navHostController: NavHostController) {
                 showBottomSheet = true
                 isCall = false
             }
-            HistoryItem("안부", R.drawable.ic_sns) {}
+            HistoryItem("안부", R.drawable.ic_sns) {
+                navHostController.navigate(RememberScreen.Meeting.name)
+            }
         }
 
         val sheetState = rememberModalBottomSheetState()
@@ -188,13 +191,16 @@ fun HistoryScreen(navHostController: NavHostController) {
             apiScope.cancel()
         }
 
-        if (friendList.value.isEmpty()) {
-            HistoryEmptyScreen(navHostController)
-        } else {
-            HistoryPagerScreen(navHostController, friendList.value) {
-                currentFriendIndex.value = it
+        Column(Modifier.verticalScroll(scrollState)) {
+            if (friendList.value.isEmpty()) {
+                HistoryEmptyScreen(navHostController)
+            } else {
+                HistoryPagerScreen(navHostController, friendList.value) {
+                    currentFriendIndex.value = it
+                }
             }
         }
+
     }
 }
 
@@ -240,6 +246,14 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
     val pagerState = rememberPagerState(pageCount = { friendList.size })
     onCurrentPage(pagerState.currentPage)
 
+    val emptyFriendImages = listOf(
+        R.drawable.img_friends_default_1,
+        R.drawable.img_friends_default_2,
+        R.drawable.img_friends_default_3,
+        R.drawable.img_friends_default_4,
+        R.drawable.img_friends_default_5
+    )
+
     HorizontalPager(
         state = pagerState,
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -248,7 +262,7 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(460.dp)
+//                .height(460.dp)
                 .padding(horizontal = 4.dp)
                 .graphicsLayer {
                     // Calculate the absolute offset for the current page from the
@@ -266,34 +280,55 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
                 }
         ) {
             val friend = friendList[page]
-            val friendProfile = FriendProfile(id = friend.id, name = friend.name, phoneNumber = friend.phoneNumber ?: "", image = friend.profileImage?.image ?: "")
+            val friendProfile = FriendProfile(
+                id = friend.id,
+                name = friend.name,
+                phoneNumber = friend.phoneNumber ?: "",
+                image = friend.profileImage?.image ?: ""
+            )
 
             val brush = Brush.verticalGradient(listOf(Color(0x77000000), Color.White))
 
-            Box(modifier = Modifier
+            Column(modifier = Modifier
+                .clickable {
+                    selectedFriendPhoneNumber = friendProfile.phoneNumber
+
+                    val friendId = friendProfile.id
+                    navHostController.navigate("${RememberScreen.FriendHistory.name}/${friendId}")
+                }
                 .fillMaxSize()
-                .background(brush), contentAlignment = Alignment.Center) {
+                .background(whiteColor)
+            ) {
+                Column(
+//                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    FriendSummaryItem(friendProfile, navHostController)
+                }
 
                 val bitmap: Bitmap? = stringToBitmap(friendProfile.image)
                 if (bitmap != null) {
                     Image(
                         bitmap = bitmap.asImageBitmap(), contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .height(312.dp),
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_camera),
-                        contentDescription = stringResource(id = R.string.history),
-                        modifier = Modifier.size(100.dp)
-                    )
-                }
-
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    FriendSummaryItem(friendProfile, navHostController)
+                    val imageIndex  = (page % 5)
+                    val image = emptyFriendImages[imageIndex]
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .height(312.dp), contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = image),
+                            contentDescription = stringResource(id = R.string.history),
+//                            modifier = Modifier.height(460.dp)
+                        )
+                    }
                 }
             }
         }
@@ -332,12 +367,12 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(text = friendProfile.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_3), color = Color.White)
+            Text(text = friendProfile.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_3), color = Color(0xFF000000))
             Text(
                 text = friendProfile.phoneNumber,
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_1B),
                 modifier = Modifier.padding(top = 8.dp),
-                color = Color.White
+                color = Color(0xFF000000)
             )
             Text(
 //                text = stringResource(id = R.string.birth_date, birthMonth, birthDate),
@@ -346,20 +381,20 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
                 color = Color.White
             )
         }
-        Button(
-            onClick = {
-                selectedFriendPhoneNumber = friendProfile.phoneNumber
-
-                val friendId = friendProfile.id
-                navHostController.navigate("${RememberScreen.FriendHistory.name}/${friendId}")
-            },
-            modifier = Modifier.size(70.dp),  //avoid the oval shape
-            shape = CircleShape,
-            contentPadding = PaddingValues(0.dp),  //avoid the little icon
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
-        ) {
-            Text(text = "기록\n보기", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
-        }
+//        Button(
+//            onClick = {
+//                selectedFriendPhoneNumber = friendProfile.phoneNumber
+//
+//                val friendId = friendProfile.id
+//                navHostController.navigate("${RememberScreen.FriendHistory.name}/${friendId}")
+//            },
+//            modifier = Modifier.size(70.dp),  //avoid the oval shape
+//            shape = CircleShape,
+//            contentPadding = PaddingValues(0.dp),  //avoid the little icon
+//            colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
+//        ) {
+//            Text(text = "기록\n보기", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
+//        }
     }
 }
 

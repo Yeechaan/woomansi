@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserInfoRequest(
     val email: String,
-    val password: String,
+//    val password: String,
     val name: String,
     val phoneNumber: String,
     val profileImage: String,

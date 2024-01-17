@@ -161,16 +161,6 @@ data class MemoryGetListResponse(
             val id: Int,
             @SerialName("name")
             val name: String,
-            @SerialName("profileImage")
-            val profileImage: ProfileImage?,
-        ) {
-            @Serializable
-            data class ProfileImage(
-                @SerialName("id")
-                val id: Int,
-                @SerialName("image")
-                val image: String?,
-            )
-        }
+        )
     }
 }

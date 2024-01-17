@@ -21,7 +21,7 @@ class UserRepository(
         withContext(Dispatchers.IO) {
             val auth = authDao.getAuth() ?: return@withContext Result.failure(Exception(""))
             val user = getUser() ?: return@withContext Result.failure(Exception(""))
-            val userInfoRequest = UserInfoRequest(user.email, auth.password, name, user.phoneNumber, user.profileImage)
+            val userInfoRequest = UserInfoRequest(user.email, name, user.phoneNumber, user.profileImage)
             val result = userApi.updateUser(auth.accessToken, userInfoRequest)
 
             return@withContext result.fold(
