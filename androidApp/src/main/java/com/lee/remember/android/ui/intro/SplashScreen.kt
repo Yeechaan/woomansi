@@ -33,6 +33,7 @@ fun SplashScreen(
     viewModel: IntroViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
     viewModel.initUserState()
+    viewModel.fetchFriends()
 //    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()

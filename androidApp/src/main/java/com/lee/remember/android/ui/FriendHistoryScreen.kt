@@ -1,5 +1,6 @@
 package com.lee.remember.android.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +20,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -133,13 +135,13 @@ fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?)
                 ) {
                     item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
                     items(items.value) { item ->
-                        Card(
+                        OutlinedCard(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.primary
                             ),
+                            border = BorderStroke(1.dp, color = Color(0xFFD8D8D8)),
                             modifier = Modifier
                                 .padding(vertical = 6.dp)
-                                .border(width = 1.dp, color = Color(0xFFD8D8D8), shape = RoundedCornerShape(size = 16.dp))
                         ) {
                             FeedItem( item, false)
                         }

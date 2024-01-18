@@ -4,9 +4,9 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -59,29 +60,44 @@ fun IntroScreen(navController: NavHostController) {
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.logo_main),
+                contentDescription = "logo",
+                colorFilter = ColorFilter.tint(Color.White),
+                modifier = Modifier
+//                .width(88.dp)
+                    .padding(top = 64.dp)
+            )
 
-        Image(
-            painter = painterResource(id = R.drawable.logo_splash), contentDescription = "logo",
-            modifier = Modifier
-                .width(88.dp)
-                .padding(top = 64.dp)
-        )
+            Image(
+                painter = painterResource(id = R.drawable.logo_splash),
+                contentDescription = "logo",
+                colorFilter = ColorFilter.tint(Color.White),
+                modifier = Modifier
+                    .width(88.dp)
+                    .padding(top = 12.dp)
+            )
 
-        Text(
-            text = "우리가 만난 소중한 시절",
-            modifier = Modifier.padding(top = 12.dp),
-            textAlign = TextAlign.Center,
-            style = getTextStyle(textStyle = RememberTextStyle.BODY_1B),
-        )
+            Text(
+                text = "우리가 만난 소중한 시절",
+                modifier = Modifier.padding(top = 12.dp),
+                textAlign = TextAlign.Center,
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(Color.White),
+            )
 
-        Image(
-            modifier = Modifier
-                .width(142.dp)
-                .padding(top = 40.dp),
-            painter = painterResource(id = R.drawable.img_splash), contentDescription = "logo"
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
+            Image(
+                modifier = Modifier
+                    .width(142.dp)
+                    .padding(top = 40.dp),
+                painter = painterResource(id = R.drawable.logo_intro), contentDescription = "logo",
+            )
+        }
+//        Spacer(modifier = Modifier.weight(1f))
 
         RememberFilledButton(text = "로그인", verticalPaddingValues = PaddingValues(top = 16.dp, bottom = 0.dp), onClick = {
             navController.navigate(RememberScreen.Login.name)

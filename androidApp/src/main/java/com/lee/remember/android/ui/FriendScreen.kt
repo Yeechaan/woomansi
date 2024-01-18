@@ -80,30 +80,30 @@ val pointColor = Color(0xFFF3F2EE)
 @Composable
 fun FriendScreen(navHostController: NavHostController) {
 
-    val friendListFromLocal = remember {
+    val friendList = remember {
         mutableStateOf(
             FriendDao().getFriends().toMutableList()
         )
     }
 
-    val friendList = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
-    LaunchedEffect(null) {
-        try {
-            val response = FriendApi().getFriendList(accessToken)
-            if (response != null) {
-
-                // Todo
-                response.result?.map {
-                    val size = it.profileImage?.image?.length
-                    Napier.d("@@@getFriendList ${it.id} / $size")
-                }
-
-                friendList.value.addAll(response.result!!)
-            }
-        } catch (e: Exception) {
-            e.localizedMessage ?: "error"
-        }
-    }
+//    val friendListFromServer = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
+//    LaunchedEffect(null) {
+//        try {
+//            val response = FriendApi().getFriendList(accessToken)
+//            if (response != null) {
+//
+//                // Todo
+//                response.result?.map {
+//                    val size = it.profileImage?.image?.length
+//                    Napier.d("@@@getFriendList ${it.id} / $size")
+//                }
+//
+//                friendListFromServer.value.addAll(response.result!!)
+//            }
+//        } catch (e: Exception) {
+//            e.localizedMessage ?: "error"
+//        }
+//    }
 
     Column(
         Modifier.background(lightColor)

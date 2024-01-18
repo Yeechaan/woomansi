@@ -180,10 +180,10 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
                             }
                         } else {
                             // add realm
-                            val friendRealmList = selectedFriends.map {
-                                FriendRealm().apply { this.name = it.name; this.phoneNumber = it.phoneNumber }
-                            }.toRealmList()
-                            FriendDao().setFriends(friendRealmList)
+//                            val friendRealmList = selectedFriends.map {
+//                                FriendRealm().apply { this.name = it.name; this.phoneNumber = it.phoneNumber }
+//                            }.toRealmList()
+//                            FriendDao().setFriends(friendRealmList)
                         }
                     } catch (e: Exception) {
                         e.localizedMessage ?: "error"

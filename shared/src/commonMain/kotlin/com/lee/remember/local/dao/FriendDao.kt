@@ -5,6 +5,7 @@ import com.lee.remember.local.model.AuthRealm
 import com.lee.remember.local.model.EventRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.ProfileImageRealm
+import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmList
 
@@ -20,7 +21,7 @@ class FriendDao {
     suspend fun setFriends(friends: RealmList<FriendRealm>) {
         realm.write {
             friends.forEach {
-                copyToRealm(it)
+                copyToRealm(it, UpdatePolicy.ALL)
             }
         }
     }

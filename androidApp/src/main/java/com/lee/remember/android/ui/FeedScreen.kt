@@ -1,6 +1,7 @@
 package com.lee.remember.android.ui
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,6 +27,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +56,7 @@ import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.repository.MemoryRepository
+import io.github.aakira.napier.Napier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +78,7 @@ fun FeedScreen(navHostController: NavHostController) {
             )
         } ?: listOf()
 
-        items.value = memories
+        items.value = memories.sortedByDescending { it.date }
     }
 
     Column(
@@ -102,13 +105,12 @@ fun FeedScreen(navHostController: NavHostController) {
                 item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
 
                 items(items.value) { item ->
-                    Card(
+                    OutlinedCard(
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.primary
                         ),
-                        modifier = Modifier
-                            .padding(vertical = 6.dp)
-                            .border(width = 1.dp, color = Color(0xFFD8D8D8), shape = RoundedCornerShape(size = 16.dp))
+                        border = BorderStroke(1.dp, color = Color(0xFFD8D8D8)),
+                        modifier = Modifier.padding(vertical = 6.dp)
                     ) {
                         FeedItem(item)
                     }
@@ -212,7 +214,7 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true) 
             ) {
                 Text(text = friendHistory.title, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
                 Text(
-                    text = "2023. 10. 23",
+                    text = friendHistory.date,
                     fontSize = 10.sp,
                     color = fontColorBlack,
                     fontFamily = rememberFontFamily,

@@ -69,6 +69,8 @@ import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.local.dao.FriendDao
+import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.request.FriendResponse
 import io.github.aakira.napier.Napier
@@ -80,7 +82,8 @@ import kotlin.math.absoluteValue
 @Composable
 fun HistoryScreen(navHostController: NavHostController) {
 
-    val friendList = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
+    val friendList = remember { mutableStateOf(FriendDao().getFriends().toMutableList()) }
+    val friendListFromServer = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
     val currentFriendIndex = remember { mutableStateOf<Int>(-1) }
 
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -174,22 +177,22 @@ fun HistoryScreen(navHostController: NavHostController) {
         }
 
         val apiScope = rememberCoroutineScope()
-        apiScope.launch {
-            try {
-                val response = FriendApi().getFriendList(accessToken)
-                if (response?.result != null) {
-                    friendList.value = response.result?.toMutableList() ?: mutableListOf()
-
-                    response.toString()
-                } else {
-                    Napier.d("### ${response?.resultCode}")
-                }
-            } catch (e: Exception) {
-                e.localizedMessage ?: "error"
-            }
-
-            apiScope.cancel()
-        }
+//        apiScope.launch {
+//            try {
+//                val response = FriendApi().getFriendList(accessToken)
+//                if (response?.result != null) {
+//                    friendList.value = response.result?.toMutableList() ?: mutableListOf()
+//
+//                    response.toString()
+//                } else {
+//                    Napier.d("### ${response?.resultCode}")
+//                }
+//            } catch (e: Exception) {
+//                e.localizedMessage ?: "error"
+//            }
+//
+//            apiScope.cancel()
+//        }
 
         Column(Modifier.verticalScroll(scrollState)) {
             if (friendList.value.isEmpty()) {
@@ -241,7 +244,7 @@ fun HistoryEmptyScreen(navHostController: NavHostController) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HistoryPagerScreen(navHostController: NavHostController, friendList: MutableList<FriendResponse.Result>, onCurrentPage: (Int) -> Unit) {
+fun HistoryPagerScreen(navHostController: NavHostController, friendList: MutableList<FriendRealm>, onCurrentPage: (Int) -> Unit) {
 
     val pagerState = rememberPagerState(pageCount = { friendList.size })
     onCurrentPage(pagerState.currentPage)

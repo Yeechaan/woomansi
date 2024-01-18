@@ -3,6 +3,7 @@ package com.lee.remember.android.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lee.remember.repository.AuthRepository
+import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -42,4 +43,9 @@ class IntroViewModel(
         }
     }
 
+    fun fetchFriends() {
+        viewModelScope.launch {
+            FriendRepository().fetchFriends()
+        }
+    }
 }

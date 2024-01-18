@@ -2,19 +2,21 @@ package com.lee.remember.android.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import io.github.aakira.napier.Napier
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
+import java.util.Date
 
 class DateUtils {
+}
+
+fun parseUtcStringToDate(dateString: String): Date? {
+    if (dateString.isEmpty()) return null
+
+    val format = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSSZ")
+    return format.parse(dateString)
 }
 
 fun parseUtcString(dateString: String): String {
