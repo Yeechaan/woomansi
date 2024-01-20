@@ -4,10 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lee.remember.repository.AuthRepository
 import com.lee.remember.repository.FriendRepository
+import com.lee.remember.repository.MemoryRepository
 import com.lee.remember.repository.UserRepository
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,9 +41,10 @@ class IntroViewModel(
         }
     }
 
-    fun fetchFriends() {
+    fun fetchUser() {
         viewModelScope.launch {
             FriendRepository().fetchFriends()
+            MemoryRepository().fetchMemories()
         }
     }
 }

@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberTopAppBar
@@ -55,6 +57,7 @@ import com.lee.remember.android.rememberFontFamily
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
+import com.lee.remember.local.model.MemoryRealm
 import com.lee.remember.repository.MemoryRepository
 import io.github.aakira.napier.Napier
 
@@ -63,7 +66,24 @@ import io.github.aakira.napier.Napier
 fun FeedScreen(navHostController: NavHostController) {
     val items = remember { mutableStateOf<List<FriendHistory>>(listOf()) }
 
+    val memories = MemoryRepository().getMemories().map {
+        val friends = it.friendTags.map { it.name }
+
+        FriendHistory(
+            title = it.title ?: "",
+            contents = it.description ?: "",
+            image = it.images.firstOrNull() ?: "",
+            date = parseUtcString(it.date ?: ""),
+            ownerFriendName = friends.firstOrNull() ?: "",
+            friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
+        )
+    }
+    items.value = memories.sortedByDescending { it.date }
+
+
     LaunchedEffect(Unit) {
+//        val aa = MemoryRepository().getMemories().collectAsStateWithLifecycle()
+
         val memoryResponse = MemoryRepository().getMemoryList()
         val memories = memoryResponse.getOrNull()?.result?.map {
             val friends = it.friends.map { it.name }

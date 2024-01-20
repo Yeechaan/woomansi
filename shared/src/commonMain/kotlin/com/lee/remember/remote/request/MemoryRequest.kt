@@ -141,11 +141,10 @@ data class MemoryGetListResponse(
         val description: String?,
         @SerialName("date")
         val date: String?,
-        @SerialName("friends")
-        val friends: List<Friend> = listOf(),
-
         @SerialName("thumbnail")
         val thumbnail: Thumbnail?,
+        @SerialName("friends")
+        val friends: List<Friend> = listOf(),
     ) {
         @Serializable
         data class Thumbnail(

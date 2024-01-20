@@ -58,6 +58,7 @@ import com.lee.remember.remote.AuthApi
 import com.lee.remember.remote.request.LoginRequest
 import com.lee.remember.repository.AuthRepository
 import com.lee.remember.repository.FriendRepository
+import com.lee.remember.repository.MemoryRepository
 import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -146,6 +147,7 @@ fun LoginScreen(navController: NavHostController, snackbarHostState: SnackbarHos
                 if (result.isSuccess) {
                     UserRepository().fetchUser()
                     FriendRepository().fetchFriends()
+                    MemoryRepository().fetchMemories()
 
                     navController.navigate(RememberScreen.History.name) {
                         popUpTo(RememberScreen.Login.name) {

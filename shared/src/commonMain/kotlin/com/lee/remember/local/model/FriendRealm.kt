@@ -16,7 +16,7 @@ class FriendRealm : RealmObject {
     var group: String = ""
     var events: RealmList<EventRealm> = realmListOf()
     var profileImage: ProfileImageRealm? = null
-    var memories: RealmList<MemoryRealm> = realmListOf()
+//    var memories: RealmList<MemoryRealm> = realmListOf()
 }
 
 class EventRealm : EmbeddedRealmObject {

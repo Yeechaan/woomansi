@@ -50,6 +50,7 @@ import com.lee.remember.android.ui.FriendScreen
 import com.lee.remember.android.ui.HistoryAddScreen
 import com.lee.remember.android.ui.HistoryScreen
 import com.lee.remember.android.ui.FriendGroupScreen
+import com.lee.remember.android.ui.HistoryEditScreen
 import com.lee.remember.android.ui.MeetingScreen
 import com.lee.remember.android.ui.intro.IntroScreen
 import com.lee.remember.android.ui.intro.LoginScreen
@@ -83,6 +84,7 @@ enum class RememberScreen(@StringRes val title: Int) {
     FriendEdit(title = R.string.friend_edit),
     FriendGroup(title = R.string.friend_group),
     HistoryAdd(title = R.string.history_add),
+    HistoryEdit(title = R.string.history_edit),
 
     Meeting(title = R.string.feed),
     My(title = R.string.my)
@@ -239,12 +241,20 @@ fun MainApp(
             composable(route = RememberScreen.FriendGroup.name) {
                 FriendGroupScreen(navHostController = navController)
             }
+
             composable(
                 route = "${RememberScreen.HistoryAdd.name}/{friendId}",
                 arguments = listOf(navArgument("friendId") { type = NavType.StringType })
             ) {
                 val friendId = it.arguments?.getString("friendId")
                 HistoryAddScreen(navHostController = navController, friendId)
+            }
+            composable(
+                route = "${RememberScreen.HistoryEdit.name}/{friendId}",
+                arguments = listOf(navArgument("friendId") { type = NavType.StringType })
+            ) {
+                val friendId = it.arguments?.getString("friendId")
+                HistoryEditScreen(navHostController = navController, friendId)
             }
 
             composable(route = RememberScreen.Meeting.name) {

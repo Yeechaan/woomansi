@@ -2,14 +2,12 @@ package com.lee.remember.repository
 
 import com.lee.remember.local.dao.AuthDao
 import com.lee.remember.local.dao.MemoryDao
-import com.lee.remember.local.model.MemoryRealm
+import com.lee.remember.local.model.asRealm
 import com.lee.remember.remote.MemoryApi
-import com.lee.remember.remote.request.MemoryAddResponse
 import com.lee.remember.remote.request.MemoryGetListResponse
 import com.lee.remember.remote.request.MemoryGetResponse
 import com.lee.remember.remote.request.MemoryRequest
-import io.github.aakira.napier.Napier
-import io.realm.kotlin.ext.realmListOf
+import com.lee.remember.remote.request.MemoryUpdateRequest
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -28,7 +26,7 @@ class MemoryRepository(
             result.fold(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
-                        saveMemory(it.result!!)
+//                        saveMemory(it.result!!)
                         Result.success(true)
                     } else {
                         Result.failure(Exception(it.resultCode))
@@ -40,6 +38,25 @@ class MemoryRepository(
             )
         }
 
+    suspend fun updateMemory(request: MemoryUpdateRequest): Result<Boolean> =
+        withContext(Dispatchers.IO) {
+            val result = memoryApi.updateMemory(token, request)
+            result.fold(
+                onSuccess = {
+                    if (it.resultCode == "SUCCESS") {
+//                        saveMemory(it.result!!)
+                        Result.success(true)
+                    } else {
+                        Result.failure(Exception(it.resultCode))
+                    }
+                },
+                onFailure = {
+                    Result.failure(Exception(it))
+                }
+            )
+        }
+
+    // Todo 필요한가?
     suspend fun getMemory(id: Int): Result<MemoryGetResponse> =
         withContext(Dispatchers.IO) {
             val result = memoryApi.getMemory(token, id)
@@ -75,17 +92,15 @@ class MemoryRepository(
             )
         }
 
-    private suspend fun saveMemory(response: MemoryAddResponse.Result) {
-        val friendId = response.id
-        val memoryRealm = MemoryRealm().apply {
-            this.title = response.title ?: ""
-            this.description = response.description ?: ""
-            this.date = response.date ?: ""
-            this.friendTags.addAll(response.friends?.map { it.name ?: "" }?.toRealmList() ?: realmListOf())
-            this.images.addAll(response.images?.map { it.image ?: "" }?.toRealmList() ?: realmListOf())
-        }
 
-        memoryDao.setMemoryByFriendId(friendId, memoryRealm)
+    fun getMemories() = memoryDao.getMemories()
+
+    suspend fun fetchMemories() = withContext(Dispatchers.IO) {
+        val result = memoryApi.getMemoryList(token)
+        result.getOrNull()?.result?.let { response ->
+            val memories = response.map { it.asRealm() }.toRealmList()
+            memoryDao.setMemories(memories)
+        }
     }
 
 }

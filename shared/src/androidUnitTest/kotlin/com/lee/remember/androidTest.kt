@@ -8,6 +8,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -42,4 +46,19 @@ class AndroidGreetingTest {
         assertEquals(1, currentIndex % imageSize)
     }
 
+    @Test
+    fun testSerializeWithoutId() {
+        val image = Image(image = "image_sample_url")
+        val result = Json.encodeToString(image)
+
+        assertEquals("{\"image\":\"image_sample_url\"}", result)
+    }
+
+    @Serializable
+    data class Image(
+        @SerialName("id")
+        val id: Int = -1,
+        @SerialName("image")
+        val image: String
+    )
 }

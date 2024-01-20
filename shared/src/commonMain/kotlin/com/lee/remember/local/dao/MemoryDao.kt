@@ -3,25 +3,21 @@ package com.lee.remember.local.dao
 import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.MemoryRealm
+import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
+import io.realm.kotlin.types.RealmList
+import kotlinx.coroutines.flow.asFlow
 
 class MemoryDao {
     private val realm = BaseRealm.realm
 
-    // 친구 정보 from remote(friendId != -1)
-    suspend fun setMemoryByFriendId(friendId: Int, memory: MemoryRealm) {
+    suspend fun setMemories(memories: RealmList<MemoryRealm>) {
         realm.write {
-            val friend = query<FriendRealm>("id==$friendId").find().firstOrNull()
-            friend?.memories?.add(memory)
+            memories.forEach {
+                copyToRealm(it, UpdatePolicy.ALL)
+            }
         }
     }
 
-    suspend fun setMemoryByPhoneNumber(phoneNumber: String, memory: MemoryRealm) {
-        realm.write {
-            val friend = query<FriendRealm>("phoneNumber=='$phoneNumber'").find().firstOrNull()
-            friend?.memories?.add(memory)
-        }
-    }
-
-    fun getAllMemories() = realm.query<MemoryRealm>().find()
+    fun getMemories() = realm.query<MemoryRealm>().find()
 }
