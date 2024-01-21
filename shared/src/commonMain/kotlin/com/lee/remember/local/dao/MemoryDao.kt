@@ -19,5 +19,13 @@ class MemoryDao {
         }
     }
 
+    suspend fun deleteMemory(memoryId: Int) {
+        realm.write {
+            val memory = query<MemoryRealm>("id == $memoryId")
+            delete(memory)
+        }
+    }
+
+    fun getMemory(id: Int) = realm.query<MemoryRealm>("id==$id").find()
     fun getMemories() = realm.query<MemoryRealm>().find()
 }

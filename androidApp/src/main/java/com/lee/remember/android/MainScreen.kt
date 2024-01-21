@@ -250,10 +250,10 @@ fun MainApp(
                 HistoryAddScreen(navHostController = navController, friendId)
             }
             composable(
-                route = "${RememberScreen.HistoryEdit.name}/{friendId}",
-                arguments = listOf(navArgument("friendId") { type = NavType.StringType })
+                route = "${RememberScreen.HistoryEdit.name}/{memoryId}",
+                arguments = listOf(navArgument("memoryId") { type = NavType.StringType })
             ) {
-                val friendId = it.arguments?.getString("friendId")
+                val friendId = it.arguments?.getString("memoryId")
                 HistoryEditScreen(navHostController = navController, friendId)
             }
 

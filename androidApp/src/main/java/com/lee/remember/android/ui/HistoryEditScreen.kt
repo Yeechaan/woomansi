@@ -23,8 +23,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,8 +34,6 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -47,7 +43,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,59 +64,58 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
-import com.lee.remember.android.accessToken
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextField.placeHolder
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.local.dao.FriendDao
-import com.lee.remember.local.dao.MemoryDao
 import com.lee.remember.local.model.MemoryRealm
-import com.lee.remember.remote.FriendApi
-import com.lee.remember.remote.MemoryApi
-import com.lee.remember.remote.request.MemoryRequest
+import com.lee.remember.remote.request.MemoryUpdateRequest
 import com.lee.remember.repository.MemoryRepository
-import io.github.aakira.napier.Napier
-import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun HistoryEditScreen(navHostController: NavHostController, friendId: String?) {
+fun HistoryEditScreen(navHostController: NavHostController, memoryId: String?) {
     val scrollState = rememberScrollState()
 
-    var name by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
-    var date by remember { mutableStateOf(today) }
+    val memory = MemoryRepository().getMemory(memoryId?.toInt() ?: -1) ?: MemoryRealm()
+    val friend = memory.friendTags.first()
+    val friendId = friend.id
+
+    var name by remember { mutableStateOf(friend.name) }
+//    var phoneNumber by remember { mutableStateOf("") }
+//    val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
+    val savedDate = parseUtcString(memory.date)
+    var date by remember { mutableStateOf(savedDate) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    LaunchedEffect(null) {
-        try {
-            val response = FriendApi().getFriend(accessToken, friendId ?: "")
-
-            if (response != null) {
-//                Napier.d("###hi ${response}")
-
-                response.result?.let {
-                    name = it.name
-                    phoneNumber = it.phoneNumber ?: ""
-                }
-
-                response.toString()
-            }
-        } catch (e: Exception) {
-            Napier.d("### ${e.localizedMessage}")
-            e.localizedMessage ?: "error"
-        }
-    }
+//    LaunchedEffect(null) {
+//        try {
+//            val response = FriendApi().getFriend(accessToken, friendId ?: "")
+//
+//            if (response != null) {
+////                Napier.d("###hi ${response}")
+//
+//                response.result?.let {
+//                    name = it.name
+//                    phoneNumber = it.phoneNumber ?: ""
+//                }
+//
+//                response.toString()
+//            }
+//        } catch (e: Exception) {
+//            Napier.d("### ${e.localizedMessage}")
+//            e.localizedMessage ?: "error"
+//        }
+//    }
 
     val friends by rememberSaveable {
         mutableStateOf(
-            FriendDao().getFriends().filter { it.id.toString() != friendId }.map {
+            FriendDao().getFriends().filter { it.id != friendId }.map {
                 Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = false)
             }.toMutableList()
         )
@@ -145,8 +139,8 @@ fun HistoryEditScreen(navHostController: NavHostController, friendId: String?) {
             .background(Color.White)
             .verticalScroll(scrollState)
     ) {
-        var title by remember { mutableStateOf("") }
-        var content by remember { mutableStateOf("") }
+        var title by remember { mutableStateOf(memory.title) }
+        var content by remember { mutableStateOf(memory.description) }
 
         TopAppBar(
             modifier = Modifier.shadow(10.dp),
@@ -175,15 +169,16 @@ fun HistoryEditScreen(navHostController: NavHostController, friendId: String?) {
                             addedFriends.add(it.id.toInt())
                         }
 
-                        val request = MemoryRequest(
+                        val request = MemoryUpdateRequest(
                             title = title,
                             description = content,
                             date = date,
                             friendIds = addedFriends,
-                            images = listOf(MemoryRequest.Image(bitmapImage))
+                            images = listOf(MemoryUpdateRequest.Image(image = bitmapImage))
                         )
 
-                        val result = MemoryRepository().addMemory(request)
+                        val result = MemoryRepository().updateMemory(request)
+//                        val result = MemoryRepository().addMemory(request)
                         result.fold(
                             onSuccess = {
                                 navHostController.navigateUp()

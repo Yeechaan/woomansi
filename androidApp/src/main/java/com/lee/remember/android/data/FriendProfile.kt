@@ -17,6 +17,7 @@ data class FriendProfile(
 )
 
 data class FriendHistory(
+    var id: Int = -1,
     var title: String = "",
     var contents: String = "",
     var image: String = "",

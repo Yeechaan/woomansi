@@ -2,6 +2,7 @@ package com.lee.remember.remote
 
 import com.lee.remember.remote.request.FriendResponse
 import com.lee.remember.remote.request.MemoryAddResponse
+import com.lee.remember.remote.request.MemoryDeleteResponse
 import com.lee.remember.remote.request.MemoryGetListResponse
 import com.lee.remember.remote.request.MemoryGetResponse
 import com.lee.remember.remote.request.MemoryRequest
@@ -14,6 +15,7 @@ import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
@@ -64,6 +66,22 @@ class MemoryApi {
             }
             contentType(ContentType.Application.Json)
             setBody(request)
+        }
+
+        return if (response.status == HttpStatusCode.OK) {
+            Result.success(response.body())
+        } else {
+            Result.failure(Exception("Network response status : ${response.status}"))
+        }
+    }
+
+    suspend fun deleteMemory(token: String, memoryId: Int): Result<MemoryDeleteResponse> {
+        val response = client.delete("$memoryUrl/$memoryId") {
+            headers {
+                append(HttpHeaders.ContentType, "application/json")
+                append(HttpHeaders.Authorization, token)
+            }
+            contentType(ContentType.Application.Json)
         }
 
         return if (response.status == HttpStatusCode.OK) {

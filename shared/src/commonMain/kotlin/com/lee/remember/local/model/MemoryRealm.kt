@@ -3,6 +3,7 @@ package com.lee.remember.local.model
 import com.lee.remember.remote.request.MemoryGetListResponse
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
+import io.realm.kotlin.types.EmbeddedRealmObject
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
@@ -17,7 +18,7 @@ class MemoryRealm : RealmObject {
     var friendTags: RealmList<FriendTagRealm> = realmListOf()
 }
 
-class FriendTagRealm : RealmObject {
+class FriendTagRealm : EmbeddedRealmObject {
     var id: Int = -1
     var name: String = ""
 }

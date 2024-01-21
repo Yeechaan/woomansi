@@ -51,54 +51,49 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.lee.remember.android.R
+import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.RememberTopAppBar
 import com.lee.remember.android.data.FriendHistory
 import com.lee.remember.android.rememberFontFamily
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
+import com.lee.remember.android.viewmodel.FeedViewModel
 import com.lee.remember.local.model.MemoryRealm
 import com.lee.remember.repository.MemoryRepository
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedScreen(navHostController: NavHostController) {
+fun FeedScreen(
+    navHostController: NavHostController,
+    viewModel: FeedViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+) {
+    viewModel.initFeedState()
+
     val items = remember { mutableStateOf<List<FriendHistory>>(listOf()) }
 
-    val memories = MemoryRepository().getMemories().map {
-        val friends = it.friendTags.map { it.name }
-
-        FriendHistory(
-            title = it.title ?: "",
-            contents = it.description ?: "",
-            image = it.images.firstOrNull() ?: "",
-            date = parseUtcString(it.date ?: ""),
-            ownerFriendName = friends.firstOrNull() ?: "",
-            friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
-        )
-    }
-    items.value = memories.sortedByDescending { it.date }
-
-
-    LaunchedEffect(Unit) {
-//        val aa = MemoryRepository().getMemories().collectAsStateWithLifecycle()
-
-        val memoryResponse = MemoryRepository().getMemoryList()
-        val memories = memoryResponse.getOrNull()?.result?.map {
-            val friends = it.friends.map { it.name }
-
-            FriendHistory(
-                title = it.title ?: "",
-                contents = it.description ?: "",
-                image = it.thumbnail?.image ?: "",
-                date = parseUtcString(it.date ?: ""),
-                ownerFriendName = friends.firstOrNull() ?: "",
-                friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
-            )
-        } ?: listOf()
-
-        items.value = memories.sortedByDescending { it.date }
+    LaunchedEffect(viewModel.uiState) {
+        viewModel.uiState.collectLatest { uiState ->
+            items.value = uiState.memories.sortedByDescending { it.date }
+        }
+//
+//        val memoryResponse = MemoryRepository().getMemoryList()
+//        val memories = memoryResponse.getOrNull()?.result?.map {
+//            val friends = it.friends.map { it.name }
+//
+//            FriendHistory(
+//                title = it.title ?: "",
+//                contents = it.description ?: "",
+//                image = it.thumbnail?.image ?: "",
+//                date = parseUtcString(it.date ?: ""),
+//                ownerFriendName = friends.firstOrNull() ?: "",
+//                friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
+//            )
+//        } ?: listOf()
+//
+//        items.value = memories.sortedByDescending { it.date }
     }
 
     Column(
@@ -132,7 +127,15 @@ fun FeedScreen(navHostController: NavHostController) {
                         border = BorderStroke(1.dp, color = Color(0xFFD8D8D8)),
                         modifier = Modifier.padding(vertical = 6.dp)
                     ) {
-                        FeedItem(item)
+                        FeedItem(
+                            friendHistory = item,
+                            onUpdate = {
+                                navHostController.navigate("${RememberScreen.HistoryEdit.name}/${item.id}")
+                            },
+                            onDelete = {
+                                viewModel.deleteMemory(item.id)
+                            }
+                        )
                     }
                 }
             }
@@ -155,7 +158,7 @@ fun EmptyFeedScreen() {
 }
 
 @Composable
-fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true) {
+fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true, onUpdate: () -> Unit, onDelete: () -> Unit) {
     Column(
         Modifier.background(Color.White)
     ) {
@@ -265,7 +268,7 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true) 
                         )
                     },
                         onClick = {
-                            // Todo navigate to FriendEditScreen
+                            onUpdate.invoke()
                             expanded = false
                         })
 
@@ -276,7 +279,7 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true) 
                         )
                     },
                         onClick = {
-                            // Todo delete feed item from server, local
+                            onDelete.invoke()
                             expanded = false
                         })
                 }
@@ -308,5 +311,5 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true) 
 fun PreviewFeedScreen() {
 //    FeedScreen(rememberNavController())
 
-    FeedItem(FriendHistory(title = "libris", contents = "curae", imageUri = null), true)
+    FeedItem(FriendHistory(title = "libris", contents = "curae", imageUri = null), true, {}, {})
 }

@@ -26,7 +26,24 @@ class MemoryRepository(
             result.fold(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
-//                        saveMemory(it.result!!)
+                        Result.success(true)
+                    } else {
+                        Result.failure(Exception(it.resultCode))
+                    }
+                },
+                onFailure = {
+                    Result.failure(Exception(it))
+                }
+            )
+        }
+
+    suspend fun deleteMemory(memoryId: Int): Result<Boolean> =
+        withContext(Dispatchers.IO) {
+            val result = memoryApi.deleteMemory(token, memoryId)
+            result.fold(
+                onSuccess = {
+                    if (it.resultCode == "SUCCESS") {
+                        memoryDao.deleteMemory(memoryId)
                         Result.success(true)
                     } else {
                         Result.failure(Exception(it.resultCode))
@@ -56,24 +73,6 @@ class MemoryRepository(
             )
         }
 
-    // Todo 필요한가?
-    suspend fun getMemory(id: Int): Result<MemoryGetResponse> =
-        withContext(Dispatchers.IO) {
-            val result = memoryApi.getMemory(token, id)
-            result.fold(
-                onSuccess = {
-                    if (it.resultCode == "SUCCESS") {
-                        Result.success(it)
-                    } else {
-                        Result.failure(Exception(it.resultCode))
-                    }
-                },
-                onFailure = {
-                    Result.failure(Exception(it))
-                }
-            )
-        }
-
     suspend fun getMemoryList(): Result<MemoryGetListResponse> =
         withContext(Dispatchers.IO) {
             val result = memoryApi.getMemoryList(token)
@@ -93,7 +92,8 @@ class MemoryRepository(
         }
 
 
-    fun getMemories() = memoryDao.getMemories()
+    fun getMemory(memoryId: Int) = memoryDao.getMemory(memoryId).firstOrNull()
+    fun getMemories() = memoryDao.getMemories().asFlow()
 
     suspend fun fetchMemories() = withContext(Dispatchers.IO) {
         val result = memoryApi.getMemoryList(token)

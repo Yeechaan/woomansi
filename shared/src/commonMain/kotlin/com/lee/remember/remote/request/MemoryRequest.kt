@@ -163,3 +163,11 @@ data class MemoryGetListResponse(
         )
     }
 }
+
+@Serializable
+data class MemoryDeleteResponse(
+    @SerialName("result")
+    val result: String?,
+    @SerialName("resultCode")
+    val resultCode: String
+)

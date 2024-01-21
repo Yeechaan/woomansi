@@ -50,53 +50,67 @@ import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
+import com.lee.remember.android.viewmodel.FeedViewModel
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.repository.MemoryRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?) {
+fun FriendHistoryScreen(
+    navHostController: NavHostController, friendId: String?,
+    viewModel: FeedViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+) {
+    viewModel.initFeedState()
+
     var name by remember { mutableStateOf("") }
 
-    LaunchedEffect(null) {
-        try {
-            val response = FriendApi().getFriend(accessToken, friendId ?: "")
+//    LaunchedEffect(null) {
+//        try {
+//            val response = FriendApi().getFriend(accessToken, friendId ?: "")
+//
+//            if (response != null) {
+//                response.result?.let {
+//                    name = it.name
+//                }
+//
+//                response.toString()
+//            }
+//        } catch (e: Exception) {
+//            Napier.d("### ${e.localizedMessage}")
+//            e.localizedMessage ?: "error"
+//        }
+//    }
 
-            if (response != null) {
-                response.result?.let {
-                    name = it.name
-                }
-
-                response.toString()
-            }
-        } catch (e: Exception) {
-            Napier.d("### ${e.localizedMessage}")
-            e.localizedMessage ?: "error"
+    val items = remember { mutableStateOf<List<FriendHistory>>(listOf()) }
+    LaunchedEffect(viewModel.uiState) {
+        viewModel.uiState.collectLatest { uiState ->
+            name = uiState.name
+            items.value = uiState.memories.sortedByDescending { it.date }
         }
     }
 
-    val items = remember { mutableStateOf<List<FriendHistory>>(listOf()) }
-    LaunchedEffect(Unit) {
-        val memoryResponse = MemoryRepository().getMemoryList()
-        val memories = memoryResponse.getOrNull()?.result?.filter { it.friends.firstOrNull()?.id.toString() == friendId }?.map {
-            val friends = it.friends.map { it.name }
-
-            FriendHistory(
-                title = it.title ?: "",
-                contents = it.description ?: "",
-                image = it.thumbnail?.image ?: "",
-                date = parseUtcString(it.date ?: ""),
-                ownerFriendName = friends.firstOrNull() ?: "",
-                friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
-            )
-        } ?: listOf()
-
-        items.value = memories
-    }
+//    LaunchedEffect(Unit) {
+//        val memoryResponse = MemoryRepository().getMemoryList()
+//        val memories = memoryResponse.getOrNull()?.result?.filter { it.friends.firstOrNull()?.id.toString() == friendId }?.map {
+//            val friends = it.friends.map { it.name }
+//
+//            FriendHistory(
+//                title = it.title ?: "",
+//                contents = it.description ?: "",
+//                image = it.thumbnail?.image ?: "",
+//                date = parseUtcString(it.date ?: ""),
+//                ownerFriendName = friends.firstOrNull() ?: "",
+//                friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
+//            )
+//        } ?: listOf()
+//
+//        items.value = memories
+//    }
 
     Column {
         TopAppBar(
@@ -143,7 +157,16 @@ fun FriendHistoryScreen(navHostController: NavHostController, friendId: String?)
                             modifier = Modifier
                                 .padding(vertical = 6.dp)
                         ) {
-                            FeedItem( item, false)
+                            FeedItem(
+                                friendHistory = item,
+                                isFriendInfoVisible = false,
+                                onUpdate = {
+//                                viewModel.
+                                },
+                                onDelete = {
+                                    viewModel.deleteMemory(item.id)
+                                }
+                            )
                         }
                     }
                 }
