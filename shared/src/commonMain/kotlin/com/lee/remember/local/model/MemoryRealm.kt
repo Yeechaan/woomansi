@@ -1,6 +1,8 @@
 package com.lee.remember.local.model
 
+import com.lee.remember.remote.request.MemoryAddResponse
 import com.lee.remember.remote.request.MemoryGetListResponse
+import com.lee.remember.remote.request.MemoryUpdateResponse
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
 import io.realm.kotlin.types.EmbeddedRealmObject
@@ -15,14 +17,13 @@ class MemoryRealm : RealmObject {
     var description: String = ""
     var date: String = ""
     var images: RealmList<String> = realmListOf()
-    var friendTags: RealmList<FriendTagRealm> = realmListOf()
+    var friends: RealmList<MemoryFriendRealm> = realmListOf()
 }
 
-class FriendTagRealm : EmbeddedRealmObject {
+class MemoryFriendRealm : EmbeddedRealmObject {
     var id: Int = -1
     var name: String = ""
 }
-
 
 fun MemoryGetListResponse.Result.asRealm() =
     MemoryRealm().apply {
@@ -31,11 +32,43 @@ fun MemoryGetListResponse.Result.asRealm() =
         description = this@asRealm.description ?: ""
         date = this@asRealm.date ?: ""
         images = realmListOf(this@asRealm.thumbnail?.image ?: "")
-        friendTags = this@asRealm.friends.map { it.asRealm() }.toRealmList()
+        friends = this@asRealm.friends.map { it.asRealm() }.toRealmList()
     }
 
 fun MemoryGetListResponse.Result.Friend.asRealm() =
-    FriendTagRealm().apply {
+    MemoryFriendRealm().apply {
+        id = this@asRealm.id
+        name = this@asRealm.name
+    }
+
+fun MemoryAddResponse.Result.asRealm() =
+    MemoryRealm().apply {
+        id = this@asRealm.id
+        title = this@asRealm.title ?: ""
+        description = this@asRealm.description ?: ""
+        date = this@asRealm.date ?: ""
+        images = realmListOf(this@asRealm.images?.firstOrNull()?.image ?: "")
+        friends = this@asRealm.friends?.map { it.asRealm() }?.toRealmList() ?: realmListOf()
+    }
+
+fun MemoryAddResponse.Result.Friend.asRealm() =
+    MemoryFriendRealm().apply {
+        id = this@asRealm.id
+        name = this@asRealm.name ?: ""
+    }
+
+fun MemoryUpdateResponse.Result.asRealm() =
+    MemoryRealm().apply {
+        id = this@asRealm.id
+        title = this@asRealm.title ?: ""
+        description = this@asRealm.description ?: ""
+        date = this@asRealm.date ?: ""
+        images = realmListOf(this@asRealm.images.firstOrNull()?.image ?: "")
+        friends = this@asRealm.friends.map { it.asRealm() }.toRealmList()
+    }
+
+fun MemoryUpdateResponse.Result.Friend.asRealm() =
+    MemoryFriendRealm().apply {
         id = this@asRealm.id
         name = this@asRealm.name
     }

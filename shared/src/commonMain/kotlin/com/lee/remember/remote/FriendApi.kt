@@ -35,9 +35,7 @@ class FriendApi {
 
     private val friendUrl = baseUrl + "friends"
 
-    suspend fun addFriend(token: String, friends: List<FriendRequest>): FriendAddResponse? {
-        val token = AuthRepository().getToken() ?: ""
-
+    suspend fun addFriends(token: String, friends: List<FriendRequest>): Result<FriendAddResponse> {
         val response = client.post(friendUrl) {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
@@ -47,7 +45,13 @@ class FriendApi {
             setBody(friends)
         }
 
-        return if (response.status == HttpStatusCode.OK) response.body() else null
+        Napier.d("### ${response.bodyAsText()}")
+
+        return if (response.status == HttpStatusCode.OK) {
+            Result.success(response.body())
+        } else {
+            Result.failure(Exception("Network response status : ${response.status}"))
+        }
     }
 
     suspend fun getFriend(token: String, friendId: String): FriendDetailResponse? {

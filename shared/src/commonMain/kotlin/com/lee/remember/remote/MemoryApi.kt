@@ -1,6 +1,5 @@
 package com.lee.remember.remote
 
-import com.lee.remember.remote.request.FriendResponse
 import com.lee.remember.remote.request.MemoryAddResponse
 import com.lee.remember.remote.request.MemoryDeleteResponse
 import com.lee.remember.remote.request.MemoryGetListResponse
@@ -8,10 +7,6 @@ import com.lee.remember.remote.request.MemoryGetResponse
 import com.lee.remember.remote.request.MemoryRequest
 import com.lee.remember.remote.request.MemoryUpdateRequest
 import com.lee.remember.remote.request.MemoryUpdateResponse
-import com.lee.remember.remote.request.SignupRequest
-import com.lee.remember.remote.request.SignupResponse
-import com.lee.remember.repository.AuthRepository
-import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -19,8 +14,8 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -58,8 +53,8 @@ class MemoryApi {
         }
     }
 
-    suspend fun updateMemory(token: String, request: MemoryUpdateRequest): Result<MemoryUpdateResponse> {
-        val response = client.post(memoryUrl) {
+    suspend fun updateMemory(token: String, memoryId: Int, request: MemoryUpdateRequest): Result<MemoryUpdateResponse> {
+        val response = client.put("$memoryUrl/$memoryId") {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
                 append(HttpHeaders.Authorization, token)

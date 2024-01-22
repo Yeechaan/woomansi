@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -44,6 +43,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,12 +65,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.accessToken
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
+import com.lee.remember.android.viewmodel.FeedViewModel
+import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.request.FriendRequest
 import com.lee.remember.repository.FriendRepository
@@ -81,7 +82,20 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendAddScreen(navHostController: NavHostController, name: String?, number: String?) {
+fun FriendAddScreen(
+    navHostController: NavHostController, name: String?, number: String?,
+    viewModel: FriendViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    if (uiState.success) {
+        viewModel.resetUiState()
+        navHostController.navigateUp()
+    }
+    if (uiState.loading) {
+        // Todo 로딩 처리
+    }
+
     val imeState = rememberImeState()
     val scrollState = rememberScrollState()
 
@@ -117,7 +131,6 @@ fun FriendAddScreen(navHostController: NavHostController, name: String?, number:
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         var name by remember { mutableStateOf(name ?: "") }
-        var group by remember { mutableStateOf("") }
         var number by remember { mutableStateOf(number ?: "") }
         var dateTitle by remember { mutableStateOf("") }
         var date by remember { mutableStateOf("") }
@@ -127,7 +140,6 @@ fun FriendAddScreen(navHostController: NavHostController, name: String?, number:
             date = convertMillisToDate(it)
         }
         val context = LocalContext.current
-        val scope = rememberCoroutineScope()
 
 
         val apiScope = rememberCoroutineScope()
@@ -169,33 +181,38 @@ fun FriendAddScreen(navHostController: NavHostController, name: String?, number:
 //                            saveImageToInternalStorage(context, it)
 //                        }
 
+                                val events = mutableListOf<FriendRequest.Event>()
+                                if (date.isNotEmpty()) events.add(FriendRequest.Event(dateTitle, date))
+
                                 val friendRequest = FriendRequest(
                                     name = name,
                                     phoneNumber = number,
                                     description = "",
-                                    events = listOf(FriendRequest.Event(dateTitle, date)),
+                                    events = events,
                                     profileImage = profileImage
                                 )
 
-                                val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
+                                viewModel.addFriends(listOf(friendRequest))
 
-                                if (response != null && response.resultCode == "SUCCESS") {
-                                    FriendRepository().fetchFriends()
+//                                val response = FriendApi().addFriends(accessToken, listOf(friendRequest))
 
-                                    Napier.d("### ${response.resultCode}")
-
-                                    // @@@
-                                    response.result?.map {
-                                        val size = it.profileImage?.image?.length
-                                        Napier.d("@@@addFriend ${it.id} / $size")
-                                    }
-
-                                    navHostController.navigateUp()
-                                } else {
-                                    Toast
-                                        .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
-                                        .show()
-                                }
+//                                if (response != null && response.resultCode == "SUCCESS") {
+//                                    FriendRepository().fetchFriends()
+//
+//                                    Napier.d("### ${response.resultCode}")
+//
+//                                    // @@@
+//                                    response.result?.map {
+//                                        val size = it.profileImage?.image?.length
+//                                        Napier.d("@@@addFriend ${it.id} / $size")
+//                                    }
+//
+//                                    navHostController.navigateUp()
+//                                } else {
+//                                    Toast
+//                                        .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
+//                                        .show()
+//                                }
 //                    } catch (e: Exception) {
 //                        e.localizedMessage ?: "error"
 //                    }
@@ -292,69 +309,6 @@ fun FriendAddScreen(navHostController: NavHostController, name: String?, number:
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000))
             )
 
-//            Box(
-//                modifier = Modifier
-//                    .wrapContentSize(Alignment.TopStart)
-//            ) {
-//                var expanded by remember { mutableStateOf(false) }
-//                val items = listOf("가족", "가장 친한", "친해지고 싶은")
-//                var selectedIndex by remember { mutableStateOf<Int?>(null) }
-//
-//                OutlinedTextField(
-//                    value = selectedIndex?.let { items[it] } ?: group, onValueChange = { group = it }, readOnly = true,
-//                    label = { RememberTextField.label(text = "그룹") },
-//                    textStyle = RememberTextField.textStyle(),
-//                    colors = RememberTextField.colors(),
-//                    singleLine = true,
-//                    modifier = Modifier
-//                        .padding(top = 12.dp)
-//                        .fillMaxWidth(),
-//                    trailingIcon = {
-//                        IconButton(onClick = { expanded = true }) {
-//                            if (!expanded) {
-//                                Icon(
-//                                    painter = painterResource(id = R.drawable.baseline_expand_more_24),
-//                                    contentDescription = "",
-//                                    tint = Color.Black
-//                                )
-//                            } else {
-//                                Icon(
-//                                    painter = painterResource(id = R.drawable.baseline_expand_less_24),
-//                                    contentDescription = "",
-//                                    tint = Color.Black
-//                                )
-//                            }
-//                        }
-//                    }
-//                )
-//
-//                DropdownMenu(
-//                    expanded = expanded,
-//                    onDismissRequest = { expanded = false },
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .background(Color.White)
-//                        .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-//                ) {
-//                    DropdownMenuItem(text = {
-//                        Text(text = "새 그룹 추가")
-//                    }, onClick = {
-//                        navHostController.navigate(RememberScreen.FriendGroup.name)
-//                        expanded = false
-//                    })
-//
-//                    items.forEachIndexed { index, s ->
-//                        DropdownMenuItem(text = {
-//                            Text(text = s)
-//                        }, onClick = {
-//                            selectedIndex = index
-//                            group = items[index]
-//                            expanded = false
-//                        })
-//                    }
-//                }
-//            }
-
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
                 var expanded by remember { mutableStateOf(false) }
                 val items = listOf("생일", "기념일", "기일", "기타")
@@ -445,7 +399,5 @@ fun FriendAddScreen(navHostController: NavHostController, name: String?, number:
                 )
             }
         }
-
-//        Spacer(modifier = Modifier.weight(1f))
     }
 }

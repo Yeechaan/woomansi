@@ -316,7 +316,7 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
             Button(
                 onClick = { showBottomSheet = true },
                 modifier = Modifier
-                    .padding(top = 6.dp, start = 16.dp, end = 16.dp),
+                    .padding(top = 6.dp, start = 16.dp, end = 16.dp, bottom = 48.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 shape = RoundedCornerShape(size = 8.dp),
                 border = BorderStroke(1.dp, Color(0xFF79747E))
@@ -334,7 +334,7 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
             val rowScrollState = rememberScrollState()
             Row(
                 Modifier
-                    .padding(top = 6.dp, start = 16.dp, end = 16.dp)
+                    .padding(top = 6.dp, start = 16.dp, end = 16.dp, bottom = 48.dp)
                     .horizontalScroll(rowScrollState),
                 verticalAlignment = Alignment.CenterVertically
             ) {

@@ -25,7 +25,8 @@ class MemoryRepository(
             val result = memoryApi.addMemory(token, request)
             result.fold(
                 onSuccess = {
-                    if (it.resultCode == "SUCCESS") {
+                    if (it.resultCode == "SUCCESS" && it.result != null) {
+                        memoryDao.setMemory(it.result.asRealm())
                         Result.success(true)
                     } else {
                         Result.failure(Exception(it.resultCode))
@@ -55,32 +56,14 @@ class MemoryRepository(
             )
         }
 
-    suspend fun updateMemory(request: MemoryUpdateRequest): Result<Boolean> =
+    suspend fun updateMemory(memoryId: Int, request: MemoryUpdateRequest): Result<Boolean> =
         withContext(Dispatchers.IO) {
-            val result = memoryApi.updateMemory(token, request)
+            val result = memoryApi.updateMemory(token, memoryId, request)
             result.fold(
                 onSuccess = {
-                    if (it.resultCode == "SUCCESS") {
-//                        saveMemory(it.result!!)
+                    if (it.resultCode == "SUCCESS" && it.result != null) {
+                        memoryDao.updateMemory(memoryId, it.result.asRealm())
                         Result.success(true)
-                    } else {
-                        Result.failure(Exception(it.resultCode))
-                    }
-                },
-                onFailure = {
-                    Result.failure(Exception(it))
-                }
-            )
-        }
-
-    suspend fun getMemoryList(): Result<MemoryGetListResponse> =
-        withContext(Dispatchers.IO) {
-            val result = memoryApi.getMemoryList(token)
-
-            result.fold(
-                onSuccess = {
-                    if (it.resultCode == "SUCCESS") {
-                        Result.success(it)
                     } else {
                         Result.failure(Exception(it.resultCode))
                     }

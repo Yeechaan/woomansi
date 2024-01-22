@@ -3,7 +3,6 @@ package com.lee.remember.android.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -25,12 +22,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,21 +36,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.accessToken
-import com.lee.remember.android.data.FriendHistory
-import com.lee.remember.android.friendProfiles
-import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.android.viewmodel.FeedViewModel
-import com.lee.remember.local.dao.FriendDao
-import com.lee.remember.remote.FriendApi
-import com.lee.remember.repository.MemoryRepository
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,56 +46,12 @@ fun FriendHistoryScreen(
     navHostController: NavHostController, friendId: String?,
     viewModel: FeedViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
-    viewModel.initFeedState()
-
-    var name by remember { mutableStateOf("") }
-
-//    LaunchedEffect(null) {
-//        try {
-//            val response = FriendApi().getFriend(accessToken, friendId ?: "")
-//
-//            if (response != null) {
-//                response.result?.let {
-//                    name = it.name
-//                }
-//
-//                response.toString()
-//            }
-//        } catch (e: Exception) {
-//            Napier.d("### ${e.localizedMessage}")
-//            e.localizedMessage ?: "error"
-//        }
-//    }
-
-    val items = remember { mutableStateOf<List<FriendHistory>>(listOf()) }
-    LaunchedEffect(viewModel.uiState) {
-        viewModel.uiState.collectLatest { uiState ->
-            name = uiState.name
-            items.value = uiState.memories.sortedByDescending { it.date }
-        }
-    }
-
-//    LaunchedEffect(Unit) {
-//        val memoryResponse = MemoryRepository().getMemoryList()
-//        val memories = memoryResponse.getOrNull()?.result?.filter { it.friends.firstOrNull()?.id.toString() == friendId }?.map {
-//            val friends = it.friends.map { it.name }
-//
-//            FriendHistory(
-//                title = it.title ?: "",
-//                contents = it.description ?: "",
-//                image = it.thumbnail?.image ?: "",
-//                date = parseUtcString(it.date ?: ""),
-//                ownerFriendName = friends.firstOrNull() ?: "",
-//                friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
-//            )
-//        } ?: listOf()
-//
-//        items.value = memories
-//    }
+    viewModel.initFeedFriendState(friendId?.toInt() ?: -1)
+    val uiState by viewModel.uiState.collectAsState()
 
     Column {
         TopAppBar(
-            title = { Text(name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            title = { Text(uiState.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
                 containerColor = Color.White
             ),
@@ -135,7 +72,7 @@ fun FriendHistoryScreen(
                 .fillMaxSize()
                 .background(lightColor)
         ) {
-            if (items.value.isEmpty()) {
+            if (uiState.memories.isEmpty()) {
                 EmptyFriendHistoryScreen()
                 Image(
                     modifier = Modifier
@@ -148,7 +85,7 @@ fun FriendHistoryScreen(
                     Modifier.padding(start = 16.dp, end = 16.dp)
                 ) {
                     item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
-                    items(items.value) { item ->
+                    items(uiState.memories) { item ->
                         OutlinedCard(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.primary
@@ -158,7 +95,7 @@ fun FriendHistoryScreen(
                                 .padding(vertical = 6.dp)
                         ) {
                             FeedItem(
-                                friendHistory = item,
+                                memory = item,
                                 isFriendInfoVisible = false,
                                 onUpdate = {
 //                                viewModel.

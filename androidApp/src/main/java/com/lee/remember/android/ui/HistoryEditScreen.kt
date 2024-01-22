@@ -1,5 +1,6 @@
 package com.lee.remember.android.ui
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -53,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -82,7 +84,7 @@ fun HistoryEditScreen(navHostController: NavHostController, memoryId: String?) {
     val scrollState = rememberScrollState()
 
     val memory = MemoryRepository().getMemory(memoryId?.toInt() ?: -1) ?: MemoryRealm()
-    val friend = memory.friendTags.first()
+    val friend = memory.friends.first()
     val friendId = friend.id
 
     var name by remember { mutableStateOf(friend.name) }
@@ -93,38 +95,26 @@ fun HistoryEditScreen(navHostController: NavHostController, memoryId: String?) {
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-//    LaunchedEffect(null) {
-//        try {
-//            val response = FriendApi().getFriend(accessToken, friendId ?: "")
-//
-//            if (response != null) {
-////                Napier.d("###hi ${response}")
-//
-//                response.result?.let {
-//                    name = it.name
-//                    phoneNumber = it.phoneNumber ?: ""
-//                }
-//
-//                response.toString()
-//            }
-//        } catch (e: Exception) {
-//            Napier.d("### ${e.localizedMessage}")
-//            e.localizedMessage ?: "error"
-//        }
-//    }
 
     val friends by rememberSaveable {
         mutableStateOf(
             FriendDao().getFriends().filter { it.id != friendId }.map {
-                Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = false)
+                val isChecked = memory.friends.any { friend -> it.id == friend.id }
+                Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = isChecked)
             }.toMutableList()
         )
     }
 
+    var savedImage by remember { mutableStateOf(memory.images.firstOrNull() ?: "") }
     var selectedImage by remember { mutableStateOf<Uri?>(null) }
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> uri?.let { selectedImage = uri } }
+        onResult = { uri ->
+            uri?.let {
+                selectedImage = uri
+                savedImage = ""
+            }
+        }
     )
 
     fun launchPhotoPicker() {
@@ -162,9 +152,12 @@ fun HistoryEditScreen(navHostController: NavHostController, memoryId: String?) {
                 TextButton(onClick = {
                     scope.launch {
                         val bitmapImage = uriToBitmapString(context, selectedImage)
+                        val images = mutableListOf<MemoryUpdateRequest.Image>()
+                        if (bitmapImage.isNotEmpty()) images.add(MemoryUpdateRequest.Image(image = bitmapImage))
+                        if (savedImage.isNotEmpty()) images.add(MemoryUpdateRequest.Image(image = savedImage))
 
                         // remote
-                        val addedFriends = mutableListOf(friendId?.toInt() ?: -1)
+                        val addedFriends = mutableListOf(friendId)
                         friends.filter { it.isChecked }.map {
                             addedFriends.add(it.id.toInt())
                         }
@@ -174,10 +167,10 @@ fun HistoryEditScreen(navHostController: NavHostController, memoryId: String?) {
                             description = content,
                             date = date,
                             friendIds = addedFriends,
-                            images = listOf(MemoryUpdateRequest.Image(image = bitmapImage))
+                            images = images
                         )
 
-                        val result = MemoryRepository().updateMemory(request)
+                        val result = MemoryRepository().updateMemory(memory.id, request)
 //                        val result = MemoryRepository().addMemory(request)
                         result.fold(
                             onSuccess = {
@@ -268,22 +261,34 @@ fun HistoryEditScreen(navHostController: NavHostController, memoryId: String?) {
             launchPhotoPicker()
         })
 
-        if (selectedImage != null) {
+        if (selectedImage != null || savedImage.isNotEmpty()) {
             Card(
                 Modifier
                     .height(180.dp)
                     .padding(top = 12.dp, bottom = 12.dp, start = 16.dp, end = 16.dp)
             ) {
                 Box(Modifier.fillMaxWidth()) {
-                    AsyncImage(
-                        model = selectedImage,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxWidth(),
-                        contentScale = ContentScale.Crop
-                    )
+                    if (selectedImage != null) {
+                        AsyncImage(
+                            model = selectedImage,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        val bitmap: Bitmap? = stringToBitmap(savedImage)
+                        bitmap?.let {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
                     IconButton(
                         modifier = Modifier.align(Alignment.TopEnd),
                         onClick = {
+                            savedImage = ""
                             selectedImage = null
                         }) {
                         Icon(painter = painterResource(id = R.drawable.ic_cancel), contentDescription = "cancel", tint = Color.White)
@@ -302,12 +307,13 @@ fun HistoryEditScreen(navHostController: NavHostController, memoryId: String?) {
         var showBottomSheet by remember { mutableStateOf(false) }
 
         var isFriendEmpty by remember { mutableStateOf(true) }
+        isFriendEmpty = friends.none { it.isChecked }
 
         if (isFriendEmpty) {
             Button(
                 onClick = { showBottomSheet = true },
                 modifier = Modifier
-                    .padding(top = 6.dp, start = 16.dp, end = 16.dp),
+                    .padding(top = 6.dp, start = 16.dp, end = 16.dp, bottom = 48.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 shape = RoundedCornerShape(size = 8.dp),
                 border = BorderStroke(1.dp, Color(0xFF79747E))
@@ -325,7 +331,7 @@ fun HistoryEditScreen(navHostController: NavHostController, memoryId: String?) {
             val rowScrollState = rememberScrollState()
             Row(
                 Modifier
-                    .padding(top = 6.dp, start = 16.dp, end = 16.dp)
+                    .padding(top = 6.dp, start = 16.dp, end = 16.dp, bottom = 48.dp)
                     .horizontalScroll(rowScrollState),
                 verticalAlignment = Alignment.CenterVertically
             ) {

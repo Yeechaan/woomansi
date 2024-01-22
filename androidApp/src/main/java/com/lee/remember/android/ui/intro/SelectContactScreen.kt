@@ -14,12 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.Divider
-import androidx.compose.material.RadioButton
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -31,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -162,16 +157,17 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
 
                         Napier.d("### ${selectedFriends.size}")
 
-                        val response = FriendApi().addFriend(accessToken, selectedFriends)
+                        val response = FriendApi().addFriends(accessToken, selectedFriends)
 
                         if (response != null) {
-                            val friendRealmList =response.result?.map {
-                                FriendRealm().apply { this.id = it.id; this.name = it.name; this.phoneNumber = it.phoneNumber }
-                            }?.toRealmList()
+                            // Todo
+//                            val friendRealmList =response.result?.map {
+//                                FriendRealm().apply { this.id = it.id; this.name = it.name; this.phoneNumber = it.phoneNumber }
+//                            }?.toRealmList()
 //                            val friendRealmList = selectedFriends.map {
 //                                FriendRealm().apply { this.name = it.name; this.phoneNumber = it.phoneNumber }
 //                            }.toRealmList()
-                            FriendDao().setFriends(friendRealmList ?: realmListOf())
+//                            FriendDao().setFriends(friendRealmList ?: realmListOf())
 
                             navController.navigate(RememberScreen.History.name) {
                                 popUpTo(RememberScreen.History.name) {

@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,8 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -30,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,21 +44,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.RememberTopAppBar
-import com.lee.remember.android.data.FriendHistory
 import com.lee.remember.android.rememberFontFamily
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.android.viewmodel.FeedViewModel
-import com.lee.remember.local.model.MemoryRealm
-import com.lee.remember.repository.MemoryRepository
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.collectLatest
+import com.lee.remember.model.Memory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,30 +62,7 @@ fun FeedScreen(
     viewModel: FeedViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
     viewModel.initFeedState()
-
-    val items = remember { mutableStateOf<List<FriendHistory>>(listOf()) }
-
-    LaunchedEffect(viewModel.uiState) {
-        viewModel.uiState.collectLatest { uiState ->
-            items.value = uiState.memories.sortedByDescending { it.date }
-        }
-//
-//        val memoryResponse = MemoryRepository().getMemoryList()
-//        val memories = memoryResponse.getOrNull()?.result?.map {
-//            val friends = it.friends.map { it.name }
-//
-//            FriendHistory(
-//                title = it.title ?: "",
-//                contents = it.description ?: "",
-//                image = it.thumbnail?.image ?: "",
-//                date = parseUtcString(it.date ?: ""),
-//                ownerFriendName = friends.firstOrNull() ?: "",
-//                friendNames = if (friends.isNotEmpty()) friends.subList(1, friends.size) else listOf()
-//            )
-//        } ?: listOf()
-//
-//        items.value = memories.sortedByDescending { it.date }
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         Modifier
@@ -103,7 +71,7 @@ fun FeedScreen(
     ) {
         RememberTopAppBar(navHostController)
 
-        if (items.value.isEmpty()) {
+        if (uiState.memories.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize()) {
                 EmptyFeedScreen()
                 Image(
@@ -119,7 +87,7 @@ fun FeedScreen(
             ) {
                 item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
 
-                items(items.value) { item ->
+                items(uiState.memories) { item ->
                     OutlinedCard(
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.primary
@@ -128,7 +96,7 @@ fun FeedScreen(
                         modifier = Modifier.padding(vertical = 6.dp)
                     ) {
                         FeedItem(
-                            friendHistory = item,
+                            memory = item,
                             onUpdate = {
                                 navHostController.navigate("${RememberScreen.HistoryEdit.name}/${item.id}")
                             },
@@ -158,7 +126,7 @@ fun EmptyFeedScreen() {
 }
 
 @Composable
-fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true, onUpdate: () -> Unit, onDelete: () -> Unit) {
+fun FeedItem(memory: Memory, isFriendInfoVisible: Boolean = true, onUpdate: () -> Unit, onDelete: () -> Unit) {
     Column(
         Modifier.background(Color.White)
     ) {
@@ -175,23 +143,12 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true, 
                         .background(Color(0xffEFEEEC)),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (friendHistory.imageUri != null) {
-//                        val bitmap: Bitmap? = stringToBitmap(image)
-//                        bitmap?.let {
-//                            Image(
-//                                bitmap = bitmap.asImageBitmap(), contentDescription = null,
-//                                contentScale = ContentScale.Crop,
-//                                modifier = Modifier.fillMaxSize()
-//                            )
-//                        }
-                    } else {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_camera_32),
-                            contentDescription = "",
-                            colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
-                            modifier = Modifier.padding(6.dp),
-                        )
-                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_camera_32),
+                        contentDescription = "",
+                        colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
+                        modifier = Modifier.padding(6.dp),
+                    )
                 }
 
                 Column(
@@ -201,7 +158,7 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true, 
                 ) {
                     Text(text = "with", fontSize = 10.sp, color = Color(0xFF1D1B20), fontFamily = rememberFontFamily)
                     Text(
-                        text = friendHistory.ownerFriendName,
+                        text = memory.ownerFriend?.name ?: "",
                         style = getTextStyle(textStyle = RememberTextStyle.BODY_2B),
                         color = fontColorBlack
                     )
@@ -210,8 +167,8 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true, 
             Spacer(modifier = Modifier.padding(top = 8.dp))
         }
 
-        if (friendHistory.image.isNotEmpty()) {
-            val bitmap: Bitmap? = stringToBitmap(friendHistory.image)
+        if (memory.image.isNotEmpty()) {
+            val bitmap: Bitmap? = stringToBitmap(memory.image)
             bitmap?.let {
                 Image(
                     bitmap = bitmap.asImageBitmap(), contentDescription = null,
@@ -235,9 +192,9 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true, 
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                Text(text = friendHistory.title, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
+                Text(text = memory.title, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
                 Text(
-                    text = friendHistory.date,
+                    text = parseUtcString(memory.date),
                     fontSize = 10.sp,
                     color = fontColorBlack,
                     fontFamily = rememberFontFamily,
@@ -287,16 +244,23 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true, 
         }
 
         Text(
-            text = friendHistory.contents,
+            text = memory.description,
             style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
             modifier = Modifier
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp)
                 .fillMaxWidth()
         )
 
-        val friendNames = if (friendHistory.friendNames.isNotEmpty()) friendHistory.friendNames.joinToString(prefix = "#") else ""
+        var friendTags = ""
+        memory.friendTags.forEachIndexed { index, memoryFriend ->
+            var nameTag = "#${memoryFriend.name}"
+            if (index != memory.friendTags.lastIndex) nameTag += ", "
+
+            friendTags += nameTag
+        }
+
         Text(
-            text = friendNames,
+            text = friendTags,
             style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
             modifier = Modifier
                 .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 32.dp)
@@ -311,5 +275,5 @@ fun FeedItem(friendHistory: FriendHistory, isFriendInfoVisible: Boolean = true, 
 fun PreviewFeedScreen() {
 //    FeedScreen(rememberNavController())
 
-    FeedItem(FriendHistory(title = "libris", contents = "curae", imageUri = null), true, {}, {})
+    FeedItem(Memory(title = "libris", description = "curae"), true, {}, {})
 }

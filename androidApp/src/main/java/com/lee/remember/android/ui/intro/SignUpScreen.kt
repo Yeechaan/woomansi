@@ -2,6 +2,7 @@ package com.lee.remember.android.ui.intro
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -164,20 +165,22 @@ fun SignUpScreen(navController: NavHostController, snackbarHostState: SnackbarHo
             shape = RoundedCornerShape(size = 4.dp),
             border = BorderStroke(1.dp, emailConfirmedColor)
         ) {
-            if (loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.width(24.dp),
-                    color = MaterialTheme.colorScheme.secondary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                )
-                return@Button
-            }
+            Box {
+                if (loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(24.dp),
+                        color = Color(0xFFF2BE2F),
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                    return@Button
+                }
 
-            Text(
-                text = emailConfirmedText,
-                modifier = Modifier.padding(vertical = 2.dp),
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(emailConfirmedColor),
-            )
+                Text(
+                    text = emailConfirmedText,
+                    modifier = Modifier.padding(vertical = 2.dp),
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(emailConfirmedColor),
+                )
+            }
         }
 
         OutlinedTextField(

@@ -25,7 +25,7 @@ data class MemoryUpdateRequest(
         @SerialName("id")
         val id: Int = -1,
         @SerialName("image")
-        val image: String
+        val image: String = ""
     )
 }
 
@@ -58,8 +58,16 @@ data class MemoryUpdateResponse(
             @SerialName("name")
             val name: String,
             @SerialName("profileImage")
-            val profileImage: String?
-        )
+            val profileImage: ProfileImage?
+        ) {
+            @Serializable
+            data class ProfileImage(
+                @SerialName("id")
+                val id: Int,
+                @SerialName("image")
+                val image: String?,
+            )
+        }
 
         @Serializable
         data class Image(

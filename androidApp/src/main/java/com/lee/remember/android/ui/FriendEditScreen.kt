@@ -243,29 +243,27 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                                 }
 
                                 if (friendId == null || friendId == "-1") {
-                                    val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
-
-                                    if (response != null && response.resultCode == "SUCCESS") {
-                                        Napier.d("### ${response.resultCode}")
-
-                                        // @@@
-                                        response.result?.map {
-                                            val size = it.profileImage?.image?.length
-                                            Napier.d("@@@addFriend ${it.id} / $size")
-                                        }
-
-                                        friendRealm.apply { this.id = response.result?.firstOrNull()?.id ?: -1 }
-                                        navHostController.navigateUp()
-                                    } else {
-                                        Toast
-                                            .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
-                                            .show()
-                                    }
-
-                                    FriendDao().setFriend(friendRealm)
+//                                    val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
+//
+//                                    if (response != null && response.resultCode == "SUCCESS") {
+//                                        Napier.d("### ${response.resultCode}")
+//
+//                                        // @@@
+//                                        response.result?.map {
+//                                            val size = it.profileImage?.image?.length
+//                                            Napier.d("@@@addFriend ${it.id} / $size")
+//                                        }
+//
+//                                        friendRealm.apply { this.id = response.result?.firstOrNull()?.id ?: -1 }
+//                                        navHostController.navigateUp()
+//                                    } else {
+//                                        Toast
+//                                            .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
+//                                            .show()
+//                                    }
+//
+//                                    FriendDao().setFriend(friendRealm)
                                 } else {
-                                    // update
-                                    FriendDao().updateFriend(friendRealm)
 
                                     val response = FriendApi().updateFriend(accessToken, friendId ?: "", friendRequest)
 

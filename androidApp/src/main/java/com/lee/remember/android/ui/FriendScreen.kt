@@ -1,8 +1,6 @@
 package com.lee.remember.android.ui
 
-import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,22 +18,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,26 +42,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.RememberTopAppBar
-import com.lee.remember.android.accessToken
-import com.lee.remember.android.bottomPadding
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.selectedFriendPhoneNumber
-import com.lee.remember.android.ui.intro.EmailConfirmDialog
 import com.lee.remember.android.ui.intro.getContracts
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.local.dao.FriendDao
-import com.lee.remember.remote.FriendApi
-import com.lee.remember.remote.request.FriendResponse
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.launch
 
 val whiteColor = Color(0xFFFFFFFF)
 val lightColor = Color(0xFFF7F7F7)
@@ -86,34 +69,17 @@ fun FriendScreen(navHostController: NavHostController) {
         )
     }
 
-//    val friendListFromServer = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
-//    LaunchedEffect(null) {
-//        try {
-//            val response = FriendApi().getFriendList(accessToken)
-//            if (response != null) {
-//
-//                // Todo
-//                response.result?.map {
-//                    val size = it.profileImage?.image?.length
-//                    Napier.d("@@@getFriendList ${it.id} / $size")
-//                }
-//
-//                friendListFromServer.value.addAll(response.result!!)
-//            }
-//        } catch (e: Exception) {
-//            e.localizedMessage ?: "error"
-//        }
-//    }
-
     Column(
-        Modifier.background(lightColor)
+        Modifier
+            .background(lightColor)
+            .fillMaxSize()
     ) {
         RememberTopAppBar(navHostController)
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 16.dp)
+//                .padding(top = 16.dp)
                 .background(lightColor)
         ) {
             if (friendList.value.isEmpty()) {
@@ -128,23 +94,16 @@ fun FriendScreen(navHostController: NavHostController) {
                 LazyColumn(
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp)
                 ) {
-                    val grouped = mapOf("목록" to friendList.value)
-//                val grouped = mapOf("목록" to friendListFromLocal.value)
+                    item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
 
-                    grouped.forEach { (initial, contactsForInitial) ->
-                        stickyHeader {
-                            CharacterHeader(initial)
-                        }
-
-                        items(contactsForInitial) { contact ->
-                            val friendProfile = FriendProfile(
-                                id = contact.id,
-                                name = contact.name,
-                                phoneNumber = contact.phoneNumber ?: "",
-                                image = contact.profileImage?.image ?: ""
-                            )
-                            FriendItem(friendProfile, navHostController)
-                        }
+                    items(friendList.value) { contact ->
+                        val friendProfile = FriendProfile(
+                            id = contact.id,
+                            name = contact.name,
+                            phoneNumber = contact.phoneNumber ?: "",
+                            image = contact.profileImage?.image ?: ""
+                        )
+                        FriendItem(friendProfile, navHostController)
                     }
                 }
             }
@@ -161,8 +120,8 @@ fun FriendScreen(navHostController: NavHostController) {
                     }, onNewClicked = {
                         openAlertDialog.value = false
 
-                        val friendId = "-1"
-                        navHostController.navigate("${RememberScreen.FriendEdit.name}/${friendId}")
+                        // 새로운 친구 추가
+                        navHostController.navigate("${RememberScreen.FriendAdd.name}/${null}/${null}")
                     },
                     onContactsClicked = {
                         openAlertDialog.value = false

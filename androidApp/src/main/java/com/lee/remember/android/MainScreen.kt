@@ -225,10 +225,10 @@ fun MainApp(
             }
             composable(
                 route = "${RememberScreen.FriendAdd.name}/{name}/{number}",
-                arguments = listOf(navArgument("name") { type = NavType.StringType }, navArgument("number") { type = NavType.StringType })
+                arguments = listOf(navArgument("name") { type = NavType.StringType; nullable = true }, navArgument("number") { type = NavType.StringType; nullable = true })
             ) {
-                val name = it.arguments?.getString("name")
-                val number = it.arguments?.getString("number")
+                val name = it.arguments?.getString("name", "")
+                val number = it.arguments?.getString("number", "")
                 FriendAddScreen(navHostController = navController, name, number)
             }
             composable(

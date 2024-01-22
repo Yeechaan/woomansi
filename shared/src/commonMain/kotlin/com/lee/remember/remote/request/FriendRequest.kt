@@ -38,43 +38,44 @@ data class FriendAddResponse(
     @SerialName("resultCode")
     val resultCode: String,
     @SerialName("result")
-    val result: List<Result>?
-) {
-    @Serializable
-    data class Result(
-        @SerialName("id")
-        val id: Int,
-        @SerialName("name")
-        val name: String,
-        @SerialName("phoneNumber")
-        val phoneNumber: String,
-        @SerialName("description")
-        val description: String?,
-        @SerialName("events")
-        val events: List<Event>?,
-        @SerialName("friendGroups")
-        val friendGroups: List<String>?,
-        @SerialName("profileImage")
-        val profileImage: ProfileImage?,
-    ) {
-        @Serializable
-        data class Event(
-            @SerialName("id")
-            val id: Int,
-            @SerialName("name")
-            val name: String,
-            @SerialName("date")
-            val date: String,
-        )
-
-        @Serializable
-        data class ProfileImage(
-            @SerialName("id")
-            val id: Int,
-            @SerialName("image")
-            val image: String
-        )
-    }
+    val result: List<FriendResponse.Result>?
+)
+{
+//    @Serializable
+//    data class Result(
+//        @SerialName("id")
+//        val id: Int,
+//        @SerialName("name")
+//        val name: String,
+//        @SerialName("phoneNumber")
+//        val phoneNumber: String,
+//        @SerialName("description")
+//        val description: String?,
+//        @SerialName("events")
+//        val events: List<Event>?,
+//        @SerialName("friendGroups")
+//        val friendGroups: List<String>?,
+//        @SerialName("profileImage")
+//        val profileImage: ProfileImage?,
+//    ) {
+//        @Serializable
+//        data class Event(
+//            @SerialName("id")
+//            val id: Int,
+//            @SerialName("name")
+//            val name: String,
+//            @SerialName("date")
+//            val date: String,
+//        )
+//
+//        @Serializable
+//        data class ProfileImage(
+//            @SerialName("id")
+//            val id: Int,
+//            @SerialName("image")
+//            val image: String
+//        )
+//    }
 }
 
 @Serializable
