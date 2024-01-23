@@ -31,10 +31,12 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -83,7 +85,7 @@ import kotlin.math.absoluteValue
 fun HistoryScreen(navHostController: NavHostController) {
 
     val friendList = remember { mutableStateOf(FriendDao().getFriends().toMutableList()) }
-    val friendListFromServer = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
+//    val friendListFromServer = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
     val currentFriendIndex = remember { mutableStateOf<Int>(-1) }
 
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -98,22 +100,32 @@ fun HistoryScreen(navHostController: NavHostController) {
     ) {
         RememberTopAppBar(navHostController)
 
-        Row(
-            modifier = Modifier
-                .padding(top = 24.dp, start = 48.dp, end = 48.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            HistoryItem("전화", R.drawable.ic_call) {
-                showBottomSheet = true
-                isCall = true
+        Column(Modifier.verticalScroll(scrollState)) {
+            Row(
+                modifier = Modifier
+                    .padding(top = 24.dp, start = 48.dp, end = 48.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                HistoryItem("전화", R.drawable.ic_call) {
+                    showBottomSheet = true
+                    isCall = true
+                }
+                HistoryItem("SMS", R.drawable.ic_message) {
+                    showBottomSheet = true
+                    isCall = false
+                }
+                HistoryItem("안부", R.drawable.ic_sns) {
+                    navHostController.navigate(RememberScreen.Meeting.name)
+                }
             }
-            HistoryItem("SMS", R.drawable.ic_message) {
-                showBottomSheet = true
-                isCall = false
-            }
-            HistoryItem("안부", R.drawable.ic_sns) {
-                navHostController.navigate(RememberScreen.Meeting.name)
+
+            if (friendList.value.isEmpty()) {
+                HistoryEmptyScreen(navHostController)
+            } else {
+                HistoryPagerScreen(navHostController, friendList.value) {
+                    currentFriendIndex.value = it
+                }
             }
         }
 
@@ -193,17 +205,6 @@ fun HistoryScreen(navHostController: NavHostController) {
 //
 //            apiScope.cancel()
 //        }
-
-        Column(Modifier.verticalScroll(scrollState)) {
-            if (friendList.value.isEmpty()) {
-                HistoryEmptyScreen(navHostController)
-            } else {
-                HistoryPagerScreen(navHostController, friendList.value) {
-                    currentFriendIndex.value = it
-                }
-            }
-        }
-
     }
 }
 
@@ -262,7 +263,7 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
         contentPadding = PaddingValues(horizontal = 16.dp),
         modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
     ) { page ->
-        Card(
+        OutlinedCard(
             modifier = Modifier
                 .fillMaxWidth()
 //                .height(460.dp)
@@ -280,7 +281,8 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
                         stop = 1f,
                         fraction = 1f - pageOffset.coerceIn(0f, 1f)
                     )
-                }
+                },
+            border = BorderStroke(1.dp, color = Color(0xFFD8D8D8)),
         ) {
             val friend = friendList[page]
             val friendProfile = FriendProfile(
@@ -319,7 +321,7 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    val imageIndex  = (page % 5)
+                    val imageIndex = (page % 5)
                     val image = emptyFriendImages[imageIndex]
                     Box(
                         modifier = Modifier

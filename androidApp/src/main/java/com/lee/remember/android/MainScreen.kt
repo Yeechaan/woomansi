@@ -280,7 +280,7 @@ fun TestDefaultPreview() {
 @Composable
 fun RememberTopAppBar(navHostController: NavHostController) {
     TopAppBar(
-        modifier = Modifier.shadow(10.dp),
+        modifier = Modifier.shadow(2.dp),
         title = {},
         colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
         navigationIcon = {
