@@ -19,6 +19,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,32 +37,37 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.accessToken
 import com.lee.remember.android.ui.fontColorBlack
 import com.lee.remember.android.ui.lightColor
 import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.local.dao.FriendDao
-import com.lee.remember.local.model.FriendRealm
-import com.lee.remember.remote.FriendApi
+import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.remote.request.FriendRequest
-import io.github.aakira.napier.Napier
-import io.realm.kotlin.ext.realmListOf
-import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.launch
 
 @Composable
-fun SelectContractScreen(navController: NavHostController) {
+fun SelectContractScreen(
+    navController: NavHostController,
+    viewModel: FriendViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    if (uiState.success) {
+        viewModel.resetUiState()
+        navController.navigate(RememberScreen.History.name) {
+            popUpTo(RememberScreen.History.name) {
+                inclusive = true
+            }
+        }
+    }
+    if (uiState.loading) {
+        // Todo 로딩 처리
+    }
+
     val contracts = mutableListOf<Contract>()
     contracts.addAll(getContracts())
-//    val contracts = getContracts()
 
-    ContactList(contracts, navController)
-}
-
-@Composable
-fun ContactList(contracts: List<Contract>, navController: NavHostController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
@@ -155,32 +162,7 @@ fun ContactList(contracts: List<Contract>, navController: NavHostController) {
                             FriendRequest(it.name, it.number)
                         }
 
-                        Napier.d("### ${selectedFriends.size}")
-
-                        val response = FriendApi().addFriends(accessToken, selectedFriends)
-
-                        if (response != null) {
-                            // Todo
-//                            val friendRealmList =response.result?.map {
-//                                FriendRealm().apply { this.id = it.id; this.name = it.name; this.phoneNumber = it.phoneNumber }
-//                            }?.toRealmList()
-//                            val friendRealmList = selectedFriends.map {
-//                                FriendRealm().apply { this.name = it.name; this.phoneNumber = it.phoneNumber }
-//                            }.toRealmList()
-//                            FriendDao().setFriends(friendRealmList ?: realmListOf())
-
-                            navController.navigate(RememberScreen.History.name) {
-                                popUpTo(RememberScreen.History.name) {
-                                    inclusive = true
-                                }
-                            }
-                        } else {
-                            // add realm
-//                            val friendRealmList = selectedFriends.map {
-//                                FriendRealm().apply { this.name = it.name; this.phoneNumber = it.phoneNumber }
-//                            }.toRealmList()
-//                            FriendDao().setFriends(friendRealmList)
-                        }
+                        viewModel.addFriends(selectedFriends)
                     } catch (e: Exception) {
                         e.localizedMessage ?: "error"
                     }

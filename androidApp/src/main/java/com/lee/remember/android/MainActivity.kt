@@ -35,7 +35,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // ModalBottomSheet bottom padding with system navigation bar
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
             MyApplicationTheme {

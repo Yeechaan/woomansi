@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "589670542406",
+    "project_id": "remember-a8d22",
+    "storage_bucket": "remember-a8d22.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:589670542406:android:782b8c03547170af366e47",
+        "android_client_info": {
+          "package_name": "com.lee.remember.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeiiZMFZUQlllcyWCkh_lqkHuaatrCn84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
