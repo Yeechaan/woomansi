@@ -31,7 +31,6 @@ import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 
 class MainActivity : ComponentActivity() {
-    lateinit var requestLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,15 +44,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-//                    Greeting(name = "iOS")
-
                     Napier.base(DebugAntilog())
 
                     // MainApp
                     val controller = rememberNavController()
                     MainApp(controller)
-//                    checkContactStatus()
-
                 }
             }
         }

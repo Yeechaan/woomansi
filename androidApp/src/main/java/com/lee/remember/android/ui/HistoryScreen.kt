@@ -8,7 +8,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +29,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -65,7 +62,6 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.RememberTopAppBar
-import com.lee.remember.android.accessToken
 import com.lee.remember.android.bottomPadding
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.selectedFriendPhoneNumber
@@ -73,10 +69,6 @@ import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.local.model.FriendRealm
-import com.lee.remember.remote.FriendApi
-import com.lee.remember.remote.request.FriendResponse
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -140,52 +132,73 @@ fun HistoryScreen(navHostController: NavHostController) {
         if (showBottomSheet && currentFriendIndex.value != -1) {
             val phoneNumber = friendList.value[currentFriendIndex.value].phoneNumber ?: ""
 
-            ModalBottomSheet(
-                containerColor = Color.White,
-                onDismissRequest = { showBottomSheet = false },
-                sheetState = sheetState,
-            ) {
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(modifier = Modifier.padding(top = 36.dp), painter = painterResource(id = imageId), contentDescription = null)
-
-                    Text(
-                        modifier = Modifier.padding(top = 24.dp),
-                        text = title,
-                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black),
-                        textAlign = TextAlign.Center
-                    )
-
-                    Text(
-                        modifier = Modifier.padding(top = 40.dp),
-                        text = phoneNumber,
-                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
-                    )
-
-                    TextButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 32.dp, bottom = bottomPadding)
-                            .background(Color(0xFFF2BE2F)),
-                        onClick = {
-                            scope.launch { sheetState.hide() }.invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    val callIntent: Intent = if (isCall) {
-                                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
-                                    } else {
-                                        Intent(Intent.ACTION_SENDTO, Uri.parse("sms:$phoneNumber"))
-                                    }
-
-                                    startActivity(context, callIntent, null)
-
-                                    showBottomSheet = false
-                                }
+            val contactType = if (isCall) ContactType.Call else ContactType.Message
+            FriendContactDialog(
+                contactType = contactType,
+                onDismissRequest = { },
+                onConfirm = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            val callIntent: Intent = if (isCall) {
+                                Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
+                            } else {
+                                Intent(Intent.ACTION_SENDTO, Uri.parse("sms:$phoneNumber"))
                             }
+
+                            startActivity(context, callIntent, null)
+
+                            showBottomSheet = false
                         }
-                    ) {
-                        Text(buttonText, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E)))
                     }
                 }
-            }
+            )
+
+//            ModalBottomSheet(
+//                containerColor = Color.White,
+//                onDismissRequest = { showBottomSheet = false },
+//                sheetState = sheetState,
+//            ) {
+//                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+//                    Image(modifier = Modifier.padding(top = 36.dp), painter = painterResource(id = imageId), contentDescription = null)
+//
+//                    Text(
+//                        modifier = Modifier.padding(top = 24.dp),
+//                        text = title,
+//                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black),
+//                        textAlign = TextAlign.Center
+//                    )
+//
+//                    Text(
+//                        modifier = Modifier.padding(top = 40.dp),
+//                        text = phoneNumber,
+//                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
+//                    )
+//
+//                    TextButton(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(top = 32.dp, bottom = bottomPadding)
+//                            .background(Color(0xFFF2BE2F)),
+//                        onClick = {
+//                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+//                                if (!sheetState.isVisible) {
+//                                    val callIntent: Intent = if (isCall) {
+//                                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
+//                                    } else {
+//                                        Intent(Intent.ACTION_SENDTO, Uri.parse("sms:$phoneNumber"))
+//                                    }
+//
+//                                    startActivity(context, callIntent, null)
+//
+//                                    showBottomSheet = false
+//                                }
+//                            }
+//                        }
+//                    ) {
+//                        Text(buttonText, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E)))
+//                    }
+//                }
+//            }
         }
 
         val apiScope = rememberCoroutineScope()

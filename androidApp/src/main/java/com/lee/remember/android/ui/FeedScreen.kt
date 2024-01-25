@@ -144,7 +144,7 @@ fun FeedItem(memory: Memory, isFriendInfoVisible: Boolean = true, onUpdate: () -
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_camera_32),
+                        painter = painterResource(id = R.drawable.img_media),
                         contentDescription = "",
                         colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
                         modifier = Modifier.padding(6.dp),
