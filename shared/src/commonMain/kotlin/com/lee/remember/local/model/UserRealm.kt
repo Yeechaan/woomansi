@@ -10,6 +10,8 @@ class UserRealm : RealmObject {
     var name: String = ""
     var phoneNumber: String = ""
     var profileImage: String = ""
+
+    var isLocalMode: Boolean = true
 }
 
 fun SignupResponse.asRealm() =
@@ -19,6 +21,8 @@ fun SignupResponse.asRealm() =
         this.name = result?.name ?: ""
         this.phoneNumber = result?.phoneNumber ?: ""
         this.profileImage = result?.profileImage?.image ?: ""
+
+        this.isLocalMode = false
     }
 
 fun UserInfoResponse.asRealm() =
@@ -28,4 +32,6 @@ fun UserInfoResponse.asRealm() =
         this.name = result?.name ?: ""
         this.phoneNumber = result?.phoneNumber ?: ""
         this.profileImage = result?.profileImage?.image ?: ""
+
+        this.isLocalMode = false
     }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -38,6 +39,9 @@ import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.repository.UserRepository
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 @Composable
 fun IntroScreen(navController: NavHostController) {
@@ -105,11 +109,39 @@ fun IntroScreen(navController: NavHostController) {
 
         TextButton(
             modifier = Modifier
-                .padding(top = 8.dp)
-                .padding(bottom = 64.dp),
-            onClick = { navController.navigate(RememberScreen.Terms.name) }) {
+                .padding(top = 8.dp),
+//                .padding(bottom = 64.dp),
+                onClick = { navController.navigate(RememberScreen.Terms.name) }) {
             Text(
                 text = "새로 시작하기",
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color.White),
+                modifier = Modifier.drawBehind {
+                    val strokeWidthPx = 1.dp.toPx()
+                    val verticalOffset = size.height - 1.sp.toPx()
+                    drawLine(
+                        color = Color.White,
+                        strokeWidth = strokeWidthPx,
+                        start = Offset(0f, verticalOffset),
+                        end = Offset(size.width, verticalOffset)
+                    )
+                }
+            )
+        }
+
+        val scope = rememberCoroutineScope()
+        TextButton(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .padding(bottom = 64.dp),
+            onClick = {
+                scope.launch {
+                    UserRepository().addTestUser()
+                    scope.cancel()
+                }
+                navController.navigate(RememberScreen.SelectContact.name)
+            }) {
+            Text(
+                text = "로그인 없이 사용해보기",
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color.White),
                 modifier = Modifier.drawBehind {
                     val strokeWidthPx = 1.dp.toPx()

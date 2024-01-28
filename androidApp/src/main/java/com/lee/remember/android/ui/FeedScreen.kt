@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.RememberTopAppBar
 import com.lee.remember.android.rememberFontFamily
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
@@ -69,8 +68,6 @@ fun FeedScreen(
             .background(lightColor)
             .fillMaxSize()
     ) {
-        RememberTopAppBar(navHostController)
-
         if (uiState.memories.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize()) {
                 EmptyFeedScreen()

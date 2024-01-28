@@ -49,7 +49,9 @@ import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
+import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.FriendApi
+import com.lee.remember.repository.FriendRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -62,39 +64,8 @@ val fontColorPoint = Color(0xFFFFCF40)
 @Composable
 fun FriendProfileScreen(navHostController: NavHostController, friendId: String?) {
 
-    var image by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-    var group by remember { mutableStateOf("") }
-    var number by remember { mutableStateOf("") }
-    var dateTitle by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf("") }
-
-    val scope = rememberCoroutineScope()
-    scope.launch {
-        try {
-            val response = FriendApi().getFriend(accessToken, friendId ?: "")
-
-            if (response != null) {
-//                Napier.d("###hi ${response}")
-
-                response.result?.let {
-                    name = it.name
-                    group = "-"  // Todo need response field
-                    number = it.phoneNumber ?: ""
-                    dateTitle = it.events?.firstOrNull()?.name ?: "기념일"
-                    date = parseUtcString(it.events?.firstOrNull()?.date ?: "")
-                    image = it.profileImage?.image ?: ""
-                }
-
-                response.toString()
-            }
-        } catch (e: Exception) {
-            Napier.d("### ${e.localizedMessage}")
-            e.localizedMessage ?: "error"
-        }
-
-        scope.cancel()
-    }
+    val friend = FriendRepository().getFriend(friendId?.toInt() ?: -1) ?: FriendRealm()
+    val image = friend.profileImage?.image ?: ""
 
     val scrollState = rememberScrollState()
     Column(
@@ -105,7 +76,7 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TopAppBar(
-            title = { Text(name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            title = { Text(friend.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
             navigationIcon = {
                 IconButton(onClick = { navHostController.navigateUp() }) {
@@ -156,9 +127,9 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
                 .padding(top = 24.dp)
                 .fillMaxWidth()
         ) {
-            FriendProfileItem("연락처", number)
+            FriendProfileItem("연락처", friend.phoneNumber)
 //            FriendProfileItem("그룹", group)
-            FriendProfileItem(dateTitle, date)
+            FriendProfileItem(friend.events.firstOrNull()?.name ?: "기념일", friend.events.firstOrNull()?.date ?: "-")
         }
 
         RememberOutlinedButton(text = "친구 기록 보기", onClick = {

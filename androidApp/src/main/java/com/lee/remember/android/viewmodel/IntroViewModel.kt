@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 
 data class IntroUiState(
     val isFirst: Boolean? = null,
+    val isLocalMode: Boolean? = null,
     val isAuthSuccess: Boolean? = null,
 )
 
@@ -26,6 +27,14 @@ class IntroViewModel(
     val uiState: StateFlow<IntroUiState> = _uiState.asStateFlow()
 
     fun initUserState() {
+        val user = userRepository.getUser()
+        if (user != null && user.isLocalMode) {
+            _uiState.update {
+                it.copy(isLocalMode = true)
+            }
+            return
+        }
+
         val token = authRepository.getToken()
         if (token == null) {
             _uiState.update {

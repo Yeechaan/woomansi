@@ -47,9 +47,7 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.RememberTopAppBar
 import com.lee.remember.android.data.FriendProfile
-import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.ui.intro.getContracts
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
@@ -74,8 +72,6 @@ fun FriendScreen(navHostController: NavHostController) {
             .background(lightColor)
             .fillMaxSize()
     ) {
-        RememberTopAppBar(navHostController)
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -212,19 +208,20 @@ fun FriendItem(friendProfile: FriendProfile, navHostController: NavHostControlle
         Card(
             Modifier
                 .fillMaxWidth()
-                .padding(top = 4.dp, bottom = 4.dp)
-                .clickable {
-                    selectedFriendPhoneNumber = friendProfile.phoneNumber
-
-                    navHostController.navigate("${RememberScreen.FriendProfile.name}/${friendProfile.id}")
-                },
+                .padding(top = 4.dp, bottom = 4.dp),
             colors = CardDefaults.cardColors(Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
+//                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier
+                    .clickable {
+                        navHostController.navigate("${RememberScreen.FriendProfile.name}/${friendProfile.id}")
+                    }
             ) {
+                Spacer(modifier = Modifier.padding(start = 16.dp))
+
                 Box(
                     modifier = Modifier
                         .size(48.dp)
@@ -254,6 +251,7 @@ fun FriendItem(friendProfile: FriendProfile, navHostController: NavHostControlle
                 Column(
                     modifier = Modifier
                         .padding(vertical = 32.dp)
+                        .padding(start = 16.dp)
                         .weight(1f)
                 ) {
                     Text(

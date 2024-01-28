@@ -1,5 +1,6 @@
 package com.lee.remember.android.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,12 +15,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.lee.remember.android.R
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 
@@ -30,6 +35,7 @@ sealed class ContactType {
 
 @Composable
 fun FriendContactDialog(
+    phoneNumber: String,
     contactType: ContactType,
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit,
@@ -37,18 +43,21 @@ fun FriendContactDialog(
     var title = ""
     var descriptions = ""
     var buttonConfirm = ""
+    var imageResource = -1
 
     when (contactType) {
         ContactType.Call -> {
             title = "전화"
             descriptions = "안심하세요!\n바로 통화로 연결되지 않아요."
             buttonConfirm = "전화하기"
+            imageResource = R.drawable.ic_call
         }
 
         ContactType.Message -> {
             title = "문자"
             descriptions = "친구에게 문자를 보내보세요."
             buttonConfirm = "문자하기"
+            imageResource = R.drawable.ic_message
         }
     }
 
@@ -66,16 +75,28 @@ fun FriendContactDialog(
                     .padding(24.dp)
                     .background(Color.White),
                 verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = title,
                     style = getTextStyle(textStyle = RememberTextStyle.HEAD_3).copy(fontColorBlack),
                     modifier = Modifier.fillMaxWidth(),
                 )
+                Image(
+                    painter = painterResource(id = imageResource),
+                    contentDescription = null,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
                 Text(
                     text = descriptions,
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color(0x94000000)),
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color(0xFF000000)),
+                    textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 16.dp),
+                )
+                Text(
+                    text = phoneNumber,
+                    style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(Color(0xFFE5AA12)),
+                    modifier = Modifier.padding(top = 32.dp),
                 )
 
                 Row(
@@ -114,5 +135,5 @@ fun FriendContactDialog(
 @Preview
 @Composable
 fun PreviewFriendContactDialog() {
-    FriendContactDialog(ContactType.Call, {}, {})
+    FriendContactDialog("111", ContactType.Call, {}, {})
 }

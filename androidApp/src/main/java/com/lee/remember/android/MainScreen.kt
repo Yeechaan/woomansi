@@ -2,10 +2,7 @@ package com.lee.remember.android
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -93,8 +90,6 @@ enum class RememberScreen(@StringRes val title: Int) {
 val mainScreens = listOf(RememberScreen.History.name, RememberScreen.Feed.name, RememberScreen.Friend.name)
 
 var accessToken: String = ""
-val friendProfiles = mutableListOf<FriendProfile>()
-var selectedFriendPhoneNumber = ""
 var selectedFriendGroup: String? = null
 var bottomPadding: Dp = 0.dp
 
@@ -115,6 +110,11 @@ fun MainApp(
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
+        topBar = {
+            if (mainScreens.contains(currentScreen)) {
+                RememberTopAppBar(navHostController = navController)
+            }
+        },
         bottomBar = {
             if (mainScreens.contains(currentScreen)) {
                 BottomNavigation(

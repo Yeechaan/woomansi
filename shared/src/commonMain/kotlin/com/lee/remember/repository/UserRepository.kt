@@ -2,6 +2,7 @@ package com.lee.remember.repository
 
 import com.lee.remember.local.dao.AuthDao
 import com.lee.remember.local.dao.UserDao
+import com.lee.remember.local.model.UserRealm
 import com.lee.remember.local.model.asRealm
 import com.lee.remember.remote.UserApi
 import com.lee.remember.remote.request.UserInfoRequest
@@ -82,5 +83,15 @@ class UserRepository(
                     Result.failure(Exception(it))
                 }
             )
+        }
+
+    suspend fun addTestUser(): Result<Boolean> =
+        withContext(Dispatchers.IO) {
+            val user = UserRealm().apply {
+                this.name = "test_user"
+            }
+            userDao.setUser(user)
+
+            Result.success(true)
         }
 }

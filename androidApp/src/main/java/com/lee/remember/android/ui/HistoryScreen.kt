@@ -29,6 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -61,10 +62,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.RememberTopAppBar
-import com.lee.remember.android.bottomPadding
 import com.lee.remember.android.data.FriendProfile
-import com.lee.remember.android.selectedFriendPhoneNumber
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.local.dao.FriendDao
@@ -90,8 +88,6 @@ fun HistoryScreen(navHostController: NavHostController) {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        RememberTopAppBar(navHostController)
-
         Column(Modifier.verticalScroll(scrollState)) {
             Row(
                 modifier = Modifier
@@ -125,17 +121,14 @@ fun HistoryScreen(navHostController: NavHostController) {
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
-        val imageId = if (isCall) R.drawable.ic_call else R.drawable.ic_message
-        val title = if (isCall) "안심하세요!\n바로 통화로 연결되지 않아요." else "친구에게 문자를 보내보세요."
-        val buttonText = if (isCall) "전화하기" else "문자하기"
-
         if (showBottomSheet && currentFriendIndex.value != -1) {
             val phoneNumber = friendList.value[currentFriendIndex.value].phoneNumber ?: ""
 
             val contactType = if (isCall) ContactType.Call else ContactType.Message
             FriendContactDialog(
+                phoneNumber = phoneNumber,
                 contactType = contactType,
-                onDismissRequest = { },
+                onDismissRequest = { showBottomSheet = false },
                 onConfirm = {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
@@ -152,72 +145,7 @@ fun HistoryScreen(navHostController: NavHostController) {
                     }
                 }
             )
-
-//            ModalBottomSheet(
-//                containerColor = Color.White,
-//                onDismissRequest = { showBottomSheet = false },
-//                sheetState = sheetState,
-//            ) {
-//                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-//                    Image(modifier = Modifier.padding(top = 36.dp), painter = painterResource(id = imageId), contentDescription = null)
-//
-//                    Text(
-//                        modifier = Modifier.padding(top = 24.dp),
-//                        text = title,
-//                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black),
-//                        textAlign = TextAlign.Center
-//                    )
-//
-//                    Text(
-//                        modifier = Modifier.padding(top = 40.dp),
-//                        text = phoneNumber,
-//                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
-//                    )
-//
-//                    TextButton(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(top = 32.dp, bottom = bottomPadding)
-//                            .background(Color(0xFFF2BE2F)),
-//                        onClick = {
-//                            scope.launch { sheetState.hide() }.invokeOnCompletion {
-//                                if (!sheetState.isVisible) {
-//                                    val callIntent: Intent = if (isCall) {
-//                                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
-//                                    } else {
-//                                        Intent(Intent.ACTION_SENDTO, Uri.parse("sms:$phoneNumber"))
-//                                    }
-//
-//                                    startActivity(context, callIntent, null)
-//
-//                                    showBottomSheet = false
-//                                }
-//                            }
-//                        }
-//                    ) {
-//                        Text(buttonText, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E)))
-//                    }
-//                }
-//            }
         }
-
-        val apiScope = rememberCoroutineScope()
-//        apiScope.launch {
-//            try {
-//                val response = FriendApi().getFriendList(accessToken)
-//                if (response?.result != null) {
-//                    friendList.value = response.result?.toMutableList() ?: mutableListOf()
-//
-//                    response.toString()
-//                } else {
-//                    Napier.d("### ${response?.resultCode}")
-//                }
-//            } catch (e: Exception) {
-//                e.localizedMessage ?: "error"
-//            }
-//
-//            apiScope.cancel()
-//        }
     }
 }
 
@@ -237,8 +165,7 @@ fun HistoryEmptyScreen(navHostController: NavHostController) {
 
         Button(
             onClick = {
-                val friendId = "-1"
-                navHostController.navigate("${RememberScreen.FriendEdit.name}/${friendId}")
+                navHostController.navigate("${RememberScreen.FriendAdd.name}/${null}/${null}")
             },
             modifier = Modifier.padding(top = 16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
@@ -296,6 +223,7 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
                     )
                 },
             border = BorderStroke(1.dp, color = Color(0xFFD8D8D8)),
+            elevation = CardDefaults.cardElevation(1.dp)
         ) {
             val friend = friendList[page]
             val friendProfile = FriendProfile(
@@ -309,8 +237,6 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
 
             Column(modifier = Modifier
                 .clickable {
-                    selectedFriendPhoneNumber = friendProfile.phoneNumber
-
                     val friendId = friendProfile.id
                     navHostController.navigate("${RememberScreen.FriendHistory.name}/${friendId}")
                 }

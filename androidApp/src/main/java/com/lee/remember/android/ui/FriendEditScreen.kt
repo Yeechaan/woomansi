@@ -9,7 +9,6 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Base64.NO_WRAP
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +27,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -49,6 +47,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,23 +71,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.accessToken
-import com.lee.remember.android.selectedFriendGroup
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.local.dao.FriendDao
-import com.lee.remember.local.model.EventRealm
+import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.local.model.FriendRealm
-import com.lee.remember.local.model.ProfileImageRealm
-import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.request.FriendRequest
+import com.lee.remember.repository.FriendRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -98,7 +90,21 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
+fun FriendEditScreen(
+    navHostController: NavHostController,
+    friendId: String?,
+    viewModel: FriendViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    if (uiState.success) {
+        viewModel.resetUiState()
+        navHostController.navigateUp()
+    }
+    if (uiState.loading) {
+        // Todo 로딩 처리
+    }
+
     val imeState = rememberImeState()
     val scrollState = rememberScrollState()
 
@@ -133,11 +139,15 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var name by remember { mutableStateOf("") }
+
+        val friend = FriendRepository().getFriend(friendId?.toInt() ?: -1) ?: FriendRealm()
+
+        savedImage = friend.profileImage?.image ?: ""
+        var name by remember { mutableStateOf(friend.name) }
         var group by remember { mutableStateOf("") }
-        var number by remember { mutableStateOf("") }
-        var dateTitle by remember { mutableStateOf("") }
-        var date by remember { mutableStateOf("") }
+        var number by remember { mutableStateOf(friend.phoneNumber) }
+        var dateTitle by remember { mutableStateOf(friend.events.firstOrNull()?.name ?: "기념일") }
+        var date by remember { mutableStateOf(friend.events.firstOrNull()?.date ?: "") }
 
         val state = rememberDatePickerState()
         state.selectedDateMillis?.let {
@@ -145,43 +155,7 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
             date = convertMillisToDate(it)
         }
         val context = LocalContext.current
-        val scope = rememberCoroutineScope()
 
-        scope.launch {
-            try {
-                if (friendId == null || friendId == "-1") {
-                    // Todo 친구 추가 시 초기값
-                } else {
-                    val response = FriendApi().getFriend(accessToken, friendId ?: "")
-
-                    if (response != null) {
-//                        Napier.d("###hi ${response}")
-
-                        response.result?.let {
-                            name = it.name
-                            group = "-"  // Todo need response field
-                            number = it.phoneNumber ?: ""
-                            dateTitle = it.events?.firstOrNull()?.name ?: "기념일"
-                            date = parseUtcString(it.events?.firstOrNull()?.date ?: "")
-                            savedImage = it.profileImage?.image ?: ""
-                        }
-
-                        response.toString()
-                    }
-
-                    // Todo 그룹 초기화 로직 변경
-                    selectedFriendGroup?.let {
-                        group = it
-                        selectedFriendGroup = null
-                    }
-                }
-            } catch (e: Exception) {
-                Napier.d("### ${e.localizedMessage}")
-                e.localizedMessage ?: "error"
-            }
-
-            scope.cancel()
-        }
 
         val apiScope = rememberCoroutineScope()
 
@@ -199,21 +173,26 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                             apiScope.launch() {
 //                    try {
                                 var profileImage = ""
-                                selectedImage?.let {
-                                    val bitmap = if (Build.VERSION.SDK_INT >= 28) {
-                                        val source = ImageDecoder.createSource(context.contentResolver, it)
-                                        ImageDecoder.decodeBitmap(source)
-                                    } else {
-                                        MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-                                    }
 
-                                    withContext(Dispatchers.IO) {
+                                if (savedImage.isNotEmpty()) {
+                                    profileImage = savedImage
+                                } else {
+                                    selectedImage?.let {
+                                        val bitmap = if (Build.VERSION.SDK_INT >= 28) {
+                                            val source = ImageDecoder.createSource(context.contentResolver, it)
+                                            ImageDecoder.decodeBitmap(source)
+                                        } else {
+                                            MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                                        }
+
+                                        withContext(Dispatchers.IO) {
 //                            val quality = 50
 //                            val scaleDownBitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width * quality).toInt(), (bitmap.height * quality).toInt(), true)
-                                        profileImage = bitmapToString(bitmap)
-                                    }
+                                            profileImage = bitmapToString(bitmap)
+                                        }
 
 //                        profileImage = bitmapToString(bitmap)
+                                    }
                                 }
 
 //                    profileImage = test(context, selectedImage)
@@ -230,19 +209,20 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
                                     events = listOf(FriendRequest.Event(dateTitle, date)),
                                     profileImage = profileImage
                                 )
-//                        Napier.d("### $friendRequest")
 
-                                val friendRealm = FriendRealm().apply {
-                                    this.id = friendId?.toInt() ?: -1
-                                    this.name = name
-                                    this.phoneNumber = number
-                                    this.group = group
-                                    this.events.add(EventRealm().apply { this.name = dateTitle; this.date = date })
-                                    // Todo 이미지 처리 방식 변경
-                                    this.profileImage = ProfileImageRealm().apply { this.image = profileImage }
-                                }
+                                viewModel.updateFriend(friendId ?: "", friendRequest)
 
-                                if (friendId == null || friendId == "-1") {
+//                                val friendRealm = FriendRealm().apply {
+//                                    this.id = friendId?.toInt() ?: -1
+//                                    this.name = name
+//                                    this.phoneNumber = number
+//                                    this.group = group
+//                                    this.events.add(EventRealm().apply { this.name = dateTitle; this.date = date })
+//                                    // Todo 이미지 처리 방식 변경
+//                                    this.profileImage = ProfileImageRealm().apply { this.image = profileImage }
+//                                }
+
+//                                if (friendId == null || friendId == "-1") {
 //                                    val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
 //
 //                                    if (response != null && response.resultCode == "SUCCESS") {
@@ -263,21 +243,21 @@ fun FriendEditScreen(navHostController: NavHostController, friendId: String?) {
 //                                    }
 //
 //                                    FriendDao().setFriend(friendRealm)
-                                } else {
-
-                                    val response = FriendApi().updateFriend(accessToken, friendId ?: "", friendRequest)
-
-                                    if (response != null) {
-                                        Napier.d("### $response")
-
-                                        response.toString()
-                                        navHostController.navigateUp()
-                                    } else {
-                                        Toast
-                                            .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
-                                            .show()
-                                    }
-                                }
+//                                } else {
+//
+//                                    val response = FriendApi().updateFriend(accessToken, friendId ?: "", friendRequest)
+//
+//                                    if (response != null) {
+//                                        Napier.d("### $response")
+//
+//                                        response.toString()
+//                                        navHostController.navigateUp()
+//                                    } else {
+//                                        Toast
+//                                            .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
+//                                            .show()
+//                                    }
+//                                }
 
 //                    } catch (e: Exception) {
 //                        e.localizedMessage ?: "error"

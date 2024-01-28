@@ -16,6 +16,8 @@ class FriendRealm : RealmObject {
     var group: String = ""
     var events: RealmList<EventRealm> = realmListOf()
     var profileImage: ProfileImageRealm? = null
+
+    var isSynced: Boolean = false
 //    var memories: RealmList<MemoryRealm> = realmListOf()
 }
 
@@ -37,6 +39,8 @@ fun FriendResponse.Result.asRealm() =
         phoneNumber = this@asRealm.phoneNumber ?: ""
         events = this@asRealm.events?.map { it.asRealm() }?.toRealmList() ?: realmListOf()
         profileImage = this@asRealm.profileImage?.asRealm()
+
+        isSynced = true
     }
 
 fun FriendResponse.Result.Event.asRealm() =

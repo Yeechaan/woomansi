@@ -4,6 +4,8 @@ import com.lee.remember.local.dao.AuthDao
 import com.lee.remember.local.dao.UserDao
 import com.lee.remember.local.model.asRealm
 import com.lee.remember.remote.AuthApi
+import com.lee.remember.remote.request.EmailRequest
+import com.lee.remember.remote.request.EmailResponse
 import com.lee.remember.remote.request.LoginRequest
 import com.lee.remember.remote.request.LoginResponse
 import com.lee.remember.remote.request.SignupRequest
@@ -50,6 +52,25 @@ class AuthRepository(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
                         authDao.updateAuth(it.result?.jwtToken ?: "", password)
+                        Result.success(it)
+                    } else {
+                        Result.failure(Exception(it.resultCode))
+                    }
+                },
+                onFailure = {
+                    Result.failure(Exception(it))
+                }
+            )
+        }
+
+    suspend fun sendEmailCode(email: String): Result<EmailResponse> =
+        withContext(Dispatchers.IO) {
+            val request = EmailRequest(email)
+            val result = authApi.sendEmailCode(request)
+
+            return@withContext result.fold(
+                onSuccess = {
+                    if (it.resultCode == "SUCCESS") {
                         Result.success(it)
                     } else {
                         Result.failure(Exception(it.resultCode))

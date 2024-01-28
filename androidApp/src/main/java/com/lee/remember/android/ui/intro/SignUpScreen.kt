@@ -149,13 +149,18 @@ fun SignUpScreen(navController: NavHostController, snackbarHostState: SnackbarHo
                 scope.launch {
                     loading = true
 
-                    val response = AuthApi().sendEmailCode(email)
-                    emailCode = response?.result?.code ?: ""
-                    loading = false
+                    val result = AuthRepository().sendEmailCode(email)
+                    result.fold(
+                        onSuccess = {
+                            emailCode = it.result?.code ?: ""
+                            openAlertDialog.value = true
+                        },
+                        onFailure = {
 
-                    if (response != null && response.resultCode == "SUCCESS") {
-                        openAlertDialog.value = true
-                    }
+                        }
+                    )
+
+                    loading = false
                 }
             },
             modifier = Modifier

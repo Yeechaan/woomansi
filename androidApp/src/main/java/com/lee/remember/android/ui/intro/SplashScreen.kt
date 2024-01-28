@@ -34,6 +34,14 @@ fun SplashScreen(
     val scope = rememberCoroutineScope()
     scope.launch {
         viewModel.uiState.collectLatest { uiState ->
+            if (uiState.isLocalMode == true) {
+                navController.navigate(RememberScreen.History.name) {
+                    popUpTo(RememberScreen.Splash.name) {
+                        inclusive = true
+                    }
+                }
+            }
+
             if (uiState.isFirst != null || uiState.isAuthSuccess != null){
                 if (uiState.isFirst == true) {
                     navController.navigate(RememberScreen.OnBoarding.name) {

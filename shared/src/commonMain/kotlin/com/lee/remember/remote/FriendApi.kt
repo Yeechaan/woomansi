@@ -87,9 +87,7 @@ class FriendApi {
         return if (response.status == HttpStatusCode.OK) response.body() else null
     }
 
-    suspend fun updateFriend(token: String, friendId: String, friend: FriendRequest): FriendDetailResponse? {
-        val token = AuthRepository().getToken() ?: ""
-
+    suspend fun updateFriend(token: String, friendId: String, friend: FriendRequest): Result<FriendDetailResponse> {
         val response = client.put("$friendUrl/$friendId") {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
@@ -99,10 +97,13 @@ class FriendApi {
             setBody(friend)
         }
 
-//        Napier.d("### ${response.bodyAsText()}")
         Napier.d("###updateFriend ${response.status}")
 
-        return if (response.status == HttpStatusCode.OK) response.body() else null
+        return if (response.status == HttpStatusCode.OK) {
+            Result.success(response.body())
+        } else {
+            Result.failure(Exception("Network response status : ${response.status}"))
+        }
     }
 
 }
