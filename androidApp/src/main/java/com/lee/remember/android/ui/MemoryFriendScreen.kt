@@ -38,15 +38,16 @@ import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.FeedViewModel
+import com.lee.remember.android.viewmodel.MemoryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendHistoryScreen(
+fun MemoryFriendScreen(
     navHostController: NavHostController, friendId: String?,
-    viewModel: FeedViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: MemoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
-    viewModel.initFeedFriendState(friendId?.toInt() ?: -1)
+    viewModel.getFriendName(friendId?.toInt() ?: -1)
+    viewModel.getFriendMemories(friendId?.toInt() ?: -1)
     val uiState by viewModel.uiState.collectAsState()
 
     Column {
@@ -73,7 +74,7 @@ fun FriendHistoryScreen(
                 .background(lightColor)
         ) {
             if (uiState.memories.isEmpty()) {
-                EmptyFriendHistoryScreen()
+                EmptyMemoryFriendScreen()
                 Image(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -94,7 +95,7 @@ fun FriendHistoryScreen(
                             modifier = Modifier
                                 .padding(vertical = 6.dp)
                         ) {
-                            FeedItem(
+                            MemoryItem(
                                 memory = item,
                                 isFriendInfoVisible = false,
                                 onUpdate = {
@@ -111,7 +112,7 @@ fun FriendHistoryScreen(
 
             FloatingActionButton(
                 onClick = {
-                    navHostController.navigate("${RememberScreen.HistoryAdd.name}/${friendId}")
+                    navHostController.navigate("${RememberScreen.MemoryAdd.name}/${friendId}")
                 },
                 containerColor = Color(0xFFF2C678),
                 contentColor = MaterialTheme.colorScheme.secondary,
@@ -130,7 +131,7 @@ fun FriendHistoryScreen(
 }
 
 @Composable
-fun EmptyFriendHistoryScreen() {
+fun EmptyMemoryFriendScreen() {
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Image(painter = painterResource(id = R.drawable.img_empty_history), contentDescription = null)
         Text(
@@ -143,6 +144,6 @@ fun EmptyFriendHistoryScreen() {
 
 @Preview
 @Composable
-fun PreviewFriendHistoryScreen() {
-    FriendHistoryScreen(rememberNavController(), null)
+fun PreviewMoemoryFriendScreen() {
+    MemoryFriendScreen(rememberNavController(), null)
 }

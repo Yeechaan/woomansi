@@ -18,16 +18,17 @@
     <string name="contact">contact</string>
     <string name="home">홈</string>
     <string name="history">친구</string>
-    <string name="feed">피드</string>
+    <string name="memory">피드</string>
     <string name="friend">친구</string>
 
     <string name="friend_profile">friend_profile</string>
-    <string name="friend_history">friend_history</string>
     <string name="friend_add">friend_add</string>
     <string name="friend_edit">friend_edit</string>
     <string name="friend_group">friend_group</string>
-    <string name="history_add">history_add</string>
-    <string name="history_edit">history_edit</string>
+
+    <string name="memory_friend">memory_friend</string>
+    <string name="memory_add">memory_add</string>
+    <string name="memory_edit">memory_edit</string>
     <string name="meeting">안부</string>
     <string name="my">my</string>
 

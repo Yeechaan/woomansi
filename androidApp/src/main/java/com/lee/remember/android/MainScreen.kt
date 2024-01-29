@@ -36,18 +36,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.ui.ContactScreen
-import com.lee.remember.android.ui.FeedScreen
+import com.lee.remember.android.ui.MemoryScreen
 import com.lee.remember.android.ui.FriendAddScreen
 import com.lee.remember.android.ui.FriendEditScreen
-import com.lee.remember.android.ui.FriendHistoryScreen
+import com.lee.remember.android.ui.MemoryFriendScreen
 import com.lee.remember.android.ui.FriendProfileScreen
 import com.lee.remember.android.ui.FriendScreen
-import com.lee.remember.android.ui.HistoryAddScreen
+import com.lee.remember.android.ui.MemoryAddScreen
 import com.lee.remember.android.ui.HistoryScreen
 import com.lee.remember.android.ui.FriendGroupScreen
-import com.lee.remember.android.ui.HistoryEditScreen
+import com.lee.remember.android.ui.MemoryEditScreen
 import com.lee.remember.android.ui.MeetingScreen
 import com.lee.remember.android.ui.intro.IntroScreen
 import com.lee.remember.android.ui.intro.LoginScreen
@@ -68,26 +67,28 @@ enum class RememberScreen(@StringRes val title: Int) {
     Terms(title = R.string.terms),
     SignUp(title = R.string.sign_up),
     UserName(title = R.string.user_name),
-
     Login(title = R.string.login),
     SelectContact(title = R.string.select_contact),
     Contact(title = R.string.select_contact),
+
     History(title = R.string.history),
     Friend(title = R.string.friend),
-    Feed(title = R.string.feed),
+    Memory(title = R.string.memory),
+
     FriendProfile(title = R.string.select_contact),
-    FriendHistory(title = R.string.friend_history),
     FriendAdd(title = R.string.friend_edit),
     FriendEdit(title = R.string.friend_edit),
     FriendGroup(title = R.string.friend_group),
-    HistoryAdd(title = R.string.history_add),
-    HistoryEdit(title = R.string.history_edit),
 
-    Meeting(title = R.string.feed),
+    MemoryFriend(title = R.string.memory_friend),
+    MemoryAdd(title = R.string.memory_add),
+    MemoryEdit(title = R.string.memory_edit),
+
+    Meeting(title = R.string.memory),
     My(title = R.string.my)
 }
 
-val mainScreens = listOf(RememberScreen.History.name, RememberScreen.Feed.name, RememberScreen.Friend.name)
+val mainScreens = listOf(RememberScreen.History.name, RememberScreen.Memory.name, RememberScreen.Friend.name)
 
 var accessToken: String = ""
 var selectedFriendGroup: String? = null
@@ -125,7 +126,7 @@ fun MainApp(
                             label = {
                                 val title = when (mainScreen) {
                                     RememberScreen.History.name -> stringResource(id = R.string.home)
-                                    RememberScreen.Feed.name -> stringResource(id = R.string.feed)
+                                    RememberScreen.Memory.name -> stringResource(id = R.string.memory)
                                     RememberScreen.Friend.name -> stringResource(id = R.string.friend)
                                     else -> ""
                                 }
@@ -138,7 +139,7 @@ fun MainApp(
                             icon = {
                                 val resourceId = when (mainScreen) {
                                     RememberScreen.History.name -> R.drawable.ic_home_off to R.drawable.ic_home_on
-                                    RememberScreen.Feed.name -> R.drawable.ic_feed_off to R.drawable.ic_feed_on
+                                    RememberScreen.Memory.name -> R.drawable.ic_feed_off to R.drawable.ic_feed_on
                                     RememberScreen.Friend.name -> R.drawable.ic_friend_off to R.drawable.ic_friend_on
                                     else -> R.drawable.ic_dot to R.drawable.ic_dot
                                 }
@@ -206,8 +207,8 @@ fun MainApp(
             composable(route = RememberScreen.Friend.name) {
                 FriendScreen(navController)
             }
-            composable(route = RememberScreen.Feed.name) {
-                FeedScreen(navController)
+            composable(route = RememberScreen.Memory.name) {
+                MemoryScreen(navController)
             }
             composable(
                 route = "${RememberScreen.FriendProfile.name}/{friendId}",
@@ -217,11 +218,11 @@ fun MainApp(
                 FriendProfileScreen(navHostController = navController, friendId)
             }
             composable(
-                route = "${RememberScreen.FriendHistory.name}/{friendId}",
+                route = "${RememberScreen.MemoryFriend.name}/{friendId}",
                 arguments = listOf(navArgument("friendId") { type = NavType.StringType })
             ) {
                 val friendId = it.arguments?.getString("friendId")
-                FriendHistoryScreen(navHostController = navController, friendId)
+                MemoryFriendScreen(navHostController = navController, friendId)
             }
             composable(
                 route = "${RememberScreen.FriendAdd.name}/{name}/{number}",
@@ -243,18 +244,18 @@ fun MainApp(
             }
 
             composable(
-                route = "${RememberScreen.HistoryAdd.name}/{friendId}",
+                route = "${RememberScreen.MemoryAdd.name}/{friendId}",
                 arguments = listOf(navArgument("friendId") { type = NavType.StringType })
             ) {
                 val friendId = it.arguments?.getString("friendId")
-                HistoryAddScreen(navHostController = navController, friendId)
+                MemoryAddScreen(navHostController = navController, friendId)
             }
             composable(
-                route = "${RememberScreen.HistoryEdit.name}/{memoryId}",
+                route = "${RememberScreen.MemoryEdit.name}/{memoryId}",
                 arguments = listOf(navArgument("memoryId") { type = NavType.StringType })
             ) {
                 val friendId = it.arguments?.getString("memoryId")
-                HistoryEditScreen(navHostController = navController, friendId)
+                MemoryEditScreen(navHostController = navController, friendId)
             }
 
             composable(route = RememberScreen.Meeting.name) {

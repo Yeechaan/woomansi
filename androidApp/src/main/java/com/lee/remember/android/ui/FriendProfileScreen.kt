@@ -24,11 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,17 +39,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.accessToken
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.local.model.FriendRealm
-import com.lee.remember.remote.FriendApi
 import com.lee.remember.repository.FriendRepository
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 
 // 0xFF1D1B20
 val fontColorBlack = Color(0xFF1D1B20)
@@ -133,7 +122,7 @@ fun FriendProfileScreen(navHostController: NavHostController, friendId: String?)
         }
 
         RememberOutlinedButton(text = "친구 기록 보기", onClick = {
-            navHostController.navigate("${RememberScreen.FriendHistory.name}/${friendId}")
+            navHostController.navigate("${RememberScreen.MemoryFriend.name}/${friendId}")
         })
     }
 }

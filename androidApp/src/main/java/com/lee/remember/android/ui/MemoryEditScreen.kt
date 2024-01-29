@@ -1,5 +1,6 @@
 package com.lee.remember.android.ui
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -23,8 +24,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,8 +35,6 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -47,7 +44,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -69,73 +66,55 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
-import com.lee.remember.android.accessToken
-import com.lee.remember.android.utils.RememberModalBottomSheet
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextField.placeHolder
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.local.dao.FriendDao
-import com.lee.remember.local.dao.MemoryDao
 import com.lee.remember.local.model.MemoryRealm
-import com.lee.remember.remote.FriendApi
-import com.lee.remember.remote.MemoryApi
-import com.lee.remember.remote.request.MemoryRequest
+import com.lee.remember.remote.request.MemoryUpdateRequest
 import com.lee.remember.repository.MemoryRepository
-import io.github.aakira.napier.Napier
-import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.launch
-import java.util.Calendar
-
-//0xFFD59519
-val fontPointColor = Color(0xFFD59519)
-val fontHintColor = Color(0x4D000000)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
+fun MemoryEditScreen(navHostController: NavHostController, memoryId: String?) {
     val scrollState = rememberScrollState()
 
-    var name by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
-    var date by remember { mutableStateOf(today) }
+    val memory = MemoryRepository().getMemory(memoryId?.toInt() ?: -1) ?: MemoryRealm()
+    val friend = memory.friends.first()
+    val friendId = friend.id
+
+    var name by remember { mutableStateOf(friend.name) }
+//    var phoneNumber by remember { mutableStateOf("") }
+//    val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
+    val savedDate = parseUtcString(memory.date)
+    var date by remember { mutableStateOf(savedDate) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    LaunchedEffect(null) {
-        try {
-            val response = FriendApi().getFriend(accessToken, friendId ?: "")
-
-            if (response != null) {
-//                Napier.d("###hi ${response}")
-
-                response.result?.let {
-                    name = it.name
-                    phoneNumber = it.phoneNumber ?: ""
-                }
-
-                response.toString()
-            }
-        } catch (e: Exception) {
-            Napier.d("### ${e.localizedMessage}")
-            e.localizedMessage ?: "error"
-        }
-    }
 
     val friends by rememberSaveable {
         mutableStateOf(
-            FriendDao().getFriends().filter { it.id.toString() != friendId }.map {
-                Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = false)
+            FriendDao().getFriends().filter { it.id != friendId }.map {
+                val isChecked = memory.friends.any { friend -> it.id == friend.id }
+                Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = isChecked)
             }.toMutableList()
         )
     }
 
+    var savedImage by remember { mutableStateOf(memory.images.firstOrNull() ?: "") }
     var selectedImage by remember { mutableStateOf<Uri?>(null) }
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> uri?.let { selectedImage = uri } }
+        onResult = { uri ->
+            uri?.let {
+                selectedImage = uri
+                savedImage = ""
+            }
+        }
     )
 
     fun launchPhotoPicker() {
@@ -150,8 +129,8 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
             .background(Color.White)
             .verticalScroll(scrollState)
     ) {
-        var title by remember { mutableStateOf("") }
-        var content by remember { mutableStateOf("") }
+        var title by remember { mutableStateOf(memory.title) }
+        var content by remember { mutableStateOf(memory.description) }
 
         TopAppBar(
             modifier = Modifier.shadow(10.dp),
@@ -173,22 +152,26 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
                 TextButton(onClick = {
                     scope.launch {
                         val bitmapImage = uriToBitmapString(context, selectedImage)
+                        val images = mutableListOf<MemoryUpdateRequest.Image>()
+                        if (bitmapImage.isNotEmpty()) images.add(MemoryUpdateRequest.Image(image = bitmapImage))
+                        if (savedImage.isNotEmpty()) images.add(MemoryUpdateRequest.Image(image = savedImage))
 
                         // remote
-                        val addedFriends = mutableListOf(friendId?.toInt() ?: -1)
+                        val addedFriends = mutableListOf(friendId)
                         friends.filter { it.isChecked }.map {
                             addedFriends.add(it.id.toInt())
                         }
 
-                        val request = MemoryRequest(
+                        val request = MemoryUpdateRequest(
                             title = title,
                             description = content,
                             date = date,
                             friendIds = addedFriends,
-                            images = listOf(MemoryRequest.Image(bitmapImage))
+                            images = images
                         )
 
-                        val result = MemoryRepository().addMemory(request)
+                        val result = MemoryRepository().updateMemory(memory.id, request)
+//                        val result = MemoryRepository().addMemory(request)
                         result.fold(
                             onSuccess = {
                                 navHostController.navigateUp()
@@ -278,22 +261,34 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
             launchPhotoPicker()
         })
 
-        if (selectedImage != null) {
+        if (selectedImage != null || savedImage.isNotEmpty()) {
             Card(
                 Modifier
                     .height(180.dp)
                     .padding(top = 12.dp, bottom = 12.dp, start = 16.dp, end = 16.dp)
             ) {
                 Box(Modifier.fillMaxWidth()) {
-                    AsyncImage(
-                        model = selectedImage,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxWidth(),
-                        contentScale = ContentScale.Crop
-                    )
+                    if (selectedImage != null) {
+                        AsyncImage(
+                            model = selectedImage,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        val bitmap: Bitmap? = stringToBitmap(savedImage)
+                        bitmap?.let {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
                     IconButton(
                         modifier = Modifier.align(Alignment.TopEnd),
                         onClick = {
+                            savedImage = ""
                             selectedImage = null
                         }) {
                         Icon(painter = painterResource(id = R.drawable.ic_cancel), contentDescription = "cancel", tint = Color.White)
@@ -312,6 +307,7 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
         var showBottomSheet by remember { mutableStateOf(false) }
 
         var isFriendEmpty by remember { mutableStateOf(true) }
+        isFriendEmpty = friends.none { it.isChecked }
 
         if (isFriendEmpty) {
             Button(
@@ -353,152 +349,70 @@ fun HistoryAddScreen(navHostController: NavHostController, friendId: String?) {
             }
         }
 
-
-
-        RememberModalBottomSheet(showSheet = showBottomSheet, onDismissRequest = { /*TODO*/ }) {
+        if (showBottomSheet) {
             val tempFriends = mutableListOf<Contract>()
             tempFriends.clear()
             tempFriends.addAll(friends)
 
-            LazyColumn(
-                Modifier.padding(start = 16.dp, end = 16.dp)
+            ModalBottomSheet(
+                modifier = Modifier,
+                containerColor = Color.White,
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = sheetState,
             ) {
-                items(tempFriends) { message ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = message.name,
-                            style = getTextStyle(textStyle = RememberTextStyle.BODY_1B)
-                        )
-                        Text(text = message.number, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
+                LazyColumn(
+                    Modifier.padding(start = 16.dp, end = 16.dp)
+                ) {
+                    items(tempFriends) { message ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                modifier = Modifier.weight(1f),
+                                text = message.name,
+                                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B)
+                            )
+                            Text(text = message.number, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
 
-                        val checkedState = remember { mutableStateOf(message.isChecked) }
-                        Checkbox(
-                            checked = checkedState.value,
-                            onCheckedChange = {
-                                tempFriends.find { it.number == message.number }?.isChecked = it
-                                checkedState.value = it
-                            },
-                            colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
-                        )
-                    }
-                }
-            }
-
-            TextButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-//                    .padding(bottom = 40.dp)
-                    .background(Color(0xFFF2BE2F)),
-                onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            friends.clear()
-                            friends.addAll(tempFriends)
-                            isFriendEmpty = friends.none { it.isChecked }
-
-                            showBottomSheet = false
+                            val checkedState = remember { mutableStateOf(message.isChecked) }
+                            Checkbox(
+                                checked = checkedState.value,
+                                onCheckedChange = {
+                                    tempFriends.find { it.number == message.number }?.isChecked = it
+                                    checkedState.value = it
+                                },
+                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
+                            )
                         }
                     }
-                }) {
-                Text(
-                    text = "선택완료",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E))
-                )
+                }
+
+                TextButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 40.dp)
+                        .background(Color(0xFFF2BE2F)),
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                friends.clear()
+                                friends.addAll(tempFriends)
+                                isFriendEmpty = friends.none { it.isChecked }
+
+                                showBottomSheet = false
+                            }
+                        }
+                    }) {
+                    Text(
+                        text = "선택완료",
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E))
+                    )
+                }
             }
         }
-
-//        if (showBottomSheet) {
-//            val tempFriends = mutableListOf<Contract>()
-//            tempFriends.clear()
-//            tempFriends.addAll(friends)
-//
-//            ModalBottomSheet(
-//                modifier = Modifier,
-//                containerColor = Color.White,
-//                onDismissRequest = { showBottomSheet = false },
-//                sheetState = sheetState,
-//            ) {
-//                LazyColumn(
-//                    Modifier.padding(start = 16.dp, end = 16.dp)
-//                ) {
-//                    items(tempFriends) { message ->
-//                        Row(verticalAlignment = Alignment.CenterVertically) {
-//                            Text(
-//                                modifier = Modifier.weight(1f),
-//                                text = message.name,
-//                                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B)
-//                            )
-//                            Text(text = message.number, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
-//
-//                            val checkedState = remember { mutableStateOf(message.isChecked) }
-//                            Checkbox(
-//                                checked = checkedState.value,
-//                                onCheckedChange = {
-//                                    tempFriends.find { it.number == message.number }?.isChecked = it
-//                                    checkedState.value = it
-//                                },
-//                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
-//                            )
-//                        }
-//                    }
-//                }
-//
-//                TextButton(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(bottom = 40.dp)
-//                        .background(Color(0xFFF2BE2F)),
-//                    onClick = {
-//                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-//                            if (!sheetState.isVisible) {
-//                                friends.clear()
-//                                friends.addAll(tempFriends)
-//                                isFriendEmpty = friends.none { it.isChecked }
-//
-//                                showBottomSheet = false
-//                            }
-//                        }
-//                    }) {
-//                    Text(
-//                        text = "선택완료",
-//                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E))
-//                    )
-//                }
-//            }
-//        }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun InputChipExample(
-    text: String,
-    onClick: () -> Unit,
-) {
-    var enabled by remember { mutableStateOf(true) }
-    if (!enabled) return
-
-    InputChip(
-        modifier = Modifier.padding(start = 8.dp),
-        colors = InputChipDefaults.inputChipColors(
-            selectedContainerColor = Color(0xFFF8F1DE),
-            containerColor = Color(0xFFF8F1DE),
-            labelColor = Color.White
-        ),
-        onClick = {
-            onClick()
-            enabled = !enabled
-        },
-        label = { Text(text, style = getTextStyle(textStyle = RememberTextStyle.BODY_4B)) },
-        selected = enabled,
-        leadingIcon = { Image(painterResource(id = R.drawable.ic_user), contentDescription = "Localized description") },
-        trailingIcon = { Icon(Icons.Default.Close, contentDescription = "Localized description") },
-    )
 }
 
 @Preview
 @Composable
-fun PreviewHistoryAddScreen() {
-    HistoryAddScreen(rememberNavController(), null)
+fun PreviewMemoryEditScreen() {
+    MemoryEditScreen(rememberNavController(), null)
 }

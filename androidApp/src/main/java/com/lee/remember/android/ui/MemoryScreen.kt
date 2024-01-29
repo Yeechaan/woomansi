@@ -51,16 +51,16 @@ import com.lee.remember.android.rememberFontFamily
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
-import com.lee.remember.android.viewmodel.FeedViewModel
+import com.lee.remember.android.viewmodel.MemoryViewModel
 import com.lee.remember.model.Memory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedScreen(
+fun MemoryScreen(
     navHostController: NavHostController,
-    viewModel: FeedViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: MemoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
-    viewModel.initFeedState()
+    viewModel.getAllMemories()
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
@@ -70,7 +70,7 @@ fun FeedScreen(
     ) {
         if (uiState.memories.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize()) {
-                EmptyFeedScreen()
+                EmptyMemoryScreen()
                 Image(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -92,10 +92,10 @@ fun FeedScreen(
                         border = BorderStroke(1.dp, color = Color(0xFFD8D8D8)),
                         modifier = Modifier.padding(vertical = 6.dp)
                     ) {
-                        FeedItem(
+                        MemoryItem(
                             memory = item,
                             onUpdate = {
-                                navHostController.navigate("${RememberScreen.HistoryEdit.name}/${item.id}")
+                                navHostController.navigate("${RememberScreen.MemoryEdit.name}/${item.id}")
                             },
                             onDelete = {
                                 viewModel.deleteMemory(item.id)
@@ -110,7 +110,7 @@ fun FeedScreen(
 }
 
 @Composable
-fun EmptyFeedScreen() {
+fun EmptyMemoryScreen() {
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Image(painter = painterResource(id = R.drawable.img_empty_history), contentDescription = null)
         Text(
@@ -123,7 +123,7 @@ fun EmptyFeedScreen() {
 }
 
 @Composable
-fun FeedItem(memory: Memory, isFriendInfoVisible: Boolean = true, onUpdate: () -> Unit, onDelete: () -> Unit) {
+fun MemoryItem(memory: Memory, isFriendInfoVisible: Boolean = true, onUpdate: () -> Unit, onDelete: () -> Unit) {
     Column(
         Modifier.background(Color.White)
     ) {
@@ -269,8 +269,8 @@ fun FeedItem(memory: Memory, isFriendInfoVisible: Boolean = true, onUpdate: () -
 
 @Preview
 @Composable
-fun PreviewFeedScreen() {
+fun PreviewMemoryScreen() {
 //    FeedScreen(rememberNavController())
 
-    FeedItem(Memory(title = "libris", description = "curae"), true, {}, {})
+    MemoryItem(Memory(title = "libris", description = "curae"), true, {}, {})
 }

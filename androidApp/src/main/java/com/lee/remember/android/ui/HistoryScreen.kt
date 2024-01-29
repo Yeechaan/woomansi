@@ -238,7 +238,7 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
             Column(modifier = Modifier
                 .clickable {
                     val friendId = friendProfile.id
-                    navHostController.navigate("${RememberScreen.FriendHistory.name}/${friendId}")
+                    navHostController.navigate("${RememberScreen.MemoryFriend.name}/${friendId}")
                 }
                 .fillMaxSize()
                 .background(whiteColor)
