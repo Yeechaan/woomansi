@@ -78,6 +78,7 @@ import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.request.FriendRequest
+import com.lee.remember.remote.request.MemoryUpdateRequest
 import com.lee.remember.repository.FriendRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
@@ -156,7 +157,6 @@ fun FriendEditScreen(
         }
         val context = LocalContext.current
 
-
         val apiScope = rememberCoroutineScope()
 
         val appBarTitle = if (friendId == null || friendId == "-1") "추가" else "수정"
@@ -172,35 +172,38 @@ fun FriendEditScreen(
                         .clickable {
                             apiScope.launch() {
 //                    try {
-                                var profileImage = ""
-
-                                if (savedImage.isNotEmpty()) {
-                                    profileImage = savedImage
-                                } else {
-                                    selectedImage?.let {
-                                        val bitmap = if (Build.VERSION.SDK_INT >= 28) {
-                                            val source = ImageDecoder.createSource(context.contentResolver, it)
-                                            ImageDecoder.decodeBitmap(source)
-                                        } else {
-                                            MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-                                        }
-
-                                        withContext(Dispatchers.IO) {
-//                            val quality = 50
-//                            val scaleDownBitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width * quality).toInt(), (bitmap.height * quality).toInt(), true)
-                                            profileImage = bitmapToString(bitmap)
-                                        }
+//                                var profileImage = ""
+//
+//                                if (savedImage.isNotEmpty()) {
+//                                    profileImage = savedImage
+//                                } else {
+//                                    selectedImage?.let {
+//                                        val bitmap = if (Build.VERSION.SDK_INT >= 28) {
+//                                            val source = ImageDecoder.createSource(context.contentResolver, it)
+//                                            ImageDecoder.decodeBitmap(source)
+//                                        } else {
+//                                            MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+//                                        }
+//
+//                                        withContext(Dispatchers.IO) {
+////                            val quality = 50
+////                            val scaleDownBitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width * quality).toInt(), (bitmap.height * quality).toInt(), true)
+//                                            profileImage = bitmapToString(bitmap)
+//                                        }
 
 //                        profileImage = bitmapToString(bitmap)
-                                    }
-                                }
+//                                    }
+//                                }
 
 //                    profileImage = test(context, selectedImage)
-                                Napier.d("@@@ui ${profileImage.length}")
 
 //                        selectedImage?.let {
 //                            saveImageToInternalStorage(context, it)
 //                        }
+                                var profileImage = ""
+                                val bitmapImage = uriToBitmapString(context, selectedImage)
+                                if (savedImage.isNotEmpty()) profileImage = savedImage
+                                if (bitmapImage.isNotEmpty()) profileImage = bitmapImage
 
                                 val friendRequest = FriendRequest(
                                     name = name,
@@ -283,29 +286,56 @@ fun FriendEditScreen(
                 .clickable { launchPhotoPicker() },
             contentAlignment = Alignment.Center
         ) {
-            if (savedImage.isNotEmpty()) {
-                val bitmap: Bitmap? = stringToBitmap(savedImage)
-                bitmap?.let {
-                    Image(
-                        bitmap = bitmap.asImageBitmap(), contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            } else if (selectedImage != null) {
+            if (selectedImage != null) {
                 AsyncImage(
                     model = selectedImage,
                     contentDescription = null,
                     contentScale = ContentScale.Crop
                 )
             } else {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_camera_32),
-                    contentDescription = "",
-                    colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
-                    modifier = Modifier.padding(40.dp),
-                )
+                if (savedImage.isNotEmpty()) {
+                    val bitmap: Bitmap? = stringToBitmap(savedImage)
+                    bitmap?.let {
+                        Image(
+                            bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_camera_32),
+                        contentDescription = "",
+                        colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
+                        modifier = Modifier.padding(40.dp),
+                    )
+                }
             }
+
+
+//            if (savedImage.isNotEmpty()) {
+//                val bitmap: Bitmap? = stringToBitmap(savedImage)
+//                bitmap?.let {
+//                    Image(
+//                        bitmap = bitmap.asImageBitmap(), contentDescription = null,
+//                        contentScale = ContentScale.Crop,
+//                        modifier = Modifier.fillMaxSize()
+//                    )
+//                }
+//            } else if (selectedImage != null) {
+//                AsyncImage(
+//                    model = selectedImage,
+//                    contentDescription = null,
+//                    contentScale = ContentScale.Crop
+//                )
+//            } else {
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_camera_32),
+//                    contentDescription = "",
+//                    colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
+//                    modifier = Modifier.padding(40.dp),
+//                )
+//            }
         }
 
         Column(

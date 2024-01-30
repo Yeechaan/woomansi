@@ -3,10 +3,13 @@ package com.lee.remember.android.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lee.remember.local.dao.FriendDao
+import com.lee.remember.local.model.UserRealm
 import com.lee.remember.model.Memory
 import com.lee.remember.model.asData
 import com.lee.remember.remote.request.MemoryRequest
+import com.lee.remember.remote.request.MemoryUpdateRequest
 import com.lee.remember.repository.MemoryRepository
+import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,12 +28,14 @@ data class MemoryUiState(
 
 class MemoryViewModel(
     val memoryRepository: MemoryRepository = MemoryRepository(),
+    val userRepository: UserRepository = UserRepository(),
     val friendDao: FriendDao = FriendDao(),
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MemoryUiState())
     val uiState: StateFlow<MemoryUiState> = _uiState.asStateFlow()
 
+    val user = userRepository.getUser() ?: UserRealm()
 
     fun getAllMemories() {
         viewModelScope.launch {
@@ -77,7 +82,31 @@ class MemoryViewModel(
 
     fun addMemory(request: MemoryRequest) {
         viewModelScope.launch {
-            val result = memoryRepository.addMemory(request)
+            val result = if (user.isLocalMode) {
+                memoryRepository.addMemoryToLocal(request)
+            } else {
+                memoryRepository.addMemory(request)
+            }
+
+            result.fold(
+                onSuccess = {
+                    _uiState.update { it.copy(loading = false, success = true) }
+                },
+                onFailure = {
+                    _uiState.update { it.copy(loading = false, message = it.message) }
+                }
+            )
+        }
+    }
+
+    fun updateMemory(memoryId: Int, request: MemoryUpdateRequest) {
+        viewModelScope.launch {
+            val result = if (user.isLocalMode) {
+                memoryRepository.updateMemoryToLocal(memoryId, request)
+            } else {
+                memoryRepository.updateMemory(memoryId, request)
+            }
+
             result.fold(
                 onSuccess = {
                     _uiState.update { it.copy(loading = false, success = true) }
@@ -91,7 +120,11 @@ class MemoryViewModel(
 
     fun deleteMemory(memoryId: Int) {
         viewModelScope.launch {
-            memoryRepository.deleteMemory(memoryId)
+            if (user.isLocalMode) {
+                memoryRepository.deleteMemoryToLocal(memoryId)
+            } else {
+                memoryRepository.deleteMemory(memoryId)
+            }
         }
     }
 

@@ -2,8 +2,12 @@ package com.lee.remember.android
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -119,7 +123,7 @@ fun MainApp(
         bottomBar = {
             if (mainScreens.contains(currentScreen)) {
                 BottomNavigation(
-                    backgroundColor = Color.White
+                    backgroundColor = Color.White,
                 ) {
                     mainScreens.forEach { mainScreen ->
                         BottomNavigationItem(
@@ -172,6 +176,7 @@ fun MainApp(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+//                .systemBarsPadding().statusBarsPadding().navigationBarsPadding()
         ) {
             composable(route = RememberScreen.Splash.name) {
                 SplashScreen(navController)

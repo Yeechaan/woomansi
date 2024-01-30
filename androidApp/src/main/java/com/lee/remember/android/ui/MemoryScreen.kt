@@ -141,7 +141,7 @@ fun MemoryItem(memory: Memory, isFriendInfoVisible: Boolean = true, onUpdate: ()
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.img_media),
+                        painter = painterResource(id = R.drawable.ic_camera_32),
                         contentDescription = "",
                         colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
                         modifier = Modifier.padding(6.dp),
@@ -191,7 +191,7 @@ fun MemoryItem(memory: Memory, isFriendInfoVisible: Boolean = true, onUpdate: ()
             ) {
                 Text(text = memory.title, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B), color = fontColorBlack)
                 Text(
-                    text = parseUtcString(memory.date),
+                    text = memory.date,
                     fontSize = 10.sp,
                     color = fontColorBlack,
                     fontFamily = rememberFontFamily,

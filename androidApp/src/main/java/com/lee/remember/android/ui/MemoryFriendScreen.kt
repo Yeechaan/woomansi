@@ -99,9 +99,9 @@ fun MemoryFriendScreen(
                                 memory = item,
                                 isFriendInfoVisible = false,
                                 onUpdate = {
-//                                viewModel.
+                                    navHostController.navigate("${RememberScreen.MemoryEdit.name}/${item.id}")
                                 },
-                                onDelete = {
+                                onDelete = {    
                                     viewModel.deleteMemory(item.id)
                                 }
                             )

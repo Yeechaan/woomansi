@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -38,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -70,6 +74,7 @@ import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.accessToken
+import com.lee.remember.android.bottomPadding
 import com.lee.remember.android.utils.RememberModalBottomSheet
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextField
@@ -99,34 +104,21 @@ fun MemoryAddScreen(
     viewModel.getFriendName(friendId?.toInt() ?: -1)
     val uiState by viewModel.uiState.collectAsState()
 
+    if (uiState.success) {
+        viewModel.resetUiState()
+        navHostController.navigateUp()
+    }
+    if (uiState.loading) {
+        // Todo 로딩 처리
+    }
+
+
     val scrollState = rememberScrollState()
 
-    var name by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
     val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
     var date by remember { mutableStateOf(today) }
 
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-//    LaunchedEffect(null) {
-//        try {
-//            val response = FriendApi().getFriend(accessToken, friendId ?: "")
-//
-//            if (response != null) {
-////                Napier.d("###hi ${response}")
-//
-//                response.result?.let {
-//                    name = it.name
-//                    phoneNumber = it.phoneNumber ?: ""
-//                }
-//
-//                response.toString()
-//            }
-//        } catch (e: Exception) {
-//            Napier.d("### ${e.localizedMessage}")
-//            e.localizedMessage ?: "error"
-//        }
-//    }
 
     val friends by rememberSaveable {
         mutableStateOf(
@@ -175,33 +167,51 @@ fun MemoryAddScreen(
             },
             actions = {
                 TextButton(onClick = {
-                    scope.launch {
-                        val bitmapImage = uriToBitmapString(context, selectedImage)
+                    val bitmapImage = uriToBitmapString(context, selectedImage)
 
-                        // remote
-                        val addedFriends = mutableListOf(friendId?.toInt() ?: -1)
-                        friends.filter { it.isChecked }.map {
-                            addedFriends.add(it.id.toInt())
-                        }
-
-                        val request = MemoryRequest(
-                            title = title,
-                            description = content,
-                            date = date,
-                            friendIds = addedFriends,
-                            images = listOf(MemoryRequest.Image(bitmapImage))
-                        )
-
-                        val result = MemoryRepository().addMemory(request)
-                        result.fold(
-                            onSuccess = {
-                                navHostController.navigateUp()
-                            },
-                            onFailure = {
-                                // SnackBar
-                            }
-                        )
+                    // remote
+                    val addedFriends = mutableListOf(friendId?.toInt() ?: -1)
+                    friends.filter { it.isChecked }.map {
+                        addedFriends.add(it.id.toInt())
                     }
+
+                    val request = MemoryRequest(
+                        title = title,
+                        description = content,
+                        date = date,
+                        friendIds = addedFriends,
+                        images = listOf(MemoryRequest.Image(bitmapImage))
+                    )
+
+                    viewModel.addMemory(request)
+
+//                    scope.launch {
+//                        val bitmapImage = uriToBitmapString(context, selectedImage)
+//
+//                        // remote
+//                        val addedFriends = mutableListOf(friendId?.toInt() ?: -1)
+//                        friends.filter { it.isChecked }.map {
+//                            addedFriends.add(it.id.toInt())
+//                        }
+//
+//                        val request = MemoryRequest(
+//                            title = title,
+//                            description = content,
+//                            date = date,
+//                            friendIds = addedFriends,
+//                            images = listOf(MemoryRequest.Image(bitmapImage))
+//                        )
+//
+//                        val result = MemoryRepository().addMemory(request)
+//                        result.fold(
+//                            onSuccess = {
+//                                navHostController.navigateUp()
+//                            },
+//                            onFailure = {
+//                                // SnackBar
+//                            }
+//                        )
+//                    }
 
                 }) {
                     Text(text = "완료", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF49454F)))
@@ -359,118 +369,118 @@ fun MemoryAddScreen(
 
 
 
-        RememberModalBottomSheet(showSheet = showBottomSheet, onDismissRequest = { /*TODO*/ }) {
-            val tempFriends = mutableListOf<Contract>()
-            tempFriends.clear()
-            tempFriends.addAll(friends)
-
-            LazyColumn(
-                Modifier.padding(start = 16.dp, end = 16.dp)
-            ) {
-                items(tempFriends) { message ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = message.name,
-                            style = getTextStyle(textStyle = RememberTextStyle.BODY_1B)
-                        )
-                        Text(text = message.number, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
-
-                        val checkedState = remember { mutableStateOf(message.isChecked) }
-                        Checkbox(
-                            checked = checkedState.value,
-                            onCheckedChange = {
-                                tempFriends.find { it.number == message.number }?.isChecked = it
-                                checkedState.value = it
-                            },
-                            colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
-                        )
-                    }
-                }
-            }
-
-            TextButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-//                    .padding(bottom = 40.dp)
-                    .background(Color(0xFFF2BE2F)),
-                onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            friends.clear()
-                            friends.addAll(tempFriends)
-                            isFriendEmpty = friends.none { it.isChecked }
-
-                            showBottomSheet = false
-                        }
-                    }
-                }) {
-                Text(
-                    text = "선택완료",
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E))
-                )
-            }
-        }
-
-//        if (showBottomSheet) {
+//        RememberModalBottomSheet(showSheet = showBottomSheet, onDismissRequest = { /*TODO*/ }) {
 //            val tempFriends = mutableListOf<Contract>()
 //            tempFriends.clear()
 //            tempFriends.addAll(friends)
 //
-//            ModalBottomSheet(
-//                modifier = Modifier,
-//                containerColor = Color.White,
-//                onDismissRequest = { showBottomSheet = false },
-//                sheetState = sheetState,
+//            LazyColumn(
+//                Modifier.padding(start = 16.dp, end = 16.dp)
 //            ) {
-//                LazyColumn(
-//                    Modifier.padding(start = 16.dp, end = 16.dp)
-//                ) {
-//                    items(tempFriends) { message ->
-//                        Row(verticalAlignment = Alignment.CenterVertically) {
-//                            Text(
-//                                modifier = Modifier.weight(1f),
-//                                text = message.name,
-//                                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B)
-//                            )
-//                            Text(text = message.number, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
+//                items(tempFriends) { message ->
+//                    Row(verticalAlignment = Alignment.CenterVertically) {
+//                        Text(
+//                            modifier = Modifier.weight(1f),
+//                            text = message.name,
+//                            style = getTextStyle(textStyle = RememberTextStyle.BODY_1B)
+//                        )
+//                        Text(text = message.number, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
 //
-//                            val checkedState = remember { mutableStateOf(message.isChecked) }
-//                            Checkbox(
-//                                checked = checkedState.value,
-//                                onCheckedChange = {
-//                                    tempFriends.find { it.number == message.number }?.isChecked = it
-//                                    checkedState.value = it
-//                                },
-//                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
-//                            )
-//                        }
+//                        val checkedState = remember { mutableStateOf(message.isChecked) }
+//                        Checkbox(
+//                            checked = checkedState.value,
+//                            onCheckedChange = {
+//                                tempFriends.find { it.number == message.number }?.isChecked = it
+//                                checkedState.value = it
+//                            },
+//                            colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
+//                        )
 //                    }
 //                }
+//            }
 //
-//                TextButton(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(bottom = 40.dp)
-//                        .background(Color(0xFFF2BE2F)),
-//                    onClick = {
-//                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-//                            if (!sheetState.isVisible) {
-//                                friends.clear()
-//                                friends.addAll(tempFriends)
-//                                isFriendEmpty = friends.none { it.isChecked }
+//            TextButton(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(bottom = 56.dp)
+//                    .background(Color(0xFFF2BE2F)),
+//                onClick = {
+//                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+//                        if (!sheetState.isVisible) {
+//                            friends.clear()
+//                            friends.addAll(tempFriends)
+//                            isFriendEmpty = friends.none { it.isChecked }
 //
-//                                showBottomSheet = false
-//                            }
+//                            showBottomSheet = false
 //                        }
-//                    }) {
-//                    Text(
-//                        text = "선택완료",
-//                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E))
-//                    )
-//                }
+//                    }
+//                }) {
+//                Text(
+//                    text = "선택완료",
+//                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E))
+//                )
 //            }
 //        }
+
+        if (showBottomSheet) {
+            val tempFriends = mutableListOf<Contract>()
+            tempFriends.clear()
+            tempFriends.addAll(friends)
+
+            ModalBottomSheet(
+                modifier = Modifier,
+                containerColor = Color.White,
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = sheetState,
+            ) {
+                LazyColumn(
+                    Modifier.padding(start = 16.dp, end = 16.dp)
+                ) {
+                    items(tempFriends) { message ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                modifier = Modifier.weight(1f),
+                                text = message.name,
+                                style = getTextStyle(textStyle = RememberTextStyle.BODY_1B)
+                            )
+                            Text(text = message.number, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
+
+                            val checkedState = remember { mutableStateOf(message.isChecked) }
+                            Checkbox(
+                                checked = checkedState.value,
+                                onCheckedChange = {
+                                    tempFriends.find { it.number == message.number }?.isChecked = it
+                                    checkedState.value = it
+                                },
+                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
+                            )
+                        }
+                    }
+                }
+
+                TextButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 56.dp)
+                        .background(Color(0xFFF2BE2F)),
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                friends.clear()
+                                friends.addAll(tempFriends)
+                                isFriendEmpty = friends.none { it.isChecked }
+
+                                showBottomSheet = false
+                            }
+                        }
+                    }) {
+                    Text(
+                        text = "선택완료",
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E))
+                    )
+                }
+            }
+        }
     }
 }
 
