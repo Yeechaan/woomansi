@@ -37,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -84,6 +85,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MemoryEditScreen(
     navHostController: NavHostController,
+    snackbarHostState: SnackbarHostState,
     memoryId: String?,
     viewModel: MemoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
@@ -169,6 +171,10 @@ fun MemoryEditScreen(
             actions = {
                 TextButton(onClick = {
                     scope.launch {
+                        if (title.isEmpty()) {
+                            snackbarHostState.showSnackbar("제목을 입력해 주세요")
+                        }
+
                         val bitmapImage = uriToBitmapString(context, selectedImage)
                         val images = mutableListOf<MemoryUpdateRequest.Image>()
                         if (bitmapImage.isNotEmpty()) images.add(MemoryUpdateRequest.Image(image = bitmapImage))
@@ -434,5 +440,5 @@ fun MemoryEditScreen(
 @Preview
 @Composable
 fun PreviewMemoryEditScreen() {
-    MemoryEditScreen(rememberNavController(), null)
+    MemoryEditScreen(rememberNavController(), SnackbarHostState(), null)
 }

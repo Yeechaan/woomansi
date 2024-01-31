@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -94,13 +95,12 @@ enum class RememberScreen(@StringRes val title: Int) {
 
 val mainScreens = listOf(RememberScreen.History.name, RememberScreen.Memory.name, RememberScreen.Friend.name)
 
-var accessToken: String = ""
 var selectedFriendGroup: String? = null
 var bottomPadding: Dp = 0.dp
 
 @Composable
 fun MainApp(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
 ) {
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -114,7 +114,7 @@ fun MainApp(
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             if (mainScreens.contains(currentScreen)) {
                 RememberTopAppBar(navHostController = navController)
@@ -157,9 +157,13 @@ fun MainApp(
                             selected = currentScreen == mainScreen,
                             onClick = {
                                 navController.navigate(mainScreen) {
-                                    navController.graph.startDestinationRoute?.let {
-                                        popUpTo(it) { saveState = true }
+
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
                                     }
+//                                    navController.graph.findStartDestination().id {
+//                                        popUpTo(it) { saveState = true }
+//                                    }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
@@ -231,7 +235,9 @@ fun MainApp(
             }
             composable(
                 route = "${RememberScreen.FriendAdd.name}/{name}/{number}",
-                arguments = listOf(navArgument("name") { type = NavType.StringType; nullable = true }, navArgument("number") { type = NavType.StringType; nullable = true })
+                arguments = listOf(
+                    navArgument("name") { type = NavType.StringType; nullable = true },
+                    navArgument("number") { type = NavType.StringType; nullable = true })
             ) {
                 val name = it.arguments?.getString("name", "")
                 val number = it.arguments?.getString("number", "")
@@ -253,14 +259,14 @@ fun MainApp(
                 arguments = listOf(navArgument("friendId") { type = NavType.StringType })
             ) {
                 val friendId = it.arguments?.getString("friendId")
-                MemoryAddScreen(navHostController = navController, friendId)
+                MemoryAddScreen(navHostController = navController, snackbarHostState, friendId)
             }
             composable(
                 route = "${RememberScreen.MemoryEdit.name}/{memoryId}",
                 arguments = listOf(navArgument("memoryId") { type = NavType.StringType })
             ) {
                 val friendId = it.arguments?.getString("memoryId")
-                MemoryEditScreen(navHostController = navController, friendId)
+                MemoryEditScreen(navHostController = navController, snackbarHostState, friendId)
             }
 
             composable(route = RememberScreen.Meeting.name) {
@@ -312,7 +318,7 @@ fun MainAppBar(
     currentScreen: RememberScreen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     TopAppBar(
         title = { Text(stringResource(currentScreen.title)) },

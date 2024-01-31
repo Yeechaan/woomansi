@@ -30,6 +30,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
+import java.io.Serializable
 
 class MainActivity : ComponentActivity() {
 
@@ -72,7 +73,7 @@ data class Contract(
     val name: String,
     val number: String,
     var isChecked: Boolean = false,
-)
+) : Serializable
 
 @Composable
 fun GreetingView(text: String) {

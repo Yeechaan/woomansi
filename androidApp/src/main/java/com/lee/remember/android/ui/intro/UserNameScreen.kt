@@ -39,16 +39,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.accessToken
-import com.lee.remember.android.ui.fontHintColor
 import com.lee.remember.android.ui.lightColor
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.local.dao.UserDao
-import com.lee.remember.remote.UserApi
-import com.lee.remember.remote.request.UserInfoRequest
 import com.lee.remember.repository.UserRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.cancel
@@ -120,12 +115,13 @@ fun UserNameScreen(navController: NavHostController) {
                     try {
                         val result = UserRepository().updateUserName(nickname)
                         if (result.isSuccess) {
-                            navController.navigate(RememberScreen.SelectContact.name)
+                            navController.navigate(RememberScreen.SelectContact.name) {
+                                popUpTo(RememberScreen.Intro.name)
+                            }
                         } else {
                             Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
                         }
-                    }
-                    catch (e: Exception) {
+                    } catch (e: Exception) {
                         Napier.d("### ${e.localizedMessage}")
                         e.localizedMessage ?: "error"
                     }

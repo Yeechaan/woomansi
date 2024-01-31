@@ -43,6 +43,7 @@ import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -98,6 +99,7 @@ val fontHintColor = Color(0x4D000000)
 @Composable
 fun MemoryAddScreen(
     navHostController: NavHostController,
+    snackbarHostState: SnackbarHostState,
     friendId: String?,
     viewModel: MemoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
@@ -118,6 +120,7 @@ fun MemoryAddScreen(
     val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
     var date by remember { mutableStateOf(today) }
 
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
     val friends by rememberSaveable {
@@ -149,6 +152,7 @@ fun MemoryAddScreen(
         var title by remember { mutableStateOf("") }
         var content by remember { mutableStateOf("") }
 
+
         TopAppBar(
             modifier = Modifier.shadow(10.dp),
             title = { Text(uiState.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
@@ -167,6 +171,13 @@ fun MemoryAddScreen(
             },
             actions = {
                 TextButton(onClick = {
+                    if (title.isEmpty()) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("제목을 입력해 주세요")
+                        }
+                        return@TextButton
+                    }
+
                     val bitmapImage = uriToBitmapString(context, selectedImage)
 
                     // remote
@@ -322,7 +333,6 @@ fun MemoryAddScreen(
         )
 
         val sheetState = rememberModalBottomSheetState()
-        val scope = rememberCoroutineScope()
         var showBottomSheet by remember { mutableStateOf(false) }
 
         var isFriendEmpty by remember { mutableStateOf(true) }
@@ -366,7 +376,6 @@ fun MemoryAddScreen(
                 }
             }
         }
-
 
 
 //        RememberModalBottomSheet(showSheet = showBottomSheet, onDismissRequest = { /*TODO*/ }) {
@@ -514,5 +523,5 @@ fun InputChipExample(
 @Preview
 @Composable
 fun PreviewMemoryAddScreen() {
-    MemoryAddScreen(rememberNavController(), null)
+    MemoryAddScreen(rememberNavController(), SnackbarHostState(), null)
 }

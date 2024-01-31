@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -51,7 +51,6 @@ import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.remote.AuthApi
 import com.lee.remember.repository.AuthRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -173,7 +172,7 @@ fun SignUpScreen(navController: NavHostController, snackbarHostState: SnackbarHo
             Box {
                 if (loading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.width(24.dp),
+                        modifier = Modifier.size(24.dp),
                         color = Color(0xFFF2BE2F),
                         trackColor = MaterialTheme.colorScheme.surfaceVariant,
                     )
@@ -248,7 +247,7 @@ fun SignUpScreen(navController: NavHostController, snackbarHostState: SnackbarHo
                     result.fold(
                         onSuccess = {
                             navController.navigate(RememberScreen.UserName.name) {
-                                popUpTo(RememberScreen.UserName.name) {
+                                popUpTo(RememberScreen.SignUp.name) {
                                     inclusive = true
                                 }
                             }

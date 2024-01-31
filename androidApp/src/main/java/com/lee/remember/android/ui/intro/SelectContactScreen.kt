@@ -56,7 +56,7 @@ fun SelectContractScreen(
     if (uiState.success) {
         viewModel.resetUiState()
         navController.navigate(RememberScreen.History.name) {
-            popUpTo(RememberScreen.History.name) {
+            popUpTo(RememberScreen.Intro.name) {
                 inclusive = true
             }
         }

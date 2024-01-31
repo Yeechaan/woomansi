@@ -240,29 +240,35 @@ fun MemoryItem(memory: Memory, isFriendInfoVisible: Boolean = true, onUpdate: ()
             }
         }
 
-        Text(
-            text = memory.description,
-            style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-                .fillMaxWidth()
-        )
-
-        var friendTags = ""
-        memory.friendTags.forEachIndexed { index, memoryFriend ->
-            var nameTag = "#${memoryFriend.name}"
-            if (index != memory.friendTags.lastIndex) nameTag += ", "
-
-            friendTags += nameTag
+        if (memory.description.isNotEmpty()) {
+            Text(
+                text = memory.description,
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                    .fillMaxWidth()
+            )
         }
 
-        Text(
-            text = friendTags,
-            style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 32.dp)
-                .fillMaxWidth()
-        )
+        if (memory.friendTags.isNotEmpty()) {
+            var friendTags = ""
+            memory.friendTags.forEachIndexed { index, memoryFriend ->
+                var nameTag = "#${memoryFriend.name}"
+                if (index != memory.friendTags.lastIndex) nameTag += ", "
+
+                friendTags += nameTag
+            }
+
+            Text(
+                text = friendTags,
+                style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F)),
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, top = 12.dp)
+                    .fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
