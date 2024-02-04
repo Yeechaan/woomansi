@@ -22,11 +22,12 @@ import com.lee.remember.android.viewmodel.IntroViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SplashScreen(
     navController: NavHostController,
-    viewModel: IntroViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: IntroViewModel = koinViewModel(),
 ) {
     viewModel.initUserState()
 //    val uiState by viewModel.uiState.collectAsStateWithLifecycle()

@@ -18,9 +18,29 @@ data class IntroUiState(
     val isAuthSuccess: Boolean? = null,
 )
 
+data class SignUpUiState(
+    val loading: Boolean = false,
+    val signupResult: Boolean = false,
+    val emailCodeResult: String = "",
+    val message: String = "",
+)
+
+//sealed interface SignUpUiState {
+//    object Loading : SignUpUiState
+//    data class Error(val message: String) : SignUpUiState
+//    data class SignupResult(val result: Result<SignupResponse>) : SignUpUiState
+//    data class EmailCodeResult(val result: Result<EmailResponse>) : SignUpUiState
+//}
+
+data class LoginUiState(
+    val isFirst: Boolean? = null,
+    val isLocalMode: Boolean? = null,
+    val isAuthSuccess: Boolean? = null,
+)
+
 class IntroViewModel(
-    val authRepository: AuthRepository = AuthRepository(),
-    val userRepository: UserRepository = UserRepository(),
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(IntroUiState())
@@ -55,5 +75,34 @@ class IntroViewModel(
             FriendRepository().fetchFriends()
             MemoryRepository().fetchMemories()
         }
+    }
+
+    private val _signUpUiState = MutableStateFlow(SignUpUiState())
+    val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState.asStateFlow()
+
+    fun sendEmailCode(email: String) {
+        viewModelScope.launch {
+            _signUpUiState.update { state ->
+                state.copy(loading = true)
+            }
+
+            val result = authRepository.sendEmailCode(email)
+            result.fold(
+                onSuccess = {
+                    _signUpUiState.update { state ->
+                        state.copy(loading = false, emailCodeResult = it.result?.code ?: "")
+                    }
+                },
+                onFailure = {
+                    _signUpUiState.update { state ->
+                        state.copy(loading = false, message = it.message ?: "")
+                    }
+                }
+            )
+        }
+    }
+
+    fun resetSignUpUiState() {
+        _signUpUiState.value = SignUpUiState()
     }
 }

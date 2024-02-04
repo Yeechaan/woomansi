@@ -2,12 +2,8 @@ package com.lee.remember.android
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,17 +38,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lee.remember.android.ui.ContactScreen
-import com.lee.remember.android.ui.MemoryScreen
 import com.lee.remember.android.ui.FriendAddScreen
 import com.lee.remember.android.ui.FriendEditScreen
-import com.lee.remember.android.ui.MemoryFriendScreen
+import com.lee.remember.android.ui.FriendGroupScreen
 import com.lee.remember.android.ui.FriendProfileScreen
 import com.lee.remember.android.ui.FriendScreen
-import com.lee.remember.android.ui.MemoryAddScreen
 import com.lee.remember.android.ui.HistoryScreen
-import com.lee.remember.android.ui.FriendGroupScreen
-import com.lee.remember.android.ui.MemoryEditScreen
 import com.lee.remember.android.ui.MeetingScreen
+import com.lee.remember.android.ui.MemoryAddScreen
+import com.lee.remember.android.ui.MemoryEditScreen
+import com.lee.remember.android.ui.MemoryFriendScreen
+import com.lee.remember.android.ui.MemoryScreen
 import com.lee.remember.android.ui.intro.IntroScreen
 import com.lee.remember.android.ui.intro.LoginScreen
 import com.lee.remember.android.ui.intro.OnBoardingScreen

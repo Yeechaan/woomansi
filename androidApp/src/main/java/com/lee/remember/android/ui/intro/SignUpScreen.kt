@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,13 +52,48 @@ import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
+import com.lee.remember.android.viewmodel.IntroViewModel
 import com.lee.remember.repository.AuthRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
+fun SignUpScreen(
+    navController: NavHostController, snackbarHostState: SnackbarHostState,
+    viewModel: IntroViewModel = koinViewModel(),
+) {
+    val uiState by viewModel.signUpUiState.collectAsState()
+
+    var loading by remember { mutableStateOf(false) }
+    loading = viewModel.signUpUiState.value.loading
+
+    var emailCode by remember { mutableStateOf("") }
+    val isEmailConfirmed = remember { mutableStateOf(false) }
+    val openAlertDialog = remember { mutableStateOf(false) }
+    if (openAlertDialog.value) {
+        EmailConfirmDialog(
+            emailCode = emailCode,
+            onDismissRequest = {
+                openAlertDialog.value = false
+                viewModel.resetSignUpUiState()
+            },
+            onConfirmation = {
+                isEmailConfirmed.value = it
+                openAlertDialog.value = false
+                viewModel.resetSignUpUiState()
+            }
+        )
+    }
+
+    // Todo 맞네 초기화 로직이 필요하네.. 매번 그렇게 해야하나?
+    if (uiState.emailCodeResult.isNotEmpty()) {
+        emailCode = uiState.emailCodeResult
+        openAlertDialog.value = true
+    }
+
+
 
     val imeState = rememberImeState()
     val scrollState = rememberScrollState()
@@ -89,7 +125,7 @@ fun SignUpScreen(navController: NavHostController, snackbarHostState: SnackbarHo
         )
 
         var email by remember { mutableStateOf("") }
-        var emailCode by remember { mutableStateOf("") }
+//        var emailCode by remember { mutableStateOf("") }
         var isValid by remember { mutableStateOf(true) }
 
         val password = remember { mutableStateOf("") }
@@ -100,21 +136,6 @@ fun SignUpScreen(navController: NavHostController, snackbarHostState: SnackbarHo
         val scope = rememberCoroutineScope()
 
         var passwordVisible by rememberSaveable { mutableStateOf(false) }
-
-        val isEmailConfirmed = remember { mutableStateOf(false) }
-        val openAlertDialog = remember { mutableStateOf(false) }
-        if (openAlertDialog.value) {
-            EmailConfirmDialog(
-                emailCode = emailCode,
-                onDismissRequest = {
-                    openAlertDialog.value = false
-                },
-                onConfirmation = {
-                    isEmailConfirmed.value = it
-                    openAlertDialog.value = false
-                }
-            )
-        }
 
         OutlinedTextField(
             value = email, onValueChange = { email = it },
@@ -139,28 +160,32 @@ fun SignUpScreen(navController: NavHostController, snackbarHostState: SnackbarHo
         )
 
 
-        var loading by remember { mutableStateOf(false) }
+//        var loading by remember { mutableStateOf(false) }
 
         val emailConfirmedText = if (isEmailConfirmed.value) "인증완료" else "인증"
         val emailConfirmedColor = if (isEmailConfirmed.value) Color(0xFFF2BE2F) else fontHintColor
         Button(
             onClick = {
-                scope.launch {
-                    loading = true
+//                loading = true
+                viewModel.sendEmailCode(email)
 
-                    val result = AuthRepository().sendEmailCode(email)
-                    result.fold(
-                        onSuccess = {
-                            emailCode = it.result?.code ?: ""
-                            openAlertDialog.value = true
-                        },
-                        onFailure = {
 
-                        }
-                    )
-
-                    loading = false
-                }
+//                scope.launch {
+//                    loading = true
+//
+//                    val result = AuthRepository().sendEmailCode(email)
+//                    result.fold(
+//                        onSuccess = {
+//                            emailCode = it.result?.code ?: ""
+//                            openAlertDialog.value = true
+//                        },
+//                        onFailure = {
+//
+//                        }
+//                    )
+//
+//                    loading = false
+//                }
             },
             modifier = Modifier
                 .fillMaxWidth()

@@ -6,6 +6,7 @@
 
 <!--    android:windowSoftInputMode="adjustResize"-->
     <application
+        android:name=".MyApplication"
         android:allowBackup="false"
         android:supportsRtl="true"
         android:label="우만시"

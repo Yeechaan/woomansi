@@ -13,13 +13,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -51,7 +48,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,9 +70,6 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
-import com.lee.remember.android.accessToken
-import com.lee.remember.android.bottomPadding
-import com.lee.remember.android.utils.RememberModalBottomSheet
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextField.placeHolder
@@ -84,10 +77,7 @@ import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.MemoryViewModel
 import com.lee.remember.local.dao.FriendDao
-import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.request.MemoryRequest
-import com.lee.remember.repository.MemoryRepository
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import java.util.Calendar
 

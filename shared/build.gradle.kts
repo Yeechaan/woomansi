@@ -31,6 +31,7 @@ kotlin {
         val ktorVersion = "2.3.5"
         val serialization_version = "1.6.0"
         val napierVersion = "2.6.1"
+        val koin_version = "3.5.3"
 
         val commonMain by getting {
             dependencies {
@@ -46,6 +47,8 @@ kotlin {
 
                 implementation("io.github.aakira:napier:$napierVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+
+                implementation("io.insert-koin:koin-core:$koin_version")
             }
         }
         val commonTest by getting {

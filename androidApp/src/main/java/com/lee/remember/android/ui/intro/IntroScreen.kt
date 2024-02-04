@@ -37,6 +37,7 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.utils.RememberFilledButton
+import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.repository.UserRepository
@@ -107,11 +108,20 @@ fun IntroScreen(navController: NavHostController) {
             navController.navigate(RememberScreen.Login.name)
         })
 
+        val scope = rememberCoroutineScope()
+        RememberOutlinedButton(text = "체험하기", verticalPaddingValues = PaddingValues(top = 8.dp, bottom = 0.dp)) {
+            scope.launch {
+                UserRepository().addTestUser()
+                scope.cancel()
+            }
+            navController.navigate(RememberScreen.SelectContact.name)
+        }
+
         TextButton(
             modifier = Modifier
-                .padding(top = 8.dp),
-//                .padding(bottom = 64.dp),
-                onClick = { navController.navigate(RememberScreen.Terms.name) }) {
+                .padding(top = 8.dp)
+                .padding(bottom = 64.dp),
+            onClick = { navController.navigate(RememberScreen.Terms.name) }) {
             Text(
                 text = "새로 시작하기",
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color.White),
@@ -128,33 +138,33 @@ fun IntroScreen(navController: NavHostController) {
             )
         }
 
-        val scope = rememberCoroutineScope()
-        TextButton(
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .padding(bottom = 64.dp),
-            onClick = {
-                scope.launch {
-                    UserRepository().addTestUser()
-                    scope.cancel()
-                }
-                navController.navigate(RememberScreen.SelectContact.name)
-            }) {
-            Text(
-                text = "로그인 없이 사용해보기",
-                style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color.White),
-                modifier = Modifier.drawBehind {
-                    val strokeWidthPx = 1.dp.toPx()
-                    val verticalOffset = size.height - 1.sp.toPx()
-                    drawLine(
-                        color = Color.White,
-                        strokeWidth = strokeWidthPx,
-                        start = Offset(0f, verticalOffset),
-                        end = Offset(size.width, verticalOffset)
-                    )
-                }
-            )
-        }
+//        val scope = rememberCoroutineScope()
+//        TextButton(
+//            modifier = Modifier
+//                .padding(top = 8.dp)
+//                .padding(bottom = 64.dp),
+//            onClick = {
+//                scope.launch {
+//                    UserRepository().addTestUser()
+//                    scope.cancel()
+//                }
+//                navController.navigate(RememberScreen.SelectContact.name)
+//            }) {
+//            Text(
+//                text = "로그인 없이 사용해보기",
+//                style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color.White),
+//                modifier = Modifier.drawBehind {
+//                    val strokeWidthPx = 1.dp.toPx()
+//                    val verticalOffset = size.height - 1.sp.toPx()
+//                    drawLine(
+//                        color = Color.White,
+//                        strokeWidth = strokeWidthPx,
+//                        start = Offset(0f, verticalOffset),
+//                        end = Offset(size.width, verticalOffset)
+//                    )
+//                }
+//            )
+//        }
     }
 }
 

@@ -31,6 +31,9 @@ object BaseRealm {
 
             val friendRealm = this.query<FriendRealm>().find()
             delete(friendRealm)
+
+            val memoryRealm = this.query<MemoryRealm>().find()
+            delete(memoryRealm)
         }
 //        realm.close()
 //        Realm.deleteRealm(configuration)
