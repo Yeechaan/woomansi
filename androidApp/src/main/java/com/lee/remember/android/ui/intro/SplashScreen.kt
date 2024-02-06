@@ -52,7 +52,7 @@ fun SplashScreen(
                     }
                 } else {
                     if (uiState.isAuthSuccess == true) {
-                        viewModel.fetchUser()
+//                        viewModel.fetchUser()
 
                         navController.navigate(RememberScreen.History.name) {
                             popUpTo(RememberScreen.Splash.name) {

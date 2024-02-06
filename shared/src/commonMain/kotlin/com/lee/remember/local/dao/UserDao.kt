@@ -3,6 +3,7 @@ package com.lee.remember.local.dao
 import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.UserRealm
+import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
 
 class UserDao {
@@ -10,7 +11,7 @@ class UserDao {
 
     suspend fun setUser(user: UserRealm) {
         realm.write {
-            copyToRealm(user)
+            copyToRealm(user, UpdatePolicy.ALL)
         }
     }
 

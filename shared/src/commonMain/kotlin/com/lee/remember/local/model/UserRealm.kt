@@ -3,8 +3,10 @@ package com.lee.remember.local.model
 import com.lee.remember.remote.request.SignupResponse
 import com.lee.remember.remote.request.UserInfoResponse
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 class UserRealm : RealmObject {
+    @PrimaryKey
     var userId: Int = -1
     var email: String = ""
     var name: String = ""

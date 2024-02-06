@@ -103,6 +103,8 @@ fun MemoryScreen(
                         )
                     }
                 }
+
+                item { Spacer(modifier = Modifier.padding(bottom = 42.dp)) }
             }
         }
     }

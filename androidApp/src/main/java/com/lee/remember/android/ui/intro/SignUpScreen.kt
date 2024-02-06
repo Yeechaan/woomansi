@@ -139,6 +139,7 @@ fun SignUpScreen(
 
         OutlinedTextField(
             value = email, onValueChange = { email = it },
+//            readOnly = isEmailConfirmed.value,
             label = { RememberTextField.label(text = "이메일") },
             placeholder = { RememberTextField.placeHolder(text = "이메일 입력") },
             textStyle = RememberTextField.textStyle(),

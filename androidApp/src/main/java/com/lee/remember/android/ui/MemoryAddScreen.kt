@@ -78,6 +78,7 @@ import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.MemoryViewModel
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.remote.request.MemoryRequest
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -124,7 +125,9 @@ fun MemoryAddScreen(
     var selectedImage by remember { mutableStateOf<Uri?>(null) }
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> uri?.let { selectedImage = uri } }
+        onResult = { uri -> uri?.let {
+            selectedImage = uri
+        } }
     )
 
     fun launchPhotoPicker() {

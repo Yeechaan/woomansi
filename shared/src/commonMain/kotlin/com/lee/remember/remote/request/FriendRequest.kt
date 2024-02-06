@@ -14,9 +14,9 @@ data class FriendRequest(
     @SerialName("profileImage")
     val profileImage: String = "",
     @SerialName("events")
-    val events: List<Event> = listOf(),
+    val events: List<Event>,
     @SerialName("friendGroups")
-    val friendGroups: List<Event> = listOf(),
+    val friendGroups: List<FriendGroup> = listOf(),
 ) {
     @Serializable
     data class Event(

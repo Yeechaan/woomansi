@@ -24,20 +24,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.ui.fontColorBlack
+import com.lee.remember.android.ui.fontColorPoint
+import com.lee.remember.android.ui.fontHintColor
 import com.lee.remember.android.ui.lightColor
 import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberTextStyle
@@ -65,8 +71,22 @@ fun SelectContractScreen(
         // Todo 로딩 처리
     }
 
+    var openDialog by remember { mutableStateOf(false) }
+    if (openDialog) {
+        DunbarNumberDialog(
+            onDismissRequest = {
+                openDialog = false
+            },
+            onConfirm = {
+                openDialog = false
+            }
+        )
+    }
+
     val contracts = mutableListOf<Contract>()
     contracts.addAll(getContracts())
+
+    var selectedContractCount by remember { mutableStateOf(0) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -91,8 +111,36 @@ fun SelectContractScreen(
                     Text(
                         text = "내가 간직할 소중한 인연을\n선택해보세요.",
                         style = getTextStyle(textStyle = RememberTextStyle.HEAD_4).copy(textAlign = TextAlign.Center),
-                        modifier = Modifier.padding(top = 16.dp, bottom = 48.dp)
+                        modifier = Modifier.padding(top = 20.dp)
                     )
+                    Text(
+                        text = "많은 사람들을 선택하기보다\n내 인생에 값진 인연들만 관리해 보세요",
+                        style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(
+                            textAlign = TextAlign.Center,
+                            color = fontHintColor
+                        ),
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    TextButton(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .padding(bottom = 24.dp),
+                        onClick = { openDialog = true }) {
+                        Text(
+                            text = "던바의 수",
+                            style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color(0xFFF2BE2F)),
+                            modifier = Modifier.drawBehind {
+                                val strokeWidthPx = 1.dp.toPx()
+                                val verticalOffset = size.height - 1.sp.toPx()
+                                drawLine(
+                                    color = Color(0xFFF2BE2F),
+                                    strokeWidth = strokeWidthPx,
+                                    start = Offset(0f, verticalOffset),
+                                    end = Offset(size.width, verticalOffset)
+                                )
+                            }
+                        )
+                    }
                 }
             }
 
@@ -142,6 +190,8 @@ fun SelectContractScreen(
                         onCheckedChange = {
                             contract.isChecked = it
                             checkedState.value = it
+
+                            if (it) selectedContractCount++ else selectedContractCount--
                         },
                         colors = RememberCheckbox()
                     )
@@ -159,7 +209,7 @@ fun SelectContractScreen(
                 scope.launch {
                     try {
                         val selectedFriends = contracts.filter { it.isChecked }.map {
-                            FriendRequest(it.name, it.number)
+                            FriendRequest(it.name, it.number, events = listOf())
                         }
 
                         viewModel.addFriends(selectedFriends)
@@ -170,7 +220,7 @@ fun SelectContractScreen(
             }) {
             Text(
                 modifier = Modifier.padding(vertical = 12.dp),
-                text = "선택완료",
+                text = "인연 맺어가기 ${selectedContractCount}명",
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
             )
         }

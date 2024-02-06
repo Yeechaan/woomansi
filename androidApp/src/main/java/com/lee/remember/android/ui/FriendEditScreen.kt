@@ -152,7 +152,6 @@ fun FriendEditScreen(
 
         val state = rememberDatePickerState()
         state.selectedDateMillis?.let {
-
             date = convertMillisToDate(it)
         }
         val context = LocalContext.current
@@ -205,11 +204,14 @@ fun FriendEditScreen(
                                 if (savedImage.isNotEmpty()) profileImage = savedImage
                                 if (bitmapImage.isNotEmpty()) profileImage = bitmapImage
 
+                                val events = mutableListOf<FriendRequest.Event>()
+                                if (date.isNotEmpty()) events.add(FriendRequest.Event(dateTitle, date))
+
                                 val friendRequest = FriendRequest(
                                     name = name,
                                     phoneNumber = number,
                                     description = "",
-                                    events = listOf(FriendRequest.Event(dateTitle, date)),
+                                    events = events,
                                     profileImage = profileImage
                                 )
 
@@ -586,7 +588,7 @@ private fun resizeBitmap(bitmap: Bitmap): Bitmap? {
     val resizeWidth = 256
     val aspectRatio = bitmap.height.toDouble() / bitmap.width.toDouble()
     val targetHeight = (resizeWidth * aspectRatio).toInt()
-    val result: Bitmap = Bitmap.createScaledBitmap(bitmap, resizeWidth, resizeWidth, false)
+    val result: Bitmap = Bitmap.createScaledBitmap(bitmap, resizeWidth, targetHeight, false)
     if (result != bitmap) {
         bitmap.recycle()
     }
@@ -594,7 +596,7 @@ private fun resizeBitmap(bitmap: Bitmap): Bitmap? {
 }
 
 fun bitmapToString(bitmap: Bitmap): String {
-//    val resized = Bitmap.createScaledBitmap(bitmap, 256, 256, true)
+//    val resized = Bitmap.createScaledBitmap(bitmap, 512, 512, true)
     val resized = resizeBitmap(bitmap)
 
     val byteArrayOutputStream = ByteArrayOutputStream()

@@ -52,7 +52,7 @@ class UserRepository(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
                         val userRealm = it.asRealm()
-                        userDao.deleteUser()
+//                        userDao.deleteUser()
                         userDao.setUser(userRealm)
 
                         Result.success(true)

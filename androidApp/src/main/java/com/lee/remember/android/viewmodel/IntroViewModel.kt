@@ -61,21 +61,28 @@ class IntroViewModel(
                 it.copy(isFirst = true)
             }
         } else {
-            viewModelScope.launch {
-                val result = userRepository.fetchUser()
-                _uiState.update {
-                    it.copy(isAuthSuccess = result.isSuccess)
-                }
+//            viewModelScope.launch {
+//                val result = userRepository.fetchUser()
+//                _uiState.update {
+//                    it.copy(isAuthSuccess = result.isSuccess)
+//                }
+//            }
+            fetchUser()
+        }
+    }
+
+    private fun fetchUser() {
+        viewModelScope.launch {
+            val result = userRepository.fetchUser()
+            FriendRepository().fetchFriends()
+            MemoryRepository().fetchMemories()
+
+            _uiState.update {
+                it.copy(isAuthSuccess = result.isSuccess)
             }
         }
     }
 
-    fun fetchUser() {
-        viewModelScope.launch {
-            FriendRepository().fetchFriends()
-            MemoryRepository().fetchMemories()
-        }
-    }
 
     private val _signUpUiState = MutableStateFlow(SignUpUiState())
     val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState.asStateFlow()

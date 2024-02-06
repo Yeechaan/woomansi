@@ -101,6 +101,8 @@ fun FriendScreen(navHostController: NavHostController) {
                         )
                         FriendItem(friendProfile, navHostController)
                     }
+
+                    item { Spacer(modifier = Modifier.padding(bottom = 44.dp)) }
                 }
             }
 
