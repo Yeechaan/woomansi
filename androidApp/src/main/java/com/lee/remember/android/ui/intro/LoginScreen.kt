@@ -19,6 +19,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,15 +47,40 @@ import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
+import com.lee.remember.android.viewmodel.LoginViewModel
 import com.lee.remember.repository.AuthRepository
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
 import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
+fun LoginScreen(
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
+    viewModel: LoginViewModel = koinViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
+
+    if (uiState.loginSuccess && uiState.fetchSuccess) {
+        navController.navigate(RememberScreen.History.name) {
+            popUpTo(RememberScreen.Login.name) {
+                inclusive = true
+            }
+        }
+    }
+    if (uiState.message.isNotEmpty()) {
+        scope.launch {
+            snackbarHostState.showSnackbar("로그인 실패")
+        }
+    }
+    if (uiState.isLoading) {
+
+    }
+
     val imeState = rememberImeState()
     val scrollState = rememberScrollState()
 
@@ -89,13 +115,7 @@ fun LoginScreen(navController: NavHostController, snackbarHostState: SnackbarHos
         val password = remember { mutableStateOf("") }
         val isPasswordError = remember { mutableStateOf(false) }
 
-        // Ktor Test
-        val scope = rememberCoroutineScope()
-        var text by remember { mutableStateOf("") }
-
-        GreetingView(text)
-
-        var passwordVisible by rememberSaveable { mutableStateOf(false) }
+        val passwordVisible by rememberSaveable { mutableStateOf(false) }
 
         OutlinedTextField(
             value = id, onValueChange = { id = it },
@@ -126,62 +146,15 @@ fun LoginScreen(navController: NavHostController, snackbarHostState: SnackbarHos
         )
 
         RememberFilledButton(text = "로그인", onClick = {
-            scope.launch {
-                if (id.isEmpty() || password.value.isEmpty()) {
+            if (id.isEmpty() || password.value.isEmpty()) {
+                scope.launch {
                     snackbarHostState.showSnackbar("이메일 또는 비밀번호는 입력해주세요.")
-                    return@launch
                 }
-
-                val result = AuthRepository().login(id, password.value)
-                if (result.isSuccess) {
-                    UserRepository().fetchUser()
-                    FriendRepository().fetchFriends()
-                    MemoryRepository().fetchMemories()
-
-                    navController.navigate(RememberScreen.History.name) {
-                        popUpTo(RememberScreen.Login.name) {
-                            inclusive = true
-                        }
-                    }
-                } else {
-                    snackbarHostState.showSnackbar("로그인 실패")
-                }
+                return@RememberFilledButton
             }
+
+            viewModel.login(id, password.value)
         })
-
-//        Button(
-//            onClick = {
-//                if (id.isEmpty() || password.value.isEmpty()) {
-//                    Toast.makeText(context, "이메일 또는 비밀번호는 입력해주세요.", Toast.LENGTH_SHORT).show()
-//                    return@Button
-//                }
-//
-//                scope.launch {
-//                    val result = AuthRepository().login(id, password.value)
-//                    if (result.isSuccess) {
-//                        navController.navigate(RememberScreen.History.name) {
-//                            popUpTo(RememberScreen.Login.name) {
-//                                inclusive = true
-//                            }
-//                        }
-//                    } else {
-//                        Toast.makeText(context, "로그인 실패", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),
-//            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF2BE2F)),
-//            shape = RoundedCornerShape(size = 100.dp),
-//        ) {
-//            Text(
-//                text = "로그인",
-//                style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.White),
-//                modifier = Modifier.padding(vertical = 2.dp)
-//            )
-//        }
-
     }
 
 }

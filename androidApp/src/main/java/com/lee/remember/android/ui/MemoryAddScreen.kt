@@ -188,35 +188,6 @@ fun MemoryAddScreen(
                     )
 
                     viewModel.addMemory(request)
-
-//                    scope.launch {
-//                        val bitmapImage = uriToBitmapString(context, selectedImage)
-//
-//                        // remote
-//                        val addedFriends = mutableListOf(friendId?.toInt() ?: -1)
-//                        friends.filter { it.isChecked }.map {
-//                            addedFriends.add(it.id.toInt())
-//                        }
-//
-//                        val request = MemoryRequest(
-//                            title = title,
-//                            description = content,
-//                            date = date,
-//                            friendIds = addedFriends,
-//                            images = listOf(MemoryRequest.Image(bitmapImage))
-//                        )
-//
-//                        val result = MemoryRepository().addMemory(request)
-//                        result.fold(
-//                            onSuccess = {
-//                                navHostController.navigateUp()
-//                            },
-//                            onFailure = {
-//                                // SnackBar
-//                            }
-//                        )
-//                    }
-
                 }) {
                     Text(text = "완료", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF49454F)))
                 }

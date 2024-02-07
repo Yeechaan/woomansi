@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,45 +32,36 @@ fun SplashScreen(
     viewModel: IntroViewModel = koinViewModel(),
 ) {
     viewModel.initUserState()
-//    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.splashUiState.collectAsState()
 
-    val scope = rememberCoroutineScope()
-    scope.launch {
-        viewModel.uiState.collectLatest { uiState ->
-            if (uiState.isLocalMode == true) {
+    if (uiState.isLocalMode == true) {
+        navController.navigate(RememberScreen.History.name) {
+            popUpTo(RememberScreen.Splash.name) {
+                inclusive = true
+            }
+        }
+    }
+
+    if (uiState.isFirst != null || uiState.isAuthSuccess != null){
+        if (uiState.isFirst == true) {
+            navController.navigate(RememberScreen.OnBoarding.name) {
+                popUpTo(RememberScreen.Splash.name) {
+                    inclusive = true
+                }
+            }
+        } else {
+            if (uiState.isAuthSuccess == true) {
                 navController.navigate(RememberScreen.History.name) {
                     popUpTo(RememberScreen.Splash.name) {
                         inclusive = true
                     }
                 }
-            }
-
-            if (uiState.isFirst != null || uiState.isAuthSuccess != null){
-                if (uiState.isFirst == true) {
-                    navController.navigate(RememberScreen.OnBoarding.name) {
-                        popUpTo(RememberScreen.Splash.name) {
-                            inclusive = true
-                        }
-                    }
-                } else {
-                    if (uiState.isAuthSuccess == true) {
-//                        viewModel.fetchUser()
-
-                        navController.navigate(RememberScreen.History.name) {
-                            popUpTo(RememberScreen.Splash.name) {
-                                inclusive = true
-                            }
-                        }
-                    } else {
-                        navController.navigate(RememberScreen.Login.name) {
-                            popUpTo(RememberScreen.Splash.name) {
-                                inclusive = true
-                            }
-                        }
+            } else {
+                navController.navigate(RememberScreen.Login.name) {
+                    popUpTo(RememberScreen.Splash.name) {
+                        inclusive = true
                     }
                 }
-
-                scope.cancel()
             }
         }
     }

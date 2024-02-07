@@ -9,10 +9,16 @@ import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class IntroUiState(
+    val loading: Boolean = false,
+    val testUserResult: Boolean = false,
+)
+
+data class SplashUiState(
     val isFirst: Boolean? = null,
     val isLocalMode: Boolean? = null,
     val isAuthSuccess: Boolean? = null,
@@ -32,24 +38,30 @@ data class SignUpUiState(
 //    data class EmailCodeResult(val result: Result<EmailResponse>) : SignUpUiState
 //}
 
-data class LoginUiState(
-    val isFirst: Boolean? = null,
-    val isLocalMode: Boolean? = null,
-    val isAuthSuccess: Boolean? = null,
-)
-
 class IntroViewModel(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(IntroUiState())
-    val uiState: StateFlow<IntroUiState> = _uiState.asStateFlow()
+    private val _introUiState = MutableStateFlow(IntroUiState())
+    val introUiState: StateFlow<IntroUiState> = _introUiState.asStateFlow()
+
+    fun addTestUser() {
+        viewModelScope.launch {
+            _introUiState.update { it.copy(loading = true) }
+            val result = userRepository.addTestUser()
+            _introUiState.update { it.copy(loading = false, testUserResult = result.isSuccess) }
+        }
+    }
+
+
+    private val _splashUiState = MutableStateFlow(SplashUiState())
+    val splashUiState: StateFlow<SplashUiState> = _splashUiState.asStateFlow()
 
     fun initUserState() {
         val user = userRepository.getUser()
         if (user != null && user.isLocalMode) {
-            _uiState.update {
+            _splashUiState.update {
                 it.copy(isLocalMode = true)
             }
             return
@@ -57,7 +69,7 @@ class IntroViewModel(
 
         val token = authRepository.getToken()
         if (token == null) {
-            _uiState.update {
+            _splashUiState.update {
                 it.copy(isFirst = true)
             }
         } else {
@@ -77,7 +89,7 @@ class IntroViewModel(
             FriendRepository().fetchFriends()
             MemoryRepository().fetchMemories()
 
-            _uiState.update {
+            _splashUiState.update {
                 it.copy(isAuthSuccess = result.isSuccess)
             }
         }
