@@ -62,13 +62,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.bottomPadding
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.local.model.FriendRealm
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -124,20 +122,20 @@ fun HistoryScreen(navHostController: NavHostController) {
         val context = LocalContext.current
 
         if (showBottomSheet && currentFriendIndex.value != -1) {
-            val phoneNumber = friendList.value[currentFriendIndex.value].phoneNumber ?: ""
+            val name = friendList.value[currentFriendIndex.value].name ?: ""
 
             val contactType = if (isCall) ContactType.Call else ContactType.Message
             FriendContactDialog(
-                phoneNumber = phoneNumber,
+                name = name,
                 contactType = contactType,
                 onDismissRequest = { showBottomSheet = false },
                 onConfirm = {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             val callIntent: Intent = if (isCall) {
-                                Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
+                                Intent(Intent.ACTION_DIAL, Uri.parse("tel:$name"))
                             } else {
-                                Intent(Intent.ACTION_SENDTO, Uri.parse("sms:$phoneNumber"))
+                                Intent(Intent.ACTION_SENDTO, Uri.parse("sms:$name"))
                             }
 
                             startActivity(context, callIntent, null)

@@ -70,6 +70,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
+import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextField.placeHolder
@@ -425,7 +426,7 @@ fun MemoryAddScreen(
                                     tempFriends.find { it.number == message.number }?.isChecked = it
                                     checkedState.value = it
                                 },
-                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
+                                colors = RememberCheckbox()
                             )
                         }
                     }

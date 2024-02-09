@@ -35,7 +35,7 @@ sealed class ContactType {
 
 @Composable
 fun FriendContactDialog(
-    phoneNumber: String,
+    name: String,
     contactType: ContactType,
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit,
@@ -94,7 +94,7 @@ fun FriendContactDialog(
                     modifier = Modifier.padding(top = 16.dp),
                 )
                 Text(
-                    text = phoneNumber,
+                    text = name,
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_1B).copy(Color(0xFFE5AA12)),
                     modifier = Modifier.padding(top = 32.dp),
                 )

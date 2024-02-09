@@ -256,7 +256,7 @@ fun MemoryItem(memory: Memory, isFriendInfoVisible: Boolean = true, onUpdate: ()
             var friendTags = ""
             memory.friendTags.forEachIndexed { index, memoryFriend ->
                 var nameTag = "#${memoryFriend.name}"
-                if (index != memory.friendTags.lastIndex) nameTag += ", "
+                if (index != memory.friendTags.lastIndex) nameTag += "  "
 
                 friendTags += nameTag
             }

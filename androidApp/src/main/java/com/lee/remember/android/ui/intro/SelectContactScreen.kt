@@ -117,7 +117,7 @@ fun SelectContractScreen(
                         text = "많은 사람들을 선택하기보다\n내 인생에 값진 인연들만 관리해 보세요",
                         style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(
                             textAlign = TextAlign.Center,
-                            color = fontHintColor
+                            color = Color(0x58000000)
                         ),
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -128,12 +128,12 @@ fun SelectContractScreen(
                         onClick = { openDialog = true }) {
                         Text(
                             text = "던바의 수",
-                            style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color(0xFFF2BE2F)),
+                            style = getTextStyle(textStyle = RememberTextStyle.BODY_2).copy(Color(0xFFD99A14)),
                             modifier = Modifier.drawBehind {
                                 val strokeWidthPx = 1.dp.toPx()
                                 val verticalOffset = size.height - 1.sp.toPx()
                                 drawLine(
-                                    color = Color(0xFFF2BE2F),
+                                    color = Color(0xFFD99A14),
                                     strokeWidth = strokeWidthPx,
                                     start = Offset(0f, verticalOffset),
                                     end = Offset(size.width, verticalOffset)
@@ -204,7 +204,7 @@ fun SelectContractScreen(
         TextButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFF2BE2F)),
+                .background(Color(0xFFD99A14)),
             onClick = {
                 scope.launch {
                     try {
