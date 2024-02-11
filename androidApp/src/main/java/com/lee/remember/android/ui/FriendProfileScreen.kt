@@ -42,8 +42,9 @@ import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.local.model.FriendRealm
-import com.lee.remember.repository.FriendRepository
+import org.koin.androidx.compose.koinViewModel
 
 // 0xFF1D1B20
 val fontColorBlack = Color(0xFF1D1B20)
@@ -51,9 +52,12 @@ val fontColorPoint = Color(0xFFFFCF40)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendProfileScreen(navHostController: NavHostController, friendId: String?) {
-
-    val friend = FriendRepository().getFriend(friendId?.toInt() ?: -1) ?: FriendRealm()
+fun FriendProfileScreen(
+    navHostController: NavHostController,
+    friendId: String?,
+    viewModel: FriendViewModel = koinViewModel(),
+) {
+    val friend = viewModel.getFriend(friendId?.toInt() ?: -1) ?: FriendRealm()
     val image = friend.profileImage?.image ?: ""
 
     val scrollState = rememberScrollState()

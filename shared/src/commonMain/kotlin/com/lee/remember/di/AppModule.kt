@@ -24,8 +24,8 @@ fun appModule() = module {
     single<MemoryApi> { MemoryApi() }
     single<MemoryDao> { MemoryDao() }
 
-    factory<UserRepository> { UserRepository() }
-    factory<AuthRepository> { AuthRepository() }
-    factory<FriendRepository> { FriendRepository() }
-    factory<MemoryRepository> { MemoryRepository() }
+    factory<UserRepository> { UserRepository(get(), get(), get()) }
+    factory<AuthRepository> { AuthRepository(get(), get(), get()) }
+    factory<FriendRepository> { FriendRepository(get(), get(), get()) }
+    factory<MemoryRepository> { MemoryRepository(get(), get(), get(), get()) }
 }

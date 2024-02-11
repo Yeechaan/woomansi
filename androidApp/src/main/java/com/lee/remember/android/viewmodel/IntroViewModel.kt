@@ -6,10 +6,10 @@ import com.lee.remember.repository.AuthRepository
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
 import com.lee.remember.repository.UserRepository
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -41,6 +41,8 @@ data class SignUpUiState(
 class IntroViewModel(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
+    private val friendRepository: FriendRepository,
+    private val memoryRepository: MemoryRepository,
 ) : ViewModel() {
 
     private val _introUiState = MutableStateFlow(IntroUiState())
@@ -86,8 +88,8 @@ class IntroViewModel(
     private fun fetchUser() {
         viewModelScope.launch {
             val result = userRepository.fetchUser()
-            FriendRepository().fetchFriends()
-            MemoryRepository().fetchMemories()
+            friendRepository.fetchFriends()
+            memoryRepository.fetchMemories()
 
             _splashUiState.update {
                 it.copy(isAuthSuccess = result.isSuccess)
@@ -110,6 +112,47 @@ class IntroViewModel(
                 onSuccess = {
                     _signUpUiState.update { state ->
                         state.copy(loading = false, emailCodeResult = it.result?.code ?: "")
+                    }
+                },
+                onFailure = {
+                    val errorMessage = when (it.message) {
+                        "DUPLICATED_EMAIL" -> "중복된 이메일입니다."
+                        else -> it.message ?: ""
+                    }
+
+                    _signUpUiState.update { state ->
+                        state.copy(loading = false, message = errorMessage)
+                    }
+                }
+            )
+        }
+    }
+
+    fun signUp(email: String, password: String) {
+        viewModelScope.launch {
+            val result = authRepository.signUp(email, password)
+            result.fold(
+                onSuccess = {
+                    _signUpUiState.update { state ->
+                        state.copy(loading = false, signupResult = true)
+                    }
+                },
+                onFailure = {
+                    _signUpUiState.update { state ->
+                        state.copy(loading = false, message = it.message ?: "")
+                    }
+                }
+            )
+        }
+    }
+
+    fun updateUserName(nickname: String) {
+        viewModelScope.launch {
+            val result = userRepository.updateUserName(nickname)
+            result.fold(
+                onSuccess = {
+                    _signUpUiState.update { state ->
+                        state.copy(loading = false, signupResult = true)
                     }
                 },
                 onFailure = {

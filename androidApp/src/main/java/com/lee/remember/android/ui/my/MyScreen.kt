@@ -28,6 +28,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,21 +54,35 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.ui.pointColor
 import com.lee.remember.android.ui.stringToBitmap
 import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.viewmodel.MyViewModel
 import com.lee.remember.local.BaseRealm
-import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyScreen(navController: NavHostController) {
+fun MyScreen(
+    navController: NavHostController,
+    viewModel: MyViewModel = koinViewModel(),
+) {
+    val uiState = viewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
+    val activity = (LocalContext.current as? Activity)
+
+    if (uiState.value.success) {
+        scope.launch {
+            BaseRealm.delete()
+            activity?.finish()
+        }
+    }
+
     var savedImage by remember { mutableStateOf("") }
     var selectedImage by remember { mutableStateOf<Uri?>(null) }
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
@@ -106,7 +121,7 @@ fun MyScreen(navController: NavHostController) {
             },
         )
 
-        val user = UserRepository().getUser()
+        val user = uiState.value.user
         var id by remember { mutableStateOf("") }
 
 //        HeadingLogoScreen(user?.name ?: "")
@@ -181,10 +196,11 @@ fun MyScreen(navController: NavHostController) {
                 .fillMaxWidth()
         )
 
-        val scope = rememberCoroutineScope()
-        val activity = (LocalContext.current as? Activity)
+//        val scope = rememberCoroutineScope()
+//        val activity = (LocalContext.current as? Activity)
         RememberFilledButton(text = "로그아웃") {
             scope.launch {
+                // Todo 공통 코드 처리
                 BaseRealm.delete()
                 activity?.finish()
 
@@ -197,20 +213,13 @@ fun MyScreen(navController: NavHostController) {
         Column(
             Modifier
                 .background(pointColor)
-                .fillMaxWidth(), horizontalAlignment = Alignment.End) {
+                .fillMaxWidth(), horizontalAlignment = Alignment.End
+        ) {
             TextButton(
                 modifier = Modifier
                     .padding(top = 8.dp)
                     .padding(bottom = 32.dp),
-                onClick = {
-                    scope.launch {
-                        UserRepository().deleteUser()
-                        BaseRealm.delete()
-                        activity?.finish()
-
-                        scope.cancel()
-                    }
-                }) {
+                onClick = { viewModel.deleteUser() }) {
                 Text(
                     text = "회원탈퇴",
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_1).copy(Color(0xFF1D1B20)),

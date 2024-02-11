@@ -8,6 +8,7 @@ import com.lee.remember.model.Memory
 import com.lee.remember.model.asData
 import com.lee.remember.remote.request.MemoryRequest
 import com.lee.remember.remote.request.MemoryUpdateRequest
+import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
 import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,9 +28,9 @@ data class MemoryUiState(
 )
 
 class MemoryViewModel(
-    val memoryRepository: MemoryRepository = MemoryRepository(),
-    val userRepository: UserRepository = UserRepository(),
-    val friendDao: FriendDao = FriendDao(),
+    private val memoryRepository: MemoryRepository,
+    private val userRepository: UserRepository,
+    private val friendRepository: FriendRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MemoryUiState())
@@ -75,7 +76,7 @@ class MemoryViewModel(
 
     fun getFriendName(friendId: Int) {
         viewModelScope.launch {
-            val name = friendDao.getFriend(friendId)?.name ?: ""
+            val name = friendRepository.getFriend(friendId)?.name ?: ""
             _uiState.update { it.copy(name = name) }
         }
     }

@@ -15,9 +15,9 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
 class FriendRepository(
-    val friendDao: FriendDao = FriendDao(),
-    val friendApi: FriendApi = FriendApi(),
-    val authDao: AuthDao = AuthDao(),
+    private val friendDao: FriendDao,
+    private val friendApi: FriendApi,
+    private val authDao: AuthDao,
 ) {
     private val token = authDao.getToken() ?: ""
 

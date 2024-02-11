@@ -7,6 +7,7 @@ import com.lee.remember.remote.request.MemoryGetResponse
 import com.lee.remember.remote.request.MemoryRequest
 import com.lee.remember.remote.request.MemoryUpdateRequest
 import com.lee.remember.remote.request.MemoryUpdateResponse
+import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -102,12 +103,16 @@ class MemoryApi {
     }
 
     suspend fun getMemoryList(token: String): Result<MemoryGetListResponse> {
+        Napier.d("###getMemoryList start")
+
         val response = client.get(memoryUrl) {
             headers {
                 append(HttpHeaders.ContentType, "application/json")
                 append(HttpHeaders.Authorization, token)
             }
         }
+
+        Napier.d("###getMemoryList ${response.status}")
 
         return if (response.status == HttpStatusCode.OK) {
             Result.success(response.body())

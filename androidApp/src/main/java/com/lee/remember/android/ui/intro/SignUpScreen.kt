@@ -65,6 +65,7 @@ fun SignUpScreen(
     viewModel: IntroViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.signUpUiState.collectAsState()
+    val scope = rememberCoroutineScope()
 
     var loading by remember { mutableStateOf(false) }
     loading = viewModel.signUpUiState.value.loading
@@ -93,6 +94,22 @@ fun SignUpScreen(
         openAlertDialog.value = true
     }
 
+    if (uiState.signupResult) {
+        // Todo 꼭 이렇게 처리해야 하나?
+        viewModel.resetSignUpUiState()
+
+        navController.navigate(RememberScreen.UserName.name) {
+            popUpTo(RememberScreen.SignUp.name) {
+                inclusive = true
+            }
+        }
+    }
+
+    if (uiState.message.isNotEmpty()) {
+        scope.launch {
+            snackbarHostState.showSnackbar(uiState.message)
+        }
+    }
 
 
     val imeState = rememberImeState()
@@ -132,8 +149,6 @@ fun SignUpScreen(
         val passwordConfirm = remember { mutableStateOf("") }
         val isPasswordError = remember { mutableStateOf(false) }
 
-        // Ktor Test
-        val scope = rememberCoroutineScope()
 
         var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -160,34 +175,10 @@ fun SignUpScreen(
                 .padding(horizontal = 16.dp),
         )
 
-
-//        var loading by remember { mutableStateOf(false) }
-
         val emailConfirmedText = if (isEmailConfirmed.value) "인증완료" else "인증"
         val emailConfirmedColor = if (isEmailConfirmed.value) Color(0xFFF2BE2F) else fontHintColor
         Button(
-            onClick = {
-//                loading = true
-                viewModel.sendEmailCode(email)
-
-
-//                scope.launch {
-//                    loading = true
-//
-//                    val result = AuthRepository().sendEmailCode(email)
-//                    result.fold(
-//                        onSuccess = {
-//                            emailCode = it.result?.code ?: ""
-//                            openAlertDialog.value = true
-//                        },
-//                        onFailure = {
-//
-//                        }
-//                    )
-//
-//                    loading = false
-//                }
-            },
+            onClick = { viewModel.sendEmailCode(email) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
@@ -268,30 +259,8 @@ fun SignUpScreen(
                         return@launch
                     }
 
-//                    try {
-                    val result = AuthRepository().signUp(email, password.value)
-                    result.fold(
-                        onSuccess = {
-                            navController.navigate(RememberScreen.UserName.name) {
-                                popUpTo(RememberScreen.SignUp.name) {
-                                    inclusive = true
-                                }
-                            }
-                            scope.cancel()
-                        },
-                        onFailure = {
-                            val errorMessage = when (it.message) {
-                                "DUPLICATED_EMAIL" -> "중복된 이메일입니다."
-                                else -> it.message ?: ""
-                            }
-                            snackbarHostState.showSnackbar(errorMessage)
-                        }
-                    )
-//                    }
-//                    catch (e: Exception) {
-//                        Toast.makeText(context, "error", Toast.LENGTH_SHORT).show()
-//                        e.localizedMessage ?: "error"
-//                    }
+                    // Todo compose state 처리
+                    viewModel.signUp(email, password.value)
                 }
             },
             // Todo 버튼 활성화 정책 설정

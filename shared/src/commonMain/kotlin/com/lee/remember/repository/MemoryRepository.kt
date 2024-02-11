@@ -16,10 +16,10 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
 class MemoryRepository(
-    val memoryApi: MemoryApi = MemoryApi(),
-    val memoryDao: MemoryDao = MemoryDao(),
-    val authDao: AuthDao = AuthDao(),
-    val friendDao: FriendDao = FriendDao(),
+    private val memoryApi: MemoryApi,
+    private val memoryDao: MemoryDao,
+    private val authDao: AuthDao,
+    private val friendDao: FriendDao,
 ) {
     private val token = authDao.getToken() ?: ""
 

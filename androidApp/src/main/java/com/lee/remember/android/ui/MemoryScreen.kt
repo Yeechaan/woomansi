@@ -53,12 +53,13 @@ import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.android.viewmodel.MemoryViewModel
 import com.lee.remember.model.Memory
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemoryScreen(
     navHostController: NavHostController,
-    viewModel: MemoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: MemoryViewModel = koinViewModel(),
 ) {
     viewModel.getAllMemories()
     val uiState by viewModel.uiState.collectAsState()

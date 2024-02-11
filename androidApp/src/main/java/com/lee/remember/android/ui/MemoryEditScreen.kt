@@ -81,6 +81,7 @@ import com.lee.remember.model.Memory
 import com.lee.remember.model.MemoryFriend
 import com.lee.remember.remote.request.MemoryUpdateRequest
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -88,7 +89,7 @@ fun MemoryEditScreen(
     navHostController: NavHostController,
     snackbarHostState: SnackbarHostState,
     memoryId: String?,
-    viewModel: MemoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: MemoryViewModel = koinViewModel(),
 ) {
     viewModel.getMemory(memoryId?.toInt() ?: -1)
     val uiState by viewModel.uiState.collectAsState()

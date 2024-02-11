@@ -39,12 +39,13 @@ import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.MemoryViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemoryFriendScreen(
     navHostController: NavHostController, friendId: String?,
-    viewModel: MemoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: MemoryViewModel = koinViewModel(),
 ) {
     viewModel.getFriendName(friendId?.toInt() ?: -1)
     viewModel.getFriendMemories(friendId?.toInt() ?: -1)

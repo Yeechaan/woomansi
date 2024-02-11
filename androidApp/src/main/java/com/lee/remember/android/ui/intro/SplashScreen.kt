@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -21,9 +21,6 @@ import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.ui.lightColor
 import com.lee.remember.android.viewmodel.IntroViewModel
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -31,7 +28,10 @@ fun SplashScreen(
     navController: NavHostController,
     viewModel: IntroViewModel = koinViewModel(),
 ) {
-    viewModel.initUserState()
+    LaunchedEffect(null) {
+        viewModel.initUserState()
+    }
+
     val uiState by viewModel.splashUiState.collectAsState()
 
     if (uiState.isLocalMode == true) {
@@ -42,7 +42,7 @@ fun SplashScreen(
         }
     }
 
-    if (uiState.isFirst != null || uiState.isAuthSuccess != null){
+    if (uiState.isFirst != null || uiState.isAuthSuccess != null) {
         if (uiState.isFirst == true) {
             navController.navigate(RememberScreen.OnBoarding.name) {
                 popUpTo(RememberScreen.Splash.name) {

@@ -81,6 +81,7 @@ import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.remote.request.MemoryRequest
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
 //0xFFD59519
@@ -93,7 +94,7 @@ fun MemoryAddScreen(
     navHostController: NavHostController,
     snackbarHostState: SnackbarHostState,
     friendId: String?,
-    viewModel: MemoryViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: MemoryViewModel = koinViewModel(),
 ) {
     viewModel.getFriendName(friendId?.toInt() ?: -1)
     val uiState by viewModel.uiState.collectAsState()

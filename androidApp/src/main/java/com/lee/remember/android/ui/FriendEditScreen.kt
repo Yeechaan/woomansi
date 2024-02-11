@@ -78,12 +78,8 @@ import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.request.FriendRequest
-import com.lee.remember.remote.request.MemoryUpdateRequest
-import com.lee.remember.repository.FriendRepository
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import org.koin.androidx.compose.koinViewModel
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
@@ -94,7 +90,7 @@ import java.util.Date
 fun FriendEditScreen(
     navHostController: NavHostController,
     friendId: String?,
-    viewModel: FriendViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: FriendViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -141,7 +137,7 @@ fun FriendEditScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val friend = FriendRepository().getFriend(friendId?.toInt() ?: -1) ?: FriendRealm()
+        val friend = viewModel.getFriend(friendId?.toInt() ?: -1) ?: FriendRealm()
 
         savedImage = friend.profileImage?.image ?: ""
         var name by remember { mutableStateOf(friend.name) }

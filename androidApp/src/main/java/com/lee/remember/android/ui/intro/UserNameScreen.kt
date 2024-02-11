@@ -1,6 +1,5 @@
 package com.lee.remember.android.ui.intro
 
-import android.widget.Toast
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -21,6 +20,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,14 +44,25 @@ import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.repository.UserRepository
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import com.lee.remember.android.viewmodel.IntroViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserNameScreen(navController: NavHostController) {
+fun UserNameScreen(
+    navController: NavHostController,
+    viewModel: IntroViewModel = koinViewModel(),
+) {
+    val uiState = viewModel.signUpUiState.collectAsState()
+
+    if (uiState.value.signupResult) {
+        navController.navigate(RememberScreen.SelectContact.name) {
+            popUpTo(RememberScreen.Intro.name)
+        }
+    }
+    if (uiState.value.loading) {
+
+    }
 
     val imeState = rememberImeState()
     val scrollState = rememberScrollState()
@@ -110,25 +121,7 @@ fun UserNameScreen(navController: NavHostController) {
         )
 
         Button(
-            onClick = {
-                scope.launch {
-                    try {
-                        val result = UserRepository().updateUserName(nickname)
-                        if (result.isSuccess) {
-                            navController.navigate(RememberScreen.SelectContact.name) {
-                                popUpTo(RememberScreen.Intro.name)
-                            }
-                        } else {
-                            Toast.makeText(context, "Internal Server Error", Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: Exception) {
-                        Napier.d("### ${e.localizedMessage}")
-                        e.localizedMessage ?: "error"
-                    }
-
-                    scope.cancel()
-                }
-            },
+            onClick = { viewModel.updateUserName(nickname) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp),

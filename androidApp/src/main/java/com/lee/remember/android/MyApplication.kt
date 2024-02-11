@@ -1,8 +1,11 @@
 package com.lee.remember.android
 
 import android.app.Application
+import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.android.viewmodel.IntroViewModel
 import com.lee.remember.android.viewmodel.LoginViewModel
+import com.lee.remember.android.viewmodel.MemoryViewModel
+import com.lee.remember.android.viewmodel.MyViewModel
 import com.lee.remember.di.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -11,8 +14,11 @@ import org.koin.dsl.module
 
 class MyApplication : Application() {
     val androidModule = module {
-        viewModel { IntroViewModel(get(), get()) }
+        viewModel { IntroViewModel(get(), get(), get(), get()) }
         viewModel { LoginViewModel(get(), get(), get(), get()) }
+        viewModel { MemoryViewModel(get(), get(), get()) }
+        viewModel { MyViewModel(get()) }
+        viewModel { FriendViewModel(get(), get()) }
     }
 
     override fun onCreate() {

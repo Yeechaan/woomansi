@@ -14,9 +14,9 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
 class AuthRepository(
-    val authApi: AuthApi = AuthApi(),
-    val authDao: AuthDao = AuthDao(),
-    val userDao: UserDao = UserDao(),
+    private val authApi: AuthApi,
+    private val authDao: AuthDao,
+    private val userDao: UserDao,
 ) {
 
     fun getToken() = authDao.getToken()
