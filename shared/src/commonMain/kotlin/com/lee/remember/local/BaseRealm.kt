@@ -28,7 +28,7 @@ class BaseRealm {
             MemoryFriendRealm::class
         )
     ).apply {
-        schemaVersion(2)
+        schemaVersion(1)
 //        deleteRealmIfMigrationNeeded()
     }.migration(AutomaticSchemaMigration {
 //        val oldRealm = it.oldRealm
