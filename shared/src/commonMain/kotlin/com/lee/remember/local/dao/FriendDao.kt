@@ -9,8 +9,10 @@ import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmList
 
-class FriendDao {
-    private val realm = BaseRealm.realm
+class FriendDao(
+    private val baseRealm: BaseRealm,
+) {
+    private val realm = baseRealm.realm
 
     suspend fun setFriend(friend: FriendRealm) {
         realm.write {

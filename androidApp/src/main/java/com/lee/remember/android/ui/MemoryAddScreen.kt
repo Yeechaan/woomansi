@@ -48,6 +48,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,7 +77,10 @@ import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextField.placeHolder
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.viewmodel.MemoryAddUiState
+import com.lee.remember.android.viewmodel.MemoryAddViewModel
 import com.lee.remember.android.viewmodel.MemoryViewModel
+import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.remote.request.MemoryRequest
 import io.github.aakira.napier.Napier
@@ -94,19 +98,30 @@ fun MemoryAddScreen(
     navHostController: NavHostController,
     snackbarHostState: SnackbarHostState,
     friendId: String?,
-    viewModel: MemoryViewModel = koinViewModel(),
+    viewModel: MemoryAddViewModel = koinViewModel(),
 ) {
     viewModel.getFriendName(friendId?.toInt() ?: -1)
+    viewModel.getFriendList(friendId?.toInt() ?: -1)
+
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.success) {
+//    when(uiState) {
+//        is MemoryAddUiState.Initialize -> { }
+//        MemoryAddUiState.Loading -> { }
+//        MemoryAddUiState.Success -> {
+//            viewModel.resetUiState()
+//            navHostController.navigateUp()
+//        }
+//        is MemoryAddUiState.Error -> { }
+//    }
+
+    if (uiState.isSuccess) {
         viewModel.resetUiState()
         navHostController.navigateUp()
     }
-    if (uiState.loading) {
-        // Todo 로딩 처리
+    if (uiState.message.isNotEmpty()) {
+        Napier.d(uiState.message)
     }
-
 
     val scrollState = rememberScrollState()
 
@@ -117,11 +132,8 @@ fun MemoryAddScreen(
     val context = LocalContext.current
 
     val friends by rememberSaveable {
-        mutableStateOf(
-            FriendDao().getFriends().filter { it.id.toString() != friendId }.map {
-                Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = false)
-            }.toMutableList()
-        )
+//        mutableStateOf((uiState as MemoryAddUiState.Initialize).contracts.toMutableList())
+        mutableStateOf(uiState.contracts.toMutableList())
     }
 
     var selectedImage by remember { mutableStateOf<Uri?>(null) }

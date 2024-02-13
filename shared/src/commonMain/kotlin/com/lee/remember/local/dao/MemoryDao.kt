@@ -6,8 +6,10 @@ import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmList
 
-class MemoryDao {
-    private val realm = BaseRealm.realm
+class MemoryDao(
+    private val baseRealm: BaseRealm,
+) {
+    private val realm = baseRealm.realm
 
     suspend fun setMemory(memory: MemoryRealm) {
         realm.write {

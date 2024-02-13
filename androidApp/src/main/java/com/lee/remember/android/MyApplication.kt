@@ -4,6 +4,7 @@ import android.app.Application
 import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.android.viewmodel.IntroViewModel
 import com.lee.remember.android.viewmodel.LoginViewModel
+import com.lee.remember.android.viewmodel.MemoryAddViewModel
 import com.lee.remember.android.viewmodel.MemoryViewModel
 import com.lee.remember.android.viewmodel.MyViewModel
 import com.lee.remember.di.appModule
@@ -19,6 +20,7 @@ class MyApplication : Application() {
         viewModel { MemoryViewModel(get(), get(), get()) }
         viewModel { MyViewModel(get()) }
         viewModel { FriendViewModel(get(), get()) }
+        viewModel { MemoryAddViewModel(get(), get(), get()) }
     }
 
     override fun onCreate() {

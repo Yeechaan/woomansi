@@ -65,6 +65,7 @@ import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.local.model.FriendRealm
 import kotlinx.coroutines.launch
@@ -74,7 +75,8 @@ import kotlin.math.absoluteValue
 @Composable
 fun HistoryScreen(navHostController: NavHostController) {
 
-    val friendList = remember { mutableStateOf(FriendDao().getFriends().toMutableList()) }
+    // Todo 0213
+    val friendList = remember { mutableStateOf(FriendDao(BaseRealm()).getFriends().toMutableList()) }
 //    val friendListFromServer = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
     val currentFriendIndex = remember { mutableStateOf<Int>(-1) }
 

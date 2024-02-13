@@ -68,12 +68,13 @@ import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.remote.request.FriendRequest
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendAddScreen(
     navHostController: NavHostController, name: String?, number: String?,
-    viewModel: FriendViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: FriendViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

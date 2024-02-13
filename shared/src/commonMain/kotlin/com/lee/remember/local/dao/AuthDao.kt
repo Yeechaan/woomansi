@@ -4,8 +4,10 @@ import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.model.AuthRealm
 import io.realm.kotlin.ext.query
 
-class AuthDao {
-    private val realm = BaseRealm.realm
+class AuthDao(
+    private val baseRealm: BaseRealm,
+) {
+    private val realm = baseRealm.realm
 
     suspend fun updateAuth(token: String, password: String) {
         realm.write {

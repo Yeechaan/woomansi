@@ -76,6 +76,7 @@ import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.android.viewmodel.MemoryViewModel
+import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.model.Memory
 import com.lee.remember.model.MemoryFriend
@@ -119,8 +120,9 @@ fun MemoryEditScreen(
     val scope = rememberCoroutineScope()
 
     val friends by rememberSaveable {
+        // Todo 0213
         mutableStateOf(
-            FriendDao().getFriends().filter { it.id != friendId }.map {
+            FriendDao(BaseRealm()).getFriends().filter { it.id != friendId }.map {
                 val isChecked = memory.friendTags.any { friend -> it.id == friend.id }
                 Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = isChecked)
             }.toMutableList()

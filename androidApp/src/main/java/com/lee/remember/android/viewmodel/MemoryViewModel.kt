@@ -2,7 +2,6 @@ package com.lee.remember.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.local.model.UserRealm
 import com.lee.remember.model.Memory
 import com.lee.remember.model.asData

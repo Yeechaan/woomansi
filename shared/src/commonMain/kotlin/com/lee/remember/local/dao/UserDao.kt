@@ -6,8 +6,10 @@ import com.lee.remember.local.model.UserRealm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
 
-class UserDao {
-    private val realm = BaseRealm.realm
+class UserDao(
+    private val baseRealm: BaseRealm,
+) {
+    private val realm = baseRealm.realm
 
     suspend fun setUser(user: UserRealm) {
         realm.write {

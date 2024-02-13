@@ -51,6 +51,7 @@ import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.ui.intro.getContracts
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.dao.FriendDao
 
 val whiteColor = Color(0xFFFFFFFF)
@@ -63,7 +64,8 @@ fun FriendScreen(navHostController: NavHostController) {
 
     val friendList = remember {
         mutableStateOf(
-            FriendDao().getFriends().toMutableList()
+            // Todo 0213
+            FriendDao(BaseRealm()).getFriends().toMutableList()
         )
     }
 

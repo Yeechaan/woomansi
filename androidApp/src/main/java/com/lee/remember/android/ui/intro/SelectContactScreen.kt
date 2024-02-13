@@ -42,8 +42,6 @@ import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.ui.fontColorBlack
-import com.lee.remember.android.ui.fontColorPoint
-import com.lee.remember.android.ui.fontHintColor
 import com.lee.remember.android.ui.lightColor
 import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberTextStyle
@@ -51,11 +49,12 @@ import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.remote.request.FriendRequest
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SelectContractScreen(
     navController: NavHostController,
-    viewModel: FriendViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    viewModel: FriendViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
