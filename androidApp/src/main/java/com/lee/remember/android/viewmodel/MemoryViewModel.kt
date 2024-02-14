@@ -35,17 +35,13 @@ class MemoryViewModel(
     private val _uiState = MutableStateFlow(MemoryUiState())
     val uiState: StateFlow<MemoryUiState> = _uiState.asStateFlow()
 
-    val user = userRepository.getUser() ?: UserRealm()
+    private val user = userRepository.getUser() ?: UserRealm()
 
-    fun getAllMemories() {
+    init {
         viewModelScope.launch {
-            memoryRepository.getMemories().collectLatest {
-                val memories = it.list.map { it.asData() }
-                    .sortedByDescending { it.date }
-
-                _uiState.update {
-                    it.copy(memories = memories)
-                }
+            memoryRepository.getMemories().collectLatest { results ->
+                val memories = results.list.map { it.asData() }.sortedByDescending { it.date }
+                _uiState.update { it.copy(memories = memories) }
             }
         }
     }

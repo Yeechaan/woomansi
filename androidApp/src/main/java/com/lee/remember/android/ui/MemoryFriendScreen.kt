@@ -38,17 +38,18 @@ import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.viewmodel.MemoryFriendViewModel
 import com.lee.remember.android.viewmodel.MemoryViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemoryFriendScreen(
-    navHostController: NavHostController, friendId: String?,
-    viewModel: MemoryViewModel = koinViewModel(),
+    navHostController: NavHostController,
+    friendId: String?,
+    viewModel: MemoryFriendViewModel = koinViewModel(parameters = { parametersOf(friendId?.toInt()) }),
 ) {
-    viewModel.getFriendName(friendId?.toInt() ?: -1)
-    viewModel.getFriendMemories(friendId?.toInt() ?: -1)
     val uiState by viewModel.uiState.collectAsState()
 
     Column {
@@ -102,7 +103,7 @@ fun MemoryFriendScreen(
                                 onUpdate = {
                                     navHostController.navigate("${RememberScreen.MemoryEdit.name}/${item.id}")
                                 },
-                                onDelete = {    
+                                onDelete = {
                                     viewModel.deleteMemory(item.id)
                                 }
                             )

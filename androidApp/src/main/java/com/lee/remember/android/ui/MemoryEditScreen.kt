@@ -28,7 +28,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -74,32 +73,29 @@ import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextField.placeHolder
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.utils.parseUtcString
-import com.lee.remember.android.viewmodel.MemoryViewModel
-import com.lee.remember.local.BaseRealm
-import com.lee.remember.local.dao.FriendDao
+import com.lee.remember.android.viewmodel.MemoryEditViewModel
 import com.lee.remember.model.Memory
 import com.lee.remember.model.MemoryFriend
 import com.lee.remember.remote.request.MemoryUpdateRequest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemoryEditScreen(
     navHostController: NavHostController,
     snackbarHostState: SnackbarHostState,
     memoryId: String?,
-    viewModel: MemoryViewModel = koinViewModel(),
+    viewModel: MemoryEditViewModel = koinViewModel(parameters = { parametersOf(memoryId?.toInt()) }),
 ) {
-    viewModel.getMemory(memoryId?.toInt() ?: -1)
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.success) {
+    if (uiState.isSuccess) {
         viewModel.resetUiState()
         navHostController.navigateUp()
     }
-    if (uiState.loading) {
+    if (uiState.isLoading) {
         // Todo 로딩 처리
     }
 
@@ -108,11 +104,9 @@ fun MemoryEditScreen(
 
     val memory = uiState.memory ?: Memory()
     val friend = memory.ownerFriend ?: MemoryFriend()
-    val friendId = friend.id
+    val ownerFriendId = friend.id
+    val ownerFriendName = friend.name
 
-    var name by remember { mutableStateOf(friend.name) }
-//    var phoneNumber by remember { mutableStateOf("") }
-//    val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
     val savedDate = memory.date
     var date by remember { mutableStateOf(savedDate) }
 
@@ -120,13 +114,7 @@ fun MemoryEditScreen(
     val scope = rememberCoroutineScope()
 
     val friends by rememberSaveable {
-        // Todo 0213
-        mutableStateOf(
-            FriendDao(BaseRealm()).getFriends().filter { it.id != friendId }.map {
-                val isChecked = memory.friendTags.any { friend -> it.id == friend.id }
-                Contract(id = it.id.toString(), name = it.name, number = it.phoneNumber, isChecked = isChecked)
-            }.toMutableList()
-        )
+        mutableStateOf(uiState.contracts)
     }
 
     var savedImage by remember { mutableStateOf(memory.image) }
@@ -158,7 +146,7 @@ fun MemoryEditScreen(
 
         TopAppBar(
             modifier = Modifier.shadow(10.dp),
-            title = { Text(name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+            title = { Text(ownerFriendName, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
             colors = TopAppBarDefaults.mediumTopAppBarColors(
                 containerColor = Color.White
             ),
@@ -185,7 +173,7 @@ fun MemoryEditScreen(
                         if (savedImage.isNotEmpty()) images.add(MemoryUpdateRequest.Image(image = savedImage))
 
                         // remote
-                        val addedFriends = mutableListOf(friendId)
+                        val addedFriends = mutableListOf(ownerFriendId)
                         friends.filter { it.isChecked }.map {
                             addedFriends.add(it.id.toInt())
                         }
@@ -199,17 +187,6 @@ fun MemoryEditScreen(
                         )
 
                         viewModel.updateMemory(memoryId?.toInt() ?: -1, request)
-
-//                        val result = MemoryRepository().updateMemory(memory.id, request)
-////                        val result = MemoryRepository().addMemory(request)
-//                        result.fold(
-//                            onSuccess = {
-//                                navHostController.navigateUp()
-//                            },
-//                            onFailure = {
-//                                // SnackBar
-//                            }
-//                        )
                     }
 
                 }) {

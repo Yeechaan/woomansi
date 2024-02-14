@@ -51,22 +51,21 @@ import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.ui.intro.getContracts
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.local.BaseRealm
-import com.lee.remember.local.dao.FriendDao
+import com.lee.remember.android.viewmodel.FriendViewModel
+import org.koin.androidx.compose.koinViewModel
 
 val whiteColor = Color(0xFFFFFFFF)
 val lightColor = Color(0xFFF7F7F7)
 val pointColor = Color(0xFFF3F2EE)
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendScreen(navHostController: NavHostController) {
-
+fun FriendScreen(
+    navHostController: NavHostController,
+    viewModel: FriendViewModel = koinViewModel(),
+) {
     val friendList = remember {
-        mutableStateOf(
-            // Todo 0213
-            FriendDao(BaseRealm()).getFriends().toMutableList()
-        )
+        mutableStateOf(viewModel.getFriends())
     }
 
     Column(

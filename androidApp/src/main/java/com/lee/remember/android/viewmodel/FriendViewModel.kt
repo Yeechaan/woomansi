@@ -26,8 +26,9 @@ class FriendViewModel(
     val uiState: StateFlow<FriendUiState> = _uiState.asStateFlow()
 
     fun getFriend(friendId: Int) = friendRepository.getFriend(friendId)
+    fun getFriends() = friendRepository.getFriends()
 
-    val user = userRepository.getUser() ?: UserRealm()
+    private val user = userRepository.getUser() ?: UserRealm()
 
     fun addFriends(friends: List<FriendRequest>) {
         viewModelScope.launch {

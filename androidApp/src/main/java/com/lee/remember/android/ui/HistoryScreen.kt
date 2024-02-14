@@ -32,12 +32,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,19 +64,21 @@ import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.data.FriendProfile
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.local.BaseRealm
-import com.lee.remember.local.dao.FriendDao
+import com.lee.remember.android.viewmodel.HistoryViewModel
 import com.lee.remember.local.model.FriendRealm
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryScreen(navHostController: NavHostController) {
+fun HistoryScreen(
+    navHostController: NavHostController,
+    viewModel: HistoryViewModel = koinViewModel(),
+) {
+    val uiState = viewModel.uiState.collectAsState()
 
-    // Todo 0213
-    val friendList = remember { mutableStateOf(FriendDao(BaseRealm()).getFriends().toMutableList()) }
-//    val friendListFromServer = remember { mutableStateOf(mutableListOf<FriendResponse.Result>()) }
+    val friendList = remember { mutableStateOf(uiState.value.friends) }
     val currentFriendIndex = remember { mutableStateOf<Int>(-1) }
 
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -187,7 +188,7 @@ fun HistoryEmptyScreen(navHostController: NavHostController) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HistoryPagerScreen(navHostController: NavHostController, friendList: MutableList<FriendRealm>, onCurrentPage: (Int) -> Unit) {
+fun HistoryPagerScreen(navHostController: NavHostController, friendList: List<FriendRealm>, onCurrentPage: (Int) -> Unit) {
 
     val pagerState = rememberPagerState(pageCount = { friendList.size })
     onCurrentPage(pagerState.currentPage)
@@ -249,7 +250,7 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: Mutable
 //                    modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Top
                 ) {
-                    FriendSummaryItem(friendProfile, navHostController)
+                    FriendSummaryItem(friendProfile)
                 }
 
                 val bitmap: Bitmap? = stringToBitmap(friendProfile.image)
@@ -304,7 +305,7 @@ fun HistoryItem(text: String, icon: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostController) {
+fun FriendSummaryItem(friendProfile: FriendProfile) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -327,77 +328,6 @@ fun FriendSummaryItem(friendProfile: FriendProfile, navHostController: NavHostCo
                 color = Color.White
             )
         }
-//        Button(
-//            onClick = {
-//                selectedFriendPhoneNumber = friendProfile.phoneNumber
-//
-//                val friendId = friendProfile.id
-//                navHostController.navigate("${RememberScreen.FriendHistory.name}/${friendId}")
-//            },
-//            modifier = Modifier.size(70.dp),  //avoid the oval shape
-//            shape = CircleShape,
-//            contentPadding = PaddingValues(0.dp),  //avoid the little icon
-//            colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
-//        ) {
-//            Text(text = "기록\n보기", style = getTextStyle(textStyle = RememberTextStyle.BODY_1B))
-//        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ActionConfirmModel(phoneNumber: String, isCall: Boolean) {
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(true) }
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-    val imageId = if (isCall) R.drawable.ic_call else R.drawable.ic_message
-    val title = if (isCall) "안심하세요!\n바로 통화로 연결되지 않아요." else "친구에게 문자를 보내보세요."
-    val buttonText = if (isCall) "전화하기" else "문자하기"
-
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showBottomSheet = false },
-            sheetState = sheetState,
-        ) {
-            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(modifier = Modifier.padding(top = 36.dp), painter = painterResource(id = imageId), contentDescription = null)
-
-                Text(
-                    modifier = Modifier.padding(top = 24.dp),
-                    text = title,
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
-                )
-
-                Text(
-                    modifier = Modifier.padding(top = 40.dp),
-                    text = phoneNumber,
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color.Black)
-                )
-
-                TextButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 32.dp, bottom = 40.dp)
-                        .background(Color(0xFFF8D393)),
-                    onClick = {
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                val callIntent: Intent = Uri.parse("tel:$phoneNumber").let { number ->
-                                    Intent(Intent.ACTION_DIAL, number)
-                                }
-                                startActivity(context, callIntent, null)
-
-                                showBottomSheet = false
-                            }
-                        }
-                    }
-                ) {
-                    Text(buttonText, style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E)))
-                }
-            }
-        }
     }
 }
 
@@ -405,6 +335,4 @@ fun ActionConfirmModel(phoneNumber: String, isCall: Boolean) {
 @Composable
 fun HistoryScreenPreview() {
     HistoryScreen(rememberNavController())
-
-//    HistoryEmptyScreen()
 }

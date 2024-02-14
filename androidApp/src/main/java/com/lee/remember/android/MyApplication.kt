@@ -1,10 +1,14 @@
 package com.lee.remember.android
 
 import android.app.Application
+import com.lee.remember.android.viewmodel.FriendProfileViewModel
 import com.lee.remember.android.viewmodel.FriendViewModel
+import com.lee.remember.android.viewmodel.HistoryViewModel
 import com.lee.remember.android.viewmodel.IntroViewModel
 import com.lee.remember.android.viewmodel.LoginViewModel
 import com.lee.remember.android.viewmodel.MemoryAddViewModel
+import com.lee.remember.android.viewmodel.MemoryEditViewModel
+import com.lee.remember.android.viewmodel.MemoryFriendViewModel
 import com.lee.remember.android.viewmodel.MemoryViewModel
 import com.lee.remember.android.viewmodel.MyViewModel
 import com.lee.remember.di.appModule
@@ -20,7 +24,11 @@ class MyApplication : Application() {
         viewModel { MemoryViewModel(get(), get(), get()) }
         viewModel { MyViewModel(get()) }
         viewModel { FriendViewModel(get(), get()) }
-        viewModel { MemoryAddViewModel(get(), get(), get()) }
+        viewModel { HistoryViewModel(get()) }
+        viewModel { parameters -> MemoryAddViewModel(parameters.get(), get(), get(), get()) }
+        viewModel { parameters -> MemoryEditViewModel(parameters.get(), get(), get(), get()) }
+        viewModel { parameters -> FriendProfileViewModel(parameters.get(), get()) }
+        viewModel { parameters -> MemoryFriendViewModel(parameters.get(), get(), get()) }
     }
 
     override fun onCreate() {

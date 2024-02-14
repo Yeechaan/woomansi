@@ -24,6 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,9 +44,10 @@ import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.FriendViewModel
+import com.lee.remember.android.viewmodel.FriendProfileViewModel
 import com.lee.remember.local.model.FriendRealm
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 // 0xFF1D1B20
 val fontColorBlack = Color(0xFF1D1B20)
@@ -55,9 +58,11 @@ val fontColorPoint = Color(0xFFFFCF40)
 fun FriendProfileScreen(
     navHostController: NavHostController,
     friendId: String?,
-    viewModel: FriendViewModel = koinViewModel(),
+    viewModel: FriendProfileViewModel = koinViewModel(parameters = { parametersOf(friendId?.toInt()) }),
 ) {
-    val friend = viewModel.getFriend(friendId?.toInt() ?: -1) ?: FriendRealm()
+    val uiState by viewModel.uiState.collectAsState()
+
+    val friend = uiState.friend ?: FriendRealm()
     val image = friend.profileImage?.image ?: ""
 
     val scrollState = rememberScrollState()

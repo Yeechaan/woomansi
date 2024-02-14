@@ -86,23 +86,21 @@ import com.lee.remember.remote.request.MemoryRequest
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import java.util.Calendar
 
 //0xFFD59519
 val fontPointColor = Color(0xFFD59519)
 val fontHintColor = Color(0x4D000000)
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemoryAddScreen(
     navHostController: NavHostController,
     snackbarHostState: SnackbarHostState,
     friendId: String?,
-    viewModel: MemoryAddViewModel = koinViewModel(),
+    viewModel: MemoryAddViewModel = koinViewModel(parameters = { parametersOf(friendId?.toInt()) }),
 ) {
-    viewModel.getFriendName(friendId?.toInt() ?: -1)
-    viewModel.getFriendList(friendId?.toInt() ?: -1)
-
     val uiState by viewModel.uiState.collectAsState()
 
 //    when(uiState) {
@@ -123,6 +121,7 @@ fun MemoryAddScreen(
         Napier.d(uiState.message)
     }
 
+
     val scrollState = rememberScrollState()
 
     val today = convertMillisToDate(Calendar.getInstance().timeInMillis)
@@ -139,9 +138,11 @@ fun MemoryAddScreen(
     var selectedImage by remember { mutableStateOf<Uri?>(null) }
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> uri?.let {
-            selectedImage = uri
-        } }
+        onResult = { uri ->
+            uri?.let {
+                selectedImage = uri
+            }
+        }
     )
 
     fun launchPhotoPicker() {
@@ -354,60 +355,6 @@ fun MemoryAddScreen(
                 }
             }
         }
-
-
-//        RememberModalBottomSheet(showSheet = showBottomSheet, onDismissRequest = { /*TODO*/ }) {
-//            val tempFriends = mutableListOf<Contract>()
-//            tempFriends.clear()
-//            tempFriends.addAll(friends)
-//
-//            LazyColumn(
-//                Modifier.padding(start = 16.dp, end = 16.dp)
-//            ) {
-//                items(tempFriends) { message ->
-//                    Row(verticalAlignment = Alignment.CenterVertically) {
-//                        Text(
-//                            modifier = Modifier.weight(1f),
-//                            text = message.name,
-//                            style = getTextStyle(textStyle = RememberTextStyle.BODY_1B)
-//                        )
-//                        Text(text = message.number, style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000)))
-//
-//                        val checkedState = remember { mutableStateOf(message.isChecked) }
-//                        Checkbox(
-//                            checked = checkedState.value,
-//                            onCheckedChange = {
-//                                tempFriends.find { it.number == message.number }?.isChecked = it
-//                                checkedState.value = it
-//                            },
-//                            colors = CheckboxDefaults.colors(checkedColor = Color(0xFFF2BE2F), uncheckedColor = Color.Black)
-//                        )
-//                    }
-//                }
-//            }
-//
-//            TextButton(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 56.dp)
-//                    .background(Color(0xFFF2BE2F)),
-//                onClick = {
-//                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-//                        if (!sheetState.isVisible) {
-//                            friends.clear()
-//                            friends.addAll(tempFriends)
-//                            isFriendEmpty = friends.none { it.isChecked }
-//
-//                            showBottomSheet = false
-//                        }
-//                    }
-//                }) {
-//                Text(
-//                    text = "선택완료",
-//                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF50432E))
-//                )
-//            }
-//        }
 
         if (showBottomSheet) {
             val tempFriends = mutableListOf<Contract>()
