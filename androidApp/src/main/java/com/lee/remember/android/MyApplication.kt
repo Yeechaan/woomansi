@@ -28,7 +28,7 @@ class MyApplication : Application() {
         viewModel { parameters -> MemoryAddViewModel(parameters.get(), get(), get(), get()) }
         viewModel { parameters -> MemoryEditViewModel(parameters.get(), get(), get(), get()) }
         viewModel { parameters -> FriendProfileViewModel(parameters.get(), get()) }
-        viewModel { parameters -> MemoryFriendViewModel(parameters.get(), get(), get()) }
+        viewModel { parameters -> MemoryFriendViewModel(parameters.get(), get(), get(), get()) }
     }
 
     override fun onCreate() {

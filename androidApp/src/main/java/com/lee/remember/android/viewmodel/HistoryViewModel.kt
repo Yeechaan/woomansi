@@ -1,11 +1,14 @@
 package com.lee.remember.android.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.repository.FriendRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 data class HistoryUiState(
     val isLoading: Boolean = false,
@@ -20,8 +23,12 @@ class HistoryViewModel(
     val uiState: StateFlow<HistoryUiState> = _uiState
 
     init {
-        val friends = friendRepository.getFriends()
-        _uiState.update { it.copy(friends = friends) }
+        viewModelScope.launch {
+            friendRepository.getFriendsAsFlow().collectLatest {
+                val friends = it.list
+                _uiState.update { it.copy(friends = friends) }
+            }
+        }
     }
 
 }

@@ -76,9 +76,8 @@ fun HistoryScreen(
     navHostController: NavHostController,
     viewModel: HistoryViewModel = koinViewModel(),
 ) {
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
-    val friendList = remember { mutableStateOf(uiState.value.friends) }
     val currentFriendIndex = remember { mutableStateOf<Int>(-1) }
 
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -111,10 +110,10 @@ fun HistoryScreen(
                 }
             }
 
-            if (friendList.value.isEmpty()) {
+            if (uiState.friends.isEmpty()) {
                 HistoryEmptyScreen(navHostController)
             } else {
-                HistoryPagerScreen(navHostController, friendList.value) {
+                HistoryPagerScreen(navHostController, uiState.friends) {
                     currentFriendIndex.value = it
                 }
             }
@@ -125,7 +124,8 @@ fun HistoryScreen(
         val context = LocalContext.current
 
         if (showBottomSheet && currentFriendIndex.value != -1) {
-            val name = friendList.value[currentFriendIndex.value].name ?: ""
+            val friend = uiState.friends[currentFriendIndex.value]
+            val name = friend.name
 
             val contactType = if (isCall) ContactType.Call else ContactType.Message
             FriendContactDialog(
@@ -136,9 +136,9 @@ fun HistoryScreen(
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             val callIntent: Intent = if (isCall) {
-                                Intent(Intent.ACTION_DIAL, Uri.parse("tel:$name"))
+                                Intent(Intent.ACTION_DIAL, Uri.parse("tel:${friend.phoneNumber}"))
                             } else {
-                                Intent(Intent.ACTION_SENDTO, Uri.parse("sms:$name"))
+                                Intent(Intent.ACTION_SENDTO, Uri.parse("sms:${friend.phoneNumber}"))
                             }
 
                             startActivity(context, callIntent, null)

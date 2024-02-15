@@ -14,6 +14,7 @@ import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class MemoryRepository(
@@ -82,6 +83,9 @@ class MemoryRepository(
     fun getMemory(memoryId: Int) = memoryDao.getMemory(memoryId).firstOrNull()
     fun getMemories() = memoryDao.getMemories().asFlow()
     fun getMemoriesByFriendId(friendId: Int) = memoryDao.getMemories().filter { it.friends.firstOrNull()?.id == friendId }
+    fun getMemoriesByFriendIdAsFlow(friendId: Int) = memoryDao.getMemories().asFlow().map {
+        it.list.filter { it.friends.firstOrNull()?.id == friendId }
+    }
 
     suspend fun fetchMemories() = withContext(Dispatchers.IO) {
         val result = memoryApi.getMemoryList(token)
