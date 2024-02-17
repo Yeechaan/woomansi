@@ -8,6 +8,7 @@ import com.lee.remember.local.model.ProfileImageRealm
 import com.lee.remember.local.model.asRealm
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.request.FriendRequest
+import io.github.aakira.napier.Napier
 import io.realm.kotlin.ext.asFlow
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
@@ -20,7 +21,8 @@ class FriendRepository(
     private val friendApi: FriendApi,
     private val authDao: AuthDao,
 ) {
-    private val token = authDao.getToken() ?: ""
+    private val token: String
+        get() = authDao.getToken() ?: ""
 
     fun getFriendsAsFlow() = friendDao.getFriends().asFlow()
     fun getFriendAsFlow(friendId: Int) = friendDao.getFriend(friendId)?.asFlow()

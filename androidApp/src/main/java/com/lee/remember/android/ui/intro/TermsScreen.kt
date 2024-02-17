@@ -18,8 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -42,9 +44,9 @@ import com.lee.remember.android.utils.getTextStyle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermsScreen(navController: NavHostController) {
-    val allCheckedState = remember { mutableStateOf(false) }
-    val termsCheckedState = remember { mutableStateOf(false) }
-    val privacyCheckedState = remember { mutableStateOf(false) }
+    var allCheckedState by remember { mutableStateOf(false) }
+    var termsCheckedState by remember { mutableStateOf(false) }
+    var privacyCheckedState by remember { mutableStateOf(false) }
     val localUriHandler = LocalUriHandler.current
 
     Column(
@@ -85,12 +87,12 @@ fun TermsScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
-                    checked = allCheckedState.value,
+                    checked = allCheckedState,
                     onCheckedChange = {
-                        termsCheckedState.value = it
-                        privacyCheckedState.value = it
+                        termsCheckedState = it
+                        privacyCheckedState = it
 
-                        allCheckedState.value = it
+                        allCheckedState = it
                     },
                     colors = RememberCheckbox()
                 )
@@ -105,11 +107,11 @@ fun TermsScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
-                    checked = termsCheckedState.value,
+                    checked = termsCheckedState,
                     onCheckedChange = {
-                        allCheckedState.value = it && privacyCheckedState.value
+                        allCheckedState = it && privacyCheckedState
 
-                        termsCheckedState.value = it
+                        termsCheckedState = it
                     },
                     colors = RememberCheckbox()
                 )
@@ -127,11 +129,11 @@ fun TermsScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
-                    checked = privacyCheckedState.value,
+                    checked = privacyCheckedState,
                     onCheckedChange = {
-                        allCheckedState.value = it && termsCheckedState.value
+                        allCheckedState = it && termsCheckedState
 
-                        privacyCheckedState.value = it
+                        privacyCheckedState = it
                     },
                     colors = RememberCheckbox()
                 )
@@ -145,7 +147,7 @@ fun TermsScreen(navController: NavHostController) {
             }
 
             RememberFilledButton(text = "동의하기", horizontalPaddingValues = PaddingValues(horizontal = 0.dp), onClick = {
-                if (allCheckedState.value) {
+                if (allCheckedState) {
                     navController.navigate(RememberScreen.SignUp.name)
                 }
             })

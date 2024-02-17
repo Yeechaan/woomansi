@@ -47,6 +47,7 @@ import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.android.viewmodel.LoginViewModel
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -61,12 +62,15 @@ fun LoginScreen(
     val scope = rememberCoroutineScope()
 
     if (uiState.loginSuccess && uiState.fetchSuccess) {
+        viewModel.resetUiState()
+
         navController.navigate(RememberScreen.History.name) {
             popUpTo(RememberScreen.Login.name) {
                 inclusive = true
             }
         }
     }
+
     if (uiState.message.isNotEmpty()) {
         scope.launch {
             snackbarHostState.showSnackbar("로그인 실패")

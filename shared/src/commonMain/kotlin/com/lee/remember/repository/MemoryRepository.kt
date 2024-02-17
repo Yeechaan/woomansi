@@ -23,7 +23,8 @@ class MemoryRepository(
     private val authDao: AuthDao,
     private val friendDao: FriendDao,
 ) {
-    private val token = authDao.getToken() ?: ""
+    private val token: String
+        get() = authDao.getToken() ?: ""
 
     suspend fun addMemory(request: MemoryRequest): Result<Boolean> =
         withContext(Dispatchers.IO) {

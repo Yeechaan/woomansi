@@ -6,6 +6,7 @@ import com.lee.remember.repository.AuthRepository
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
 import com.lee.remember.repository.UserRepository
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +25,7 @@ class LoginViewModel(
     private val userRepository: UserRepository,
     private val friendRepository: FriendRepository,
     private val memoryRepository: MemoryRepository,
-): ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -37,20 +38,22 @@ class LoginViewModel(
             if (result.isSuccess) {
                 fetchFromServer()
             }
+
             _uiState.update { it.copy(isLoading = false, loginSuccess = result.isSuccess) }
         }
     }
 
-    private fun fetchFromServer() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+    private suspend fun fetchFromServer() {
+        _uiState.update { it.copy(isLoading = true) }
 
-            userRepository.fetchUser()
-            friendRepository.fetchFriends()
-            memoryRepository.fetchMemories()
+        userRepository.fetchUser()
+        friendRepository.fetchFriends()
+        memoryRepository.fetchMemories()
 
-            _uiState.update { it.copy(isLoading = false, fetchSuccess = true) }
-        }
+        _uiState.update { it.copy(isLoading = false, fetchSuccess = true) }
     }
 
+    fun resetUiState() {
+        _uiState.value = LoginUiState()
+    }
 }

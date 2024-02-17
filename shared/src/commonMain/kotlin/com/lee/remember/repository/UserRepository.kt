@@ -15,15 +15,16 @@ class UserRepository(
     private val userApi: UserApi,
     private val authDao: AuthDao,
 ) {
+    private val token: String
+        get() = authDao.getToken() ?: ""
 
     fun getUser() = userDao.getUser()
 
     suspend fun updateUserName(name: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
-            val auth = authDao.getAuth() ?: return@withContext Result.failure(Exception(""))
             val user = getUser() ?: return@withContext Result.failure(Exception(""))
             val userInfoRequest = UserInfoRequest(user.email, name, user.phoneNumber, user.profileImage)
-            val result = userApi.updateUser(auth.accessToken, userInfoRequest)
+            val result = userApi.updateUser(token, userInfoRequest)
 
             return@withContext result.fold(
                 onSuccess = {
@@ -45,14 +46,12 @@ class UserRepository(
 
     suspend fun fetchUser(): Result<Boolean> =
         withContext(Dispatchers.IO) {
-            val token = authDao.getToken() ?: return@withContext Result.failure(Exception(""))
             val result = userApi.getUser(token)
 
             return@withContext result.fold(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
                         val userRealm = it.asRealm()
-//                        userDao.deleteUser()
                         userDao.setUser(userRealm)
 
                         Result.success(true)
@@ -68,7 +67,6 @@ class UserRepository(
 
     suspend fun deleteUser(): Result<Boolean> =
         withContext(Dispatchers.IO) {
-            val token = authDao.getToken() ?: return@withContext Result.failure(Exception(""))
             val result = userApi.deleteUser(token)
 
             return@withContext result.fold(
