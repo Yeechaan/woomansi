@@ -41,8 +41,8 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.ui.fontColorBlack
-import com.lee.remember.android.ui.lightColor
+import com.lee.remember.android.ui.friend.fontColorBlack
+import com.lee.remember.android.ui.friend.lightColor
 import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle

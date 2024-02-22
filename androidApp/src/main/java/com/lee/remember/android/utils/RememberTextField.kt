@@ -5,8 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.lee.remember.android.ui.fontColorPoint
-import com.lee.remember.android.ui.fontHintColor
+import com.lee.remember.android.ui.friend.fontColorPoint
+import com.lee.remember.android.ui.memory.fontHintColor
 
 object RememberTextField {
     @OptIn(ExperimentalMaterial3Api::class)

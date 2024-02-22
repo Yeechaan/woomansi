@@ -19,7 +19,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.ui.lightColor
+import com.lee.remember.android.ui.friend.lightColor
 import com.lee.remember.android.viewmodel.IntroViewModel
 import org.koin.androidx.compose.koinViewModel
 

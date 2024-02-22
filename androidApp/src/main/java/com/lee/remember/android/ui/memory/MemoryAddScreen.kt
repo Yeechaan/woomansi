@@ -1,4 +1,4 @@
-package com.lee.remember.android.ui
+package com.lee.remember.android.ui.memory
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -22,14 +22,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -48,7 +46,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,17 +68,16 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
+import com.lee.remember.android.RememberTopAppBar
+import com.lee.remember.android.ui.friend.convertMillisToDate
+import com.lee.remember.android.ui.friend.uriToBitmapString
 import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextField.placeHolder
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.MemoryAddUiState
 import com.lee.remember.android.viewmodel.MemoryAddViewModel
-import com.lee.remember.android.viewmodel.MemoryViewModel
-import com.lee.remember.local.BaseRealm
-import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.remote.request.MemoryRequest
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
@@ -161,22 +157,9 @@ fun MemoryAddScreen(
         var content by remember { mutableStateOf("") }
 
 
-        TopAppBar(
-            modifier = Modifier.shadow(10.dp),
-            title = { Text(uiState.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = Color.White
-            ),
-            navigationIcon = {
-                IconButton(onClick = {
-                    navHostController.navigateUp()
-                }) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
+        RememberTopAppBar(
+            navHostController = navHostController,
+            title = uiState.name,
             actions = {
                 TextButton(onClick = {
                     if (title.isEmpty()) {

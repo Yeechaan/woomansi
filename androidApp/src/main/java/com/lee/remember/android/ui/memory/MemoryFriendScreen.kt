@@ -1,4 +1,4 @@
-package com.lee.remember.android.ui
+package com.lee.remember.android.ui.memory
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -36,14 +36,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.RememberTopAppBar
+import com.lee.remember.android.ui.friend.lightColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.MemoryFriendViewModel
-import com.lee.remember.android.viewmodel.MemoryViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemoryFriendScreen(
     navHostController: NavHostController,
@@ -52,23 +52,8 @@ fun MemoryFriendScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Column {
-        TopAppBar(
-            title = { Text(uiState.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = Color.White
-            ),
-            navigationIcon = {
-                IconButton(onClick = {
-                    navHostController.navigateUp()
-                }) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
-        )
+    Column(Modifier.fillMaxSize()) {
+        RememberTopAppBar(navHostController = navHostController, title = uiState.name)
 
         Box(
             modifier = Modifier
@@ -85,7 +70,7 @@ fun MemoryFriendScreen(
                 )
             } else {
                 LazyColumn(
-                    Modifier.padding(start = 16.dp, end = 16.dp)
+                    Modifier.padding(top = 10.dp, start = 16.dp, end = 16.dp)
                 ) {
                     item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
                     items(uiState.memories) { item ->

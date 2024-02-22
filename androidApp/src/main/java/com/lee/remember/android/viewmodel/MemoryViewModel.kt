@@ -29,7 +29,6 @@ data class MemoryUiState(
 class MemoryViewModel(
     private val memoryRepository: MemoryRepository,
     private val userRepository: UserRepository,
-    private val friendRepository: FriendRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MemoryUiState())
@@ -43,74 +42,6 @@ class MemoryViewModel(
                 val memories = results.list.map { it.asData() }.sortedByDescending { it.date }
                 _uiState.update { it.copy(memories = memories) }
             }
-        }
-    }
-
-    fun getFriendMemories(friendId: Int) {
-        viewModelScope.launch {
-            memoryRepository.getMemories().collectLatest {
-                val memories = it.list.map { it.asData() }
-                    .sortedByDescending { it.date }
-                    .filter { it.ownerFriend?.id == friendId }
-
-                _uiState.update {
-                    it.copy(memories = memories)
-                }
-            }
-        }
-    }
-
-    fun getMemory(memoryId: Int) {
-        viewModelScope.launch {
-            val memory = memoryRepository.getMemory(memoryId)
-            _uiState.update {
-                it.copy(memory = memory?.asData())
-            }
-        }
-    }
-
-    fun getFriendName(friendId: Int) {
-        viewModelScope.launch {
-            val name = friendRepository.getFriend(friendId)?.name ?: ""
-            _uiState.update { it.copy(name = name) }
-        }
-    }
-
-    fun addMemory(request: MemoryRequest) {
-        viewModelScope.launch {
-            val result = if (user.isLocalMode) {
-                memoryRepository.addMemoryToLocal(request)
-            } else {
-                memoryRepository.addMemory(request)
-            }
-
-            result.fold(
-                onSuccess = {
-                    _uiState.update { it.copy(loading = false, success = true) }
-                },
-                onFailure = {
-                    _uiState.update { it.copy(loading = false, message = it.message) }
-                }
-            )
-        }
-    }
-
-    fun updateMemory(memoryId: Int, request: MemoryUpdateRequest) {
-        viewModelScope.launch {
-            val result = if (user.isLocalMode) {
-                memoryRepository.updateMemoryToLocal(memoryId, request)
-            } else {
-                memoryRepository.updateMemory(memoryId, request)
-            }
-
-            result.fold(
-                onSuccess = {
-                    _uiState.update { it.copy(loading = false, success = true) }
-                },
-                onFailure = {
-                    _uiState.update { it.copy(loading = false, message = it.message) }
-                }
-            )
         }
     }
 

@@ -27,7 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.lee.remember.android.ui.fontColorBlack
+import com.lee.remember.android.ui.friend.fontColorBlack
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle

@@ -1,4 +1,4 @@
-package com.lee.remember.android.ui
+package com.lee.remember.android.ui.friend
 
 import android.content.Context
 import android.graphics.Bitmap

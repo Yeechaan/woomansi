@@ -35,7 +35,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.ui.whiteColor
+import com.lee.remember.android.ui.friend.whiteColor
 import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextStyle

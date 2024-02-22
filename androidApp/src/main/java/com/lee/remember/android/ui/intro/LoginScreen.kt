@@ -43,14 +43,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.ui.whiteColor
+import com.lee.remember.android.ui.friend.whiteColor
 import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.android.viewmodel.LoginViewModel
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 

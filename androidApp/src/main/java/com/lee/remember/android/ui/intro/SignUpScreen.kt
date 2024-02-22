@@ -46,15 +46,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.ui.fontHintColor
-import com.lee.remember.android.ui.whiteColor
+import com.lee.remember.android.ui.memory.fontHintColor
+import com.lee.remember.android.ui.friend.whiteColor
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.android.viewmodel.IntroViewModel
-import com.lee.remember.repository.AuthRepository
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 

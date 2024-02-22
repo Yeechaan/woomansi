@@ -1,4 +1,4 @@
-package com.lee.remember.android.ui
+package com.lee.remember.android.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

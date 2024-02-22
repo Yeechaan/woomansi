@@ -1,4 +1,4 @@
-package com.lee.remember.android.ui
+package com.lee.remember.android.ui.memory
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.BorderStroke
@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -48,9 +47,11 @@ import androidx.navigation.NavHostController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.rememberFontFamily
+import com.lee.remember.android.ui.friend.fontColorBlack
+import com.lee.remember.android.ui.friend.lightColor
+import com.lee.remember.android.ui.friend.stringToBitmap
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.utils.parseUtcString
 import com.lee.remember.android.viewmodel.MemoryViewModel
 import com.lee.remember.model.Memory
 import org.koin.androidx.compose.koinViewModel

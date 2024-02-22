@@ -2,6 +2,7 @@ package com.lee.remember.android
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
@@ -37,18 +38,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.lee.remember.android.ui.ContactScreen
-import com.lee.remember.android.ui.FriendAddScreen
-import com.lee.remember.android.ui.FriendEditScreen
-import com.lee.remember.android.ui.FriendGroupScreen
-import com.lee.remember.android.ui.FriendProfileScreen
-import com.lee.remember.android.ui.FriendScreen
-import com.lee.remember.android.ui.HistoryScreen
-import com.lee.remember.android.ui.MeetingScreen
-import com.lee.remember.android.ui.MemoryAddScreen
-import com.lee.remember.android.ui.MemoryEditScreen
-import com.lee.remember.android.ui.MemoryFriendScreen
-import com.lee.remember.android.ui.MemoryScreen
+import com.lee.remember.android.ui.friend.FriendAddScreen
+import com.lee.remember.android.ui.friend.FriendEditScreen
+import com.lee.remember.android.ui.friend.FriendGroupScreen
+import com.lee.remember.android.ui.friend.FriendProfileScreen
+import com.lee.remember.android.ui.friend.FriendScreen
+import com.lee.remember.android.ui.home.HistoryScreen
+import com.lee.remember.android.ui.home.MeetingScreen
 import com.lee.remember.android.ui.intro.IntroScreen
 import com.lee.remember.android.ui.intro.LoginScreen
 import com.lee.remember.android.ui.intro.OnBoardingScreen
@@ -57,6 +53,10 @@ import com.lee.remember.android.ui.intro.SignUpScreen
 import com.lee.remember.android.ui.intro.SplashScreen
 import com.lee.remember.android.ui.intro.TermsScreen
 import com.lee.remember.android.ui.intro.UserNameScreen
+import com.lee.remember.android.ui.memory.MemoryAddScreen
+import com.lee.remember.android.ui.memory.MemoryEditScreen
+import com.lee.remember.android.ui.memory.MemoryFriendScreen
+import com.lee.remember.android.ui.memory.MemoryScreen
 import com.lee.remember.android.ui.my.MyScreen
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
@@ -70,7 +70,6 @@ enum class RememberScreen(@StringRes val title: Int) {
     UserName(title = R.string.user_name),
     Login(title = R.string.login),
     SelectContact(title = R.string.select_contact),
-    Contact(title = R.string.select_contact),
 
     History(title = R.string.history),
     Friend(title = R.string.friend),
@@ -113,7 +112,7 @@ fun MainApp(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             if (mainScreens.contains(currentScreen)) {
-                RememberTopAppBar(navHostController = navController)
+                RememberTopAppBarMain(navHostController = navController)
             }
         },
         bottomBar = {
@@ -203,9 +202,6 @@ fun MainApp(
             composable(route = RememberScreen.SelectContact.name) {
                 SelectContractScreen(navController)
             }
-            composable(route = RememberScreen.Contact.name) {
-                ContactScreen(navController)
-            }
             composable(route = RememberScreen.History.name) {
                 HistoryScreen(navController)
             }
@@ -286,7 +282,7 @@ fun TestDefaultPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RememberTopAppBar(navHostController: NavHostController) {
+fun RememberTopAppBarMain(navHostController: NavHostController) {
     TopAppBar(
         modifier = Modifier.shadow(2.dp),
         title = {},
@@ -305,6 +301,27 @@ fun RememberTopAppBar(navHostController: NavHostController) {
                 Icon(painter = painterResource(id = R.drawable.ic_account), contentDescription = "")
             }
         }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RememberTopAppBar(navHostController: NavHostController, title: String, actions: @Composable RowScope.() -> Unit = {}) {
+    TopAppBar(
+        modifier = Modifier.shadow(2.dp),
+        title = { Text(title, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
+        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
+        navigationIcon = {
+            IconButton(onClick = {
+                navHostController.navigateUp()
+            }) {
+                Icon(
+                    painterResource(id = R.drawable.baseline_arrow_back_24),
+                    contentDescription = stringResource(R.string.back_button)
+                )
+            }
+        },
+        actions = actions
     )
 }
 

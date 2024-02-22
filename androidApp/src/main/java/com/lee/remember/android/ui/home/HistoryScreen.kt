@@ -1,4 +1,4 @@
-package com.lee.remember.android.ui
+package com.lee.remember.android.ui.home
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -62,6 +62,12 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
 import com.lee.remember.android.data.FriendProfile
+import com.lee.remember.android.ui.friend.ContactType
+import com.lee.remember.android.ui.friend.FriendContactDialog
+import com.lee.remember.android.ui.friend.lightColor
+import com.lee.remember.android.ui.friend.stringToBitmap
+import com.lee.remember.android.ui.friend.whiteColor
+import com.lee.remember.android.ui.memory.fontPointColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.HistoryViewModel

@@ -54,8 +54,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
-import com.lee.remember.android.ui.pointColor
-import com.lee.remember.android.ui.stringToBitmap
+import com.lee.remember.android.ui.friend.pointColor
+import com.lee.remember.android.ui.friend.stringToBitmap
 import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle

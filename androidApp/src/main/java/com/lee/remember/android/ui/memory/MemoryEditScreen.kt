@@ -1,4 +1,4 @@
-package com.lee.remember.android.ui
+package com.lee.remember.android.ui.memory
 
 import android.graphics.Bitmap
 import android.net.Uri
@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -67,6 +66,10 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
+import com.lee.remember.android.RememberTopAppBar
+import com.lee.remember.android.ui.friend.convertMillisToDate
+import com.lee.remember.android.ui.friend.stringToBitmap
+import com.lee.remember.android.ui.friend.uriToBitmapString
 import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextField
@@ -144,22 +147,9 @@ fun MemoryEditScreen(
         var title by remember { mutableStateOf(memory.title) }
         var content by remember { mutableStateOf(memory.description) }
 
-        TopAppBar(
-            modifier = Modifier.shadow(10.dp),
-            title = { Text(ownerFriendName, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = Color.White
-            ),
-            navigationIcon = {
-                IconButton(onClick = {
-                    navHostController.navigateUp()
-                }) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
+        RememberTopAppBar(
+            navHostController = navHostController,
+            title = ownerFriendName,
             actions = {
                 TextButton(onClick = {
                     scope.launch {

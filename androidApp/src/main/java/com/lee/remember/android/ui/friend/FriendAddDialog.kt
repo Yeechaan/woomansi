@@ -1,4 +1,4 @@
-package com.lee.remember.android.ui
+package com.lee.remember.android.ui.friend
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

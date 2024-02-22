@@ -18,10 +18,10 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
 class MyApplication : Application() {
-    val androidModule = module {
+    private val androidModule = module {
         viewModel { IntroViewModel(get(), get(), get(), get()) }
         viewModel { LoginViewModel(get(), get(), get(), get()) }
-        viewModel { MemoryViewModel(get(), get(), get()) }
+        viewModel { MemoryViewModel(get(), get()    ) }
         viewModel { MyViewModel(get()) }
         viewModel { FriendViewModel(get(), get()) }
         viewModel { HistoryViewModel(get()) }
