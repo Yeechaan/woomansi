@@ -1,6 +1,7 @@
 package com.lee.remember.android
 
 import android.app.Application
+import com.lee.remember.android.utils.NetworkUtils
 import com.lee.remember.android.viewmodel.FriendProfileViewModel
 import com.lee.remember.android.viewmodel.FriendViewModel
 import com.lee.remember.android.viewmodel.HistoryViewModel
@@ -19,7 +20,7 @@ import org.koin.dsl.module
 
 class MyApplication : Application() {
     private val androidModule = module {
-        viewModel { IntroViewModel(get(), get(), get(), get()) }
+        viewModel { IntroViewModel(get(), get(), get(), get(), get()) }
         viewModel { LoginViewModel(get(), get(), get(), get()) }
         viewModel { MemoryViewModel(get(), get()    ) }
         viewModel { MyViewModel(get()) }
@@ -29,6 +30,8 @@ class MyApplication : Application() {
         viewModel { parameters -> MemoryEditViewModel(parameters.get(), get(), get(), get()) }
         viewModel { parameters -> FriendProfileViewModel(parameters.get(), get()) }
         viewModel { parameters -> MemoryFriendViewModel(parameters.get(), get(), get(), get()) }
+
+        single { NetworkUtils(applicationContext) }
     }
 
     override fun onCreate() {

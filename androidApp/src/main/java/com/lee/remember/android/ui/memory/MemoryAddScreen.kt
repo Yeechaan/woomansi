@@ -68,7 +68,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.Contract
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberTopAppBar
+import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.friend.convertMillisToDate
 import com.lee.remember.android.ui.friend.uriToBitmapString
 import com.lee.remember.android.utils.RememberCheckbox

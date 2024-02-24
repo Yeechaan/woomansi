@@ -38,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.lee.remember.android.ui.common.RememberTopAppBarMain
 import com.lee.remember.android.ui.friend.FriendAddScreen
 import com.lee.remember.android.ui.friend.FriendEditScreen
 import com.lee.remember.android.ui.friend.FriendGroupScreen
@@ -278,83 +279,4 @@ fun MainApp(
 @Composable
 fun TestDefaultPreview() {
     SplashScreen(rememberNavController())
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RememberTopAppBarMain(navHostController: NavHostController) {
-    TopAppBar(
-        modifier = Modifier.shadow(2.dp),
-        title = {},
-        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
-        navigationIcon = {
-            Icon(
-                modifier = Modifier.padding(start = 16.dp),
-                painter = painterResource(id = R.drawable.ic_appbar),
-                contentDescription = stringResource(R.string.back_button)
-            )
-        },
-        actions = {
-            IconButton(onClick = {
-                navHostController.navigate(RememberScreen.My.name)
-            }) {
-                Icon(painter = painterResource(id = R.drawable.ic_account), contentDescription = "")
-            }
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RememberTopAppBar(navHostController: NavHostController, title: String, actions: @Composable RowScope.() -> Unit = {}) {
-    TopAppBar(
-        modifier = Modifier.shadow(2.dp),
-        title = { Text(title, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
-        navigationIcon = {
-            IconButton(onClick = {
-                navHostController.navigateUp()
-            }) {
-                Icon(
-                    painterResource(id = R.drawable.baseline_arrow_back_24),
-                    contentDescription = stringResource(R.string.back_button)
-                )
-            }
-        },
-        actions = actions
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MainAppBar(
-    currentScreen: RememberScreen,
-    canNavigateBack: Boolean,
-    navigateUp: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    TopAppBar(
-        title = { Text(stringResource(currentScreen.title)) },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        modifier = modifier,
-        navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            } else {
-                // Todo 뒤로 가는 화면이 없는 경우 아이콘 추가
-//                Icon(
-//                    painter = painterResource(id = R.drawable.baseline_expand_more_24),
-//                    contentDescription = "Image",
-//                    tint = Color.Unspecified
-//                )
-            }
-        }
-    )
 }

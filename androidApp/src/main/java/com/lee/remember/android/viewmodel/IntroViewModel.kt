@@ -2,6 +2,7 @@ package com.lee.remember.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lee.remember.android.utils.NetworkUtils
 import com.lee.remember.repository.AuthRepository
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
@@ -43,6 +44,7 @@ class IntroViewModel(
     private val userRepository: UserRepository,
     private val friendRepository: FriendRepository,
     private val memoryRepository: MemoryRepository,
+    private val networkUtils: NetworkUtils,
 ) : ViewModel() {
 
     private val _introUiState = MutableStateFlow(IntroUiState())
@@ -61,6 +63,13 @@ class IntroViewModel(
     val splashUiState: StateFlow<SplashUiState> = _splashUiState.asStateFlow()
 
     fun initUserState() {
+        if (!networkUtils.isNetworkAvailable()) {
+            _splashUiState.update {
+                it.copy(isLocalMode = true)
+            }
+            return
+        }
+
         val user = userRepository.getUser()
         if (user != null && user.isLocalMode) {
             _splashUiState.update {
