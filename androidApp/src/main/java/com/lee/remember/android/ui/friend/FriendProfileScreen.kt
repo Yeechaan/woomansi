@@ -18,29 +18,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.utils.RememberOutlinedButton
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
@@ -73,14 +66,9 @@ fun FriendProfileScreen(
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TopAppBar(
-            title = { Text(friend.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
-            navigationIcon = {
-                IconButton(onClick = { navHostController.navigateUp() }) {
-                    Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = stringResource(R.string.back_button))
-                }
-            },
+        RememberTopAppBar(
+            navHostController = navHostController,
+            title = friend.name,
             actions = {
                 Text(
                     "수정하기",
@@ -91,11 +79,7 @@ fun FriendProfileScreen(
                         },
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF33322E)),
                 )
-            },
-            modifier = Modifier
-                .shadow(elevation = 1.dp, spotColor = Color(0x36444444), ambientColor = Color(0x36444444))
-                .shadow(elevation = 10.dp, spotColor = Color(0x0F444444), ambientColor = Color(0x0F444444))
-        )
+            })
 
         if (image.isNotEmpty()) {
             Box(

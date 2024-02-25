@@ -41,7 +41,7 @@ class UserApi {
             }
         }
 
-//        Napier.d("### ${response.bodyAsText()}")
+        Napier.d("### ${response.bodyAsText()}")
 
         return if (response.status == HttpStatusCode.OK) {
             Result.success(response.body())

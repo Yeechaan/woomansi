@@ -22,8 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,6 +44,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.memory.fontHintColor
 import com.lee.remember.android.ui.friend.whiteColor
 import com.lee.remember.android.utils.RememberTextField
@@ -125,19 +124,7 @@ fun SignUpScreen(
             .verticalScroll(scrollState),
     ) {
 
-        TopAppBar(
-            modifier = Modifier.shadow(elevation = 10.dp),
-            title = { Text("회원가입", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
-            navigationIcon = {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
-        )
+        RememberTopAppBar(navHostController = navController, title = "회원가입")
 
         var email by remember { mutableStateOf("") }
 //        var emailCode by remember { mutableStateOf("") }

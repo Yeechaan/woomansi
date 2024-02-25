@@ -43,6 +43,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.friend.whiteColor
 import com.lee.remember.android.utils.RememberFilledButton
 import com.lee.remember.android.utils.RememberTextField
@@ -94,20 +95,7 @@ fun LoginScreen(
             .background(whiteColor)
             .verticalScroll(scrollState),
     ) {
-
-        TopAppBar(
-            modifier = Modifier.shadow(elevation = 10.dp),
-            title = { Text("로그인", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
-            navigationIcon = {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
-        )
+        RememberTopAppBar(navHostController = navController, title = "로그인")
 
         var id by remember { mutableStateOf("") }
         val password = remember { mutableStateOf("") }

@@ -25,7 +25,7 @@ import com.lee.remember.android.utils.getTextStyle
 @Composable
 fun RememberTopAppBarMain(navHostController: NavHostController) {
     TopAppBar(
-        modifier = Modifier.shadow(2.dp),
+        modifier = Modifier.shadow(4.dp),
         title = {},
         colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
         navigationIcon = {
@@ -49,7 +49,7 @@ fun RememberTopAppBarMain(navHostController: NavHostController) {
 @Composable
 fun RememberTopAppBar(navHostController: NavHostController, title: String, actions: @Composable RowScope.() -> Unit = {}) {
     TopAppBar(
-        modifier = Modifier.shadow(2.dp),
+        modifier = Modifier.shadow(4.dp),
         title = { Text(title, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
         navigationIcon = {

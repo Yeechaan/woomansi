@@ -39,6 +39,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.friend.lightColor
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
@@ -80,20 +81,7 @@ fun UserNameScreen(
             .padding(bottom = 32.dp)
             .verticalScroll(scrollState),
     ) {
-
-        TopAppBar(
-            modifier = Modifier.shadow(elevation = 10.dp),
-            title = { Text("닉네임", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
-            navigationIcon = {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
-        )
+        RememberTopAppBar(navHostController = navController, title = "닉네임")
 
         var nickname by remember { mutableStateOf("") }
 

@@ -34,8 +34,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
+import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
@@ -134,10 +133,9 @@ fun FriendAddScreen(
 
         val apiScope = rememberCoroutineScope()
 
-        TopAppBar(
-            modifier = Modifier.shadow(elevation = 1.dp),
-            title = { Text("추가", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
+        RememberTopAppBar(
+            navHostController = navHostController,
+            title = "추가",
             actions = {
                 Text(
                     "완료",
@@ -164,11 +162,6 @@ fun FriendAddScreen(
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF33322E)),
                 )
             },
-            navigationIcon = {
-                IconButton(onClick = { navHostController.navigateUp() }) {
-                    Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = stringResource(R.string.back_button))
-                }
-            }
         )
 
         Box(

@@ -51,14 +51,14 @@ fun MemoryFriendScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Column(Modifier.fillMaxSize()) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(lightColor)
+    ) {
         RememberTopAppBar(navHostController = navHostController, title = uiState.name)
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(lightColor)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             if (uiState.memories.isEmpty()) {
                 EmptyMemoryFriendScreen()
                 Image(

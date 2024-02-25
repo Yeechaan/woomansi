@@ -42,8 +42,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,6 +69,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
+import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.utils.RememberTextField
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
@@ -155,10 +154,10 @@ fun FriendEditScreen(
         val apiScope = rememberCoroutineScope()
 
         val appBarTitle = if (friendId == null || friendId == "-1") "추가" else "수정"
-        TopAppBar(
-            modifier = Modifier.shadow(elevation = 1.dp),
-            title = { Text(appBarTitle, style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
+
+        RememberTopAppBar(
+            navHostController = navHostController,
+            title = friend.name,
             actions = {
                 Text(
                     "완료",
@@ -166,35 +165,6 @@ fun FriendEditScreen(
                         .padding(end = 12.dp)
                         .clickable {
                             apiScope.launch() {
-//                    try {
-//                                var profileImage = ""
-//
-//                                if (savedImage.isNotEmpty()) {
-//                                    profileImage = savedImage
-//                                } else {
-//                                    selectedImage?.let {
-//                                        val bitmap = if (Build.VERSION.SDK_INT >= 28) {
-//                                            val source = ImageDecoder.createSource(context.contentResolver, it)
-//                                            ImageDecoder.decodeBitmap(source)
-//                                        } else {
-//                                            MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-//                                        }
-//
-//                                        withContext(Dispatchers.IO) {
-////                            val quality = 50
-////                            val scaleDownBitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width * quality).toInt(), (bitmap.height * quality).toInt(), true)
-//                                            profileImage = bitmapToString(bitmap)
-//                                        }
-
-//                        profileImage = bitmapToString(bitmap)
-//                                    }
-//                                }
-
-//                    profileImage = test(context, selectedImage)
-
-//                        selectedImage?.let {
-//                            saveImageToInternalStorage(context, it)
-//                        }
                                 var profileImage = ""
                                 val bitmapImage = uriToBitmapString(context, selectedImage)
                                 if (savedImage.isNotEmpty()) profileImage = savedImage
@@ -212,67 +182,11 @@ fun FriendEditScreen(
                                 )
 
                                 viewModel.updateFriend(friendId ?: "", friendRequest)
-
-//                                val friendRealm = FriendRealm().apply {
-//                                    this.id = friendId?.toInt() ?: -1
-//                                    this.name = name
-//                                    this.phoneNumber = number
-//                                    this.group = group
-//                                    this.events.add(EventRealm().apply { this.name = dateTitle; this.date = date })
-//                                    // Todo 이미지 처리 방식 변경
-//                                    this.profileImage = ProfileImageRealm().apply { this.image = profileImage }
-//                                }
-
-//                                if (friendId == null || friendId == "-1") {
-//                                    val response = FriendApi().addFriend(accessToken, listOf(friendRequest))
-//
-//                                    if (response != null && response.resultCode == "SUCCESS") {
-//                                        Napier.d("### ${response.resultCode}")
-//
-//                                        // @@@
-//                                        response.result?.map {
-//                                            val size = it.profileImage?.image?.length
-//                                            Napier.d("@@@addFriend ${it.id} / $size")
-//                                        }
-//
-//                                        friendRealm.apply { this.id = response.result?.firstOrNull()?.id ?: -1 }
-//                                        navHostController.navigateUp()
-//                                    } else {
-//                                        Toast
-//                                            .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
-//                                            .show()
-//                                    }
-//
-//                                    FriendDao().setFriend(friendRealm)
-//                                } else {
-//
-//                                    val response = FriendApi().updateFriend(accessToken, friendId ?: "", friendRequest)
-//
-//                                    if (response != null) {
-//                                        Napier.d("### $response")
-//
-//                                        response.toString()
-//                                        navHostController.navigateUp()
-//                                    } else {
-//                                        Toast
-//                                            .makeText(context, "Internal Server Error", Toast.LENGTH_SHORT)
-//                                            .show()
-//                                    }
-//                                }
-
-//                    } catch (e: Exception) {
-//                        e.localizedMessage ?: "error"
-//                    }
                             }
                         },
                     style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF33322E)),
                 )
             },
-            navigationIcon = {
-                IconButton(onClick = { navHostController.navigateUp() }) {
-                    Icon(painterResource(id = R.drawable.baseline_arrow_back_24), contentDescription = stringResource(R.string.back_button))
-                }
-            }
         )
 
         Box(

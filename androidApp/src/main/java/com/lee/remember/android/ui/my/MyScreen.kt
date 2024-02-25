@@ -20,13 +20,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,7 +42,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,6 +49,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
+import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.friend.pointColor
 import com.lee.remember.android.ui.friend.stringToBitmap
 import com.lee.remember.android.utils.RememberFilledButton
@@ -69,7 +65,7 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScreen(
-    navController: NavHostController,
+    navHostController: NavHostController,
     viewModel: MyViewModel = koinViewModel(),
 ) {
     val uiState = viewModel.uiState.collectAsState()
@@ -107,18 +103,9 @@ fun MyScreen(
             .background(color = Color.White),
     ) {
 
-        TopAppBar(
-            modifier = Modifier.shadow(elevation = 10.dp),
-            title = { Text("마이페이지", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5)) },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
-            navigationIcon = {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(
-                        painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            },
+        RememberTopAppBar(
+            navHostController = navHostController,
+            title = "마이페이지",
         )
 
         val user = uiState.value.user
@@ -128,10 +115,8 @@ fun MyScreen(
 
         Column(
             Modifier
-                .shadow(elevation = 1.dp, spotColor = Color(0x36263E2B), ambientColor = Color(0x36263E2B))
-                .shadow(elevation = 1.dp, spotColor = Color(0x33444444), ambientColor = Color(0x33444444))
                 .fillMaxWidth()
-                .background(color = Color.White)
+//                .background(color = Color.White)
                 .padding(top = 26.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -176,9 +161,9 @@ fun MyScreen(
                 style = getTextStyle(textStyle = RememberTextStyle.HEAD_5),
                 modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
             )
-
-            Divider(color = pointColor, thickness = 8.dp)
         }
+
+        Divider(color = pointColor, thickness = 8.dp)
 
         Text("내 정보", style = getTextStyle(textStyle = RememberTextStyle.HEAD_5), modifier = Modifier.padding(top = 24.dp, start = 16.dp))
 

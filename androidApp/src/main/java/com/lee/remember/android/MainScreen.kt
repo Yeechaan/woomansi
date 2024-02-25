@@ -15,8 +15,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -152,14 +150,11 @@ fun MainApp(
                             },
                             selected = currentScreen == mainScreen,
                             onClick = {
+                                navController.popBackStack(RememberScreen.History.name, false)
                                 navController.navigate(mainScreen) {
-
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
-//                                    navController.graph.findStartDestination().id {
-//                                        popUpTo(it) { saveState = true }
-//                                    }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
