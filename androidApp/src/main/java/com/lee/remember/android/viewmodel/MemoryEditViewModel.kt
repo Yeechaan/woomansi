@@ -49,6 +49,8 @@ class MemoryEditViewModel(
 
     fun updateMemory(memoryId: Int, request: MemoryUpdateRequest) {
         viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+
             val result = if (user.isLocalMode) {
                 memoryRepository.updateMemoryToLocal(memoryId, request)
             } else {

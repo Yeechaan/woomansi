@@ -64,10 +64,10 @@ class MemoryAddViewModel(
             result.fold(
                 onSuccess = {
 //                    _uiState.value = MemoryAddUiState.Success
-                    _uiState.update { it.copy(isSuccess = true) }
+                    _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                 },
                 onFailure = {
-                    _uiState.update { it.copy(isSuccess = false, message = it.message ?: "") }
+                    _uiState.update { it.copy(isLoading = false, isSuccess = false, message = it.message ?: "") }
 //                    _uiState.value = MemoryAddUiState.Error(it.message ?: "")
                 }
             )

@@ -31,6 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -39,6 +40,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -159,33 +161,35 @@ fun FriendEditScreen(
             navHostController = navHostController,
             title = friend.name,
             actions = {
-                Text(
-                    "완료",
-                    Modifier
-                        .padding(end = 12.dp)
-                        .clickable {
-                            apiScope.launch() {
-                                var profileImage = ""
-                                val bitmapImage = uriToBitmapString(context, selectedImage)
-                                if (savedImage.isNotEmpty()) profileImage = savedImage
-                                if (bitmapImage.isNotEmpty()) profileImage = bitmapImage
+                TextButton(onClick = {
+                    var profileImage = ""
+                    val bitmapImage = uriToBitmapString(context, selectedImage)
+                    if (savedImage.isNotEmpty()) profileImage = savedImage
+                    if (bitmapImage.isNotEmpty()) profileImage = bitmapImage
 
-                                val events = mutableListOf<FriendRequest.Event>()
-                                if (date.isNotEmpty()) events.add(FriendRequest.Event(dateTitle, date))
+                    val events = mutableListOf<FriendRequest.Event>()
+                    if (date.isNotEmpty()) events.add(FriendRequest.Event(dateTitle, date))
 
-                                val friendRequest = FriendRequest(
-                                    name = name,
-                                    phoneNumber = number,
-                                    description = "",
-                                    events = events,
-                                    profileImage = profileImage
-                                )
+                    val friendRequest = FriendRequest(
+                        name = name,
+                        phoneNumber = number,
+                        description = "",
+                        events = events,
+                        profileImage = profileImage
+                    )
 
-                                viewModel.updateFriend(friendId ?: "", friendRequest)
-                            }
-                        },
-                    style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF33322E)),
-                )
+                    viewModel.updateFriend(friendId ?: "", friendRequest)
+                }) {
+                    if (uiState.loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(12.dp),
+                            color = Color(0xFFF2BE2F),
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        )
+                    } else {
+                        Text(text = "완료", style = getTextStyle(textStyle = RememberTextStyle.BODY_2B).copy(Color(0xFF49454F)))
+                    }
+                }
             },
         )
 
