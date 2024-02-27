@@ -3,6 +3,7 @@ package com.lee.remember.android.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lee.remember.android.utils.NetworkUtils
+import com.lee.remember.android.utils.getErrorMessage
 import com.lee.remember.repository.AuthRepository
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
@@ -96,12 +97,22 @@ class IntroViewModel(
     private fun fetchUser() {
         viewModelScope.launch {
             val result = userRepository.fetchUser()
-            friendRepository.fetchFriends()
-            memoryRepository.fetchMemories()
 
-            _splashUiState.update {
-                it.copy(isAuthSuccess = result.isSuccess)
-            }
+            result.fold(
+                onSuccess = {
+                    friendRepository.fetchFriends()
+                    memoryRepository.fetchMemories()
+
+                    _splashUiState.update {
+                        it.copy(isAuthSuccess = true)
+                    }
+                },
+                onFailure = {
+                    _splashUiState.update {
+                        it.copy(isAuthSuccess = false)
+                    }
+                }
+            )
         }
     }
 
@@ -123,11 +134,7 @@ class IntroViewModel(
                     }
                 },
                 onFailure = {
-                    val errorMessage = when (it.message) {
-                        "DUPLICATED_EMAIL" -> "중복된 이메일입니다."
-                        else -> it.message ?: ""
-                    }
-
+                    val errorMessage = getErrorMessage(it.message)
                     _signUpUiState.update { state ->
                         state.copy(loading = false, message = errorMessage)
                     }
@@ -146,8 +153,9 @@ class IntroViewModel(
                     }
                 },
                 onFailure = {
+                    val errorMessage = getErrorMessage(it.message)
                     _signUpUiState.update { state ->
-                        state.copy(loading = false, message = it.message ?: "")
+                        state.copy(loading = false, message = errorMessage)
                     }
                 }
             )

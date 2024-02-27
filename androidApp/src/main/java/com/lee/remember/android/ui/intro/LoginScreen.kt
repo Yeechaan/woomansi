@@ -51,6 +51,7 @@ import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.utils.rememberImeState
 import com.lee.remember.android.viewmodel.LoginViewModel
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -74,9 +75,10 @@ fun LoginScreen(
         }
     }
 
-    if (uiState.message.isNotEmpty()) {
-        scope.launch {
-            snackbarHostState.showSnackbar("로그인 실패")
+    LaunchedEffect(uiState.message) {
+        if (uiState.message.isNotEmpty()) {
+            snackbarHostState.showSnackbar(uiState.message)
+            viewModel.resetUiState()
         }
     }
 

@@ -2,6 +2,7 @@ package com.lee.remember.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lee.remember.android.utils.getErrorMessage
 import com.lee.remember.repository.AuthRepository
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
@@ -35,11 +36,16 @@ class LoginViewModel(
             _uiState.update { it.copy(isLoading = true) }
 
             val result = authRepository.login(email, password)
-            if (result.isSuccess) {
-                fetchFromServer()
-            }
-
-            _uiState.update { it.copy(isLoading = false, loginSuccess = result.isSuccess) }
+            result.fold(
+                onSuccess = {
+                    fetchFromServer()
+                    _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
+                },
+                onFailure = {
+                    val errorMessage = getErrorMessage(it.message)
+                    _uiState.update { it.copy(isLoading = false, message = errorMessage) }
+                }
+            )
         }
     }
 

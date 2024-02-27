@@ -52,7 +52,7 @@ class AuthApi {
     }
 
     suspend fun login(request: LoginRequest): Result<LoginResponse> {
-        try {
+        return try {
             val response = client.post(authUrl + "log-in") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
@@ -60,28 +60,24 @@ class AuthApi {
 
             Napier.d("### ${response.bodyAsText()}")
 
-            return if (response.status == HttpStatusCode.OK) {
-                Result.success(response.body())
-            } else {
-                Result.failure(Exception("Network response status : ${response.status}"))
-            }
+            Result.success(response.body())
         } catch (e: Exception) {
-            return Result.failure(e)
+            Result.failure(e)
         }
     }
 
     suspend fun sendEmailCode(request: EmailRequest): Result<EmailResponse> {
-        val response = client.post(authUrl + "validate-email") {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
+        return try {
+            val response = client.post(authUrl + "validate-email") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }
 
-        Napier.d("### ${response.bodyAsText()}")
+            Napier.d("### ${response.bodyAsText()}")
 
-        return if (response.status == HttpStatusCode.OK) {
             Result.success(response.body())
-        } else {
-            Result.failure(Exception("Network response status : ${response.status}"))
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }
