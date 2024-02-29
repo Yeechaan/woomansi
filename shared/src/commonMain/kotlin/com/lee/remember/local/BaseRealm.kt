@@ -1,5 +1,7 @@
 package com.lee.remember.local
 
+import com.lee.remember.Platform
+import com.lee.remember.getPlatform
 import com.lee.remember.local.model.AuthRealm
 import com.lee.remember.local.model.EventRealm
 import com.lee.remember.local.model.FriendRealm
@@ -9,13 +11,10 @@ import com.lee.remember.local.model.ProfileImageRealm
 import com.lee.remember.local.model.UserRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
-import io.realm.kotlin.dynamic.DynamicMutableRealm
-import io.realm.kotlin.dynamic.DynamicRealm
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.migration.AutomaticSchemaMigration
-import io.realm.kotlin.migration.RealmMigration
 
 class BaseRealm {
+    private val platform: Platform = getPlatform()
 
     private val configuration = RealmConfiguration.Builder(
         setOf(
@@ -30,14 +29,8 @@ class BaseRealm {
     ).apply {
 //        schemaVersion(1)
         deleteRealmIfMigrationNeeded()
-    }.migration(AutomaticSchemaMigration {
-//        val oldRealm = it.oldRealm
-//        val newRealm = it.newRealm
-//
-//        it.enumerate("UserRealm") { oldObject, newObject ->
-//            newObject?.set("test", "hi")
-//        }
-    }).build()
+        encryptionKey(platform.getSecretKey())
+    }.build()
 
     val realm = Realm.open(configuration)
 
@@ -55,15 +48,5 @@ class BaseRealm {
             val memoryRealm = this.query<MemoryRealm>().find()
             delete(memoryRealm)
         }
-//        realm.close()
-//        Realm.deleteRealm(configuration)
     }
-}
-
-class RememberMigration(): AutomaticSchemaMigration.MigrationContext {
-    override val newRealm: DynamicMutableRealm
-        get() = TODO("Not yet implemented")
-    override val oldRealm: DynamicRealm
-        get() = TODO("Not yet implemented")
-
 }
