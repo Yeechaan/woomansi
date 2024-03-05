@@ -2,7 +2,6 @@ package com.lee.remember.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.model.UserRealm
 import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow

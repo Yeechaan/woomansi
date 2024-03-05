@@ -74,7 +74,7 @@ fun MyScreen(
 
     if (uiState.value.success) {
         scope.launch {
-            BaseRealm().delete()
+//            BaseRealm().delete()
             activity?.finish()
         }
     }
@@ -186,7 +186,7 @@ fun MyScreen(
         RememberFilledButton(text = "로그아웃") {
             scope.launch {
                 // Todo 공통 코드 처리
-                BaseRealm().delete()
+//                BaseRealm().delete()
                 activity?.finish()
 
                 scope.cancel()

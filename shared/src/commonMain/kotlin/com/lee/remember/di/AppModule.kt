@@ -1,10 +1,12 @@
 package com.lee.remember.di
 
+import com.lee.remember.encryption.EncryptionRealm
 import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.dao.AuthDao
 import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.local.dao.MemoryDao
 import com.lee.remember.local.dao.UserDao
+import com.lee.remember.local.datastore.RealmDataStore
 import com.lee.remember.remote.AuthApi
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.MemoryApi
@@ -16,7 +18,9 @@ import com.lee.remember.repository.UserRepository
 import org.koin.dsl.module
 
 fun appModule() = module {
-    single<BaseRealm> { BaseRealm() }
+    single { RealmDataStore(get()) }
+    single { EncryptionRealm() }
+    single<BaseRealm> { BaseRealm(get(), get()) }
     single<AuthApi> { AuthApi() }
     single<AuthDao> { AuthDao(get()) }
     single<UserApi> { UserApi() }
