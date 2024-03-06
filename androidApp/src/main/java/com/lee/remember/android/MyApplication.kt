@@ -23,7 +23,7 @@ import org.koin.dsl.module
 class MyApplication : Application() {
     private val androidModule = module {
         single<Context> { applicationContext }
-        viewModel { IntroViewModel(get(), get(), get(), get(), get()) }
+        viewModel { IntroViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { LoginViewModel(get(), get(), get(), get()) }
         viewModel { MemoryViewModel(get(), get()) }
         viewModel { MyViewModel(get()) }
@@ -44,14 +44,6 @@ class MyApplication : Application() {
             androidContext(this@MyApplication)
             // Load modules
             modules(appModule() + androidModule + initKoinAndroid())
-
-//            initKoinAndroid(
-//                listOf(
-//                    module {
-//                        single<Context> { this@MyApplication }
-//                    }
-//                )
-//            )
         }
     }
 }

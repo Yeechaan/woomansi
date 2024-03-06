@@ -2,6 +2,7 @@ package com.lee.remember.local.dao
 
 import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.model.MemoryRealm
+import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmList
@@ -9,7 +10,9 @@ import io.realm.kotlin.types.RealmList
 class MemoryDao(
     private val baseRealm: BaseRealm,
 ) {
-    private val realm = baseRealm.realm
+//    private val realm = baseRealm.realm
+    private val realm: Realm
+        get() = baseRealm.realm
 
     suspend fun setMemory(memory: MemoryRealm) {
         realm.write {

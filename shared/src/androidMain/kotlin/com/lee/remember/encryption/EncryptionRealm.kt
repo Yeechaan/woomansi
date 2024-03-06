@@ -6,6 +6,7 @@ import android.util.Base64
 import java.security.KeyStore
 import java.security.KeyStoreException
 import java.security.SecureRandom
+import java.util.Arrays
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -15,7 +16,7 @@ actual class EncryptionRealm {
 
     companion object {
         private const val AES_MODE_M = "AES/GCM/NoPadding"
-        private const val KEY_ALIAS = "realm_encryption_key_debug"
+        private const val KEY_ALIAS = "realm_key_test_2"
         private const val ANDROID_KEY_STORE = "AndroidKeyStore"
     }
 
@@ -31,20 +32,24 @@ actual class EncryptionRealm {
         generateEncryptKey()
 
         val realmKeyByteArray = generateRealmKey()
-        val realmKeyString = Base64.encodeToString(realmKeyByteArray, Base64.DEFAULT)
-        return encrypt(realmKeyString)
+        val (iv, encryptedRealmKey) = encryptKey(realmKeyByteArray)
+        // realmKey 암호화 후 메모리 초기화
+        realmKeyByteArray.fill(0)
+
+        return (iv to encryptedRealmKey)
     }
 
-    actual fun getKey(publicIv: String, encrypted: String): ByteArray {
-        return decrypt(publicIv, encrypted).toByteArray()
+    actual fun getKey(iv: String, encrypted: String): ByteArray {
+        return decryptKey(iv, encrypted)
     }
 
 
     private fun generateRealmKey(): ByteArray {
-        val keygen = KeyGenerator.getInstance("AES")
-        keygen.init(256)
-        val key: SecretKey = keygen.generateKey()
-        return key.encoded
+        val dbKey = ByteArray(64)
+        val secureRandom = SecureRandom()
+        secureRandom.nextBytes(dbKey)
+
+        return dbKey
     }
 
     private fun generateEncryptKey() {
@@ -59,7 +64,7 @@ actual class EncryptionRealm {
                 val keyGenParameter = keyGenParameterSpecBuilder
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setRandomizedEncryptionRequired(false).build()
+                    .build()
 
                 keyGenerator.init(keyGenParameter)
                 keyGenerator.generateKey()
@@ -69,48 +74,34 @@ actual class EncryptionRealm {
         }
     }
 
-    private fun encrypt(input: String): Pair<String, String> {
+    private fun encryptKey(input: ByteArray): Pair<String, String> {
         return try {
-            val aesIv = generateRandomIV()
-            val cipher = getCipherFromIv(aesIv, Cipher.ENCRYPT_MODE)
-            val encodedBytes: ByteArray = cipher.doFinal(input.toByteArray(Charsets.UTF_8))
+            val aesKey = keyStore.getKey(KEY_ALIAS, null) as SecretKey
+            val cipher: Cipher = Cipher.getInstance(AES_MODE_M)
+            cipher.init(Cipher.ENCRYPT_MODE, aesKey)
 
-            Pair(aesIv, Base64.encodeToString(encodedBytes, Base64.DEFAULT))
+            val encodedBytes: ByteArray = cipher.doFinal(input)
+            Pair(Base64.encodeToString(cipher.iv, Base64.DEFAULT), Base64.encodeToString(encodedBytes, Base64.DEFAULT))
         } catch (e: Exception) {
             e.printStackTrace()
             Pair("", "")
         }
     }
 
-    private fun generateRandomIV(): String {
-        val random = SecureRandom()
-        val generated: ByteArray = random.generateSeed(12)
-        return Base64.encodeToString(generated, Base64.DEFAULT)
-    }
-
-    private fun decrypt(publicIv: String, encrypted: String): String {
+    private fun decryptKey(iv: String, encrypted: String): ByteArray {
         return try {
             val decodedValue = Base64.decode(encrypted.toByteArray(Charsets.UTF_8), Base64.DEFAULT)
-            val cipher = getCipherFromIv(publicIv, Cipher.DECRYPT_MODE)
-            val decryptedVal: ByteArray = cipher.doFinal(decodedValue)
 
-            String(decryptedVal)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            ""
-        }
-    }
-
-    private fun getCipherFromIv(iv: String, cipherMode: Int): Cipher {
-        val aesKey = keyStore.getKey(KEY_ALIAS, null) as SecretKey
-        val cipher: Cipher = Cipher.getInstance(AES_MODE_M)
-        try {
+            val aesKey = keyStore.getKey(KEY_ALIAS, null) as SecretKey
+            val cipher: Cipher = Cipher.getInstance(AES_MODE_M)
             val parameterSpec = GCMParameterSpec(128, Base64.decode(iv, Base64.DEFAULT))
-            cipher.init(cipherMode, aesKey, parameterSpec)
+            cipher.init(Cipher.DECRYPT_MODE, aesKey, parameterSpec)
+
+            val decryptedVal: ByteArray = cipher.doFinal(decodedValue)
+            decryptedVal
         } catch (e: Exception) {
             e.printStackTrace()
+            byteArrayOf()
         }
-        return cipher
     }
-
 }

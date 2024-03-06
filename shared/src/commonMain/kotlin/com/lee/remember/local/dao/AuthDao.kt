@@ -2,12 +2,14 @@ package com.lee.remember.local.dao
 
 import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.model.AuthRealm
+import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 
 class AuthDao(
     private val baseRealm: BaseRealm,
 ) {
-    private val realm = baseRealm.realm
+    private val realm: Realm
+        get() = baseRealm.realm
 
     suspend fun updateAuth(token: String, password: String) {
         realm.write {

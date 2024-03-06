@@ -40,8 +40,8 @@ class RealmDataStore(
 }
 
 data class RealmSettings(
-    val initialVector: String,
-    val encryptedKey: String,
+    var initialVector: String,
+    var encryptedKey: String,
 )
 
 fun createDataStore(

@@ -3,13 +3,17 @@ package com.lee.remember.local.dao
 import com.lee.remember.local.BaseRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.UserRealm
+import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
 
 class UserDao(
     private val baseRealm: BaseRealm,
 ) {
-    private val realm = baseRealm.realm
+//    private val realm = baseRealm.realm
+
+    private val realm: Realm
+        get() = baseRealm.realm
 
     suspend fun setUser(user: UserRealm) {
         realm.write {

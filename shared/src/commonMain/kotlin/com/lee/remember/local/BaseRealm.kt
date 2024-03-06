@@ -10,49 +10,46 @@ import com.lee.remember.local.model.MemoryFriendRealm
 import com.lee.remember.local.model.MemoryRealm
 import com.lee.remember.local.model.ProfileImageRealm
 import com.lee.remember.local.model.UserRealm
-import io.github.aakira.napier.Napier
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 class BaseRealm(
     private val encryptionRealm: EncryptionRealm,
     private val realmDataStore: RealmDataStore,
 ) {
+    lateinit var realm: Realm
 
-    private val coroutineScope = CoroutineScope(Job())
-    private lateinit var settings: RealmSettings
+    suspend fun initRealm() {
+        val realmSettings = realmDataStore.settings.first()
 
-    init {
-        coroutineScope.launch {
-            realmDataStore.settings.collectLatest {
-                Napier.d("### $it")
-                settings = it
-            }
-        }
+        val encryptionKey = getEncryptionKey(realmSettings)
+        openRealm(encryptionKey)
     }
 
-    private val configuration = RealmConfiguration.Builder(
-        setOf(
-            UserRealm::class,
-            FriendRealm::class,
-            EventRealm::class,
-            ProfileImageRealm::class,
-            MemoryRealm::class,
-            AuthRealm::class,
-            MemoryFriendRealm::class
-        )
-    ).apply {
+    private fun openRealm(encryptionKey: ByteArray) {
+        val configuration = RealmConfiguration.Builder(
+            setOf(
+                UserRealm::class,
+                FriendRealm::class,
+                EventRealm::class,
+                ProfileImageRealm::class,
+                MemoryRealm::class,
+                AuthRealm::class,
+                MemoryFriendRealm::class
+            )
+        ).apply {
 //        schemaVersion(1)
-        deleteRealmIfMigrationNeeded()
-        encryptionKey(getEncryptionKey())
-    }.build()
+            deleteRealmIfMigrationNeeded()
+            encryptionKey(encryptionKey)
+        }.build()
 
-    val realm = Realm.open(configuration)
+        // realmKey 사용 후 메모리 초기화
+        encryptionKey.fill(0)
+
+        realm = Realm.open(configuration)
+    }
 
     suspend fun delete() {
         realm.write {
@@ -70,14 +67,13 @@ class BaseRealm(
         }
     }
 
-    private fun getEncryptionKey(): ByteArray {
-        if (!encryptionRealm.isKeyExist()) {
+    private suspend fun getEncryptionKey(settings: RealmSettings): ByteArray {
+        if (!encryptionRealm.isKeyExist() || settings.encryptedKey.isEmpty()) {
             val (iv, encryptedKey) = encryptionRealm.createEncryptedRealmKey()
+            settings.initialVector = iv
+            settings.encryptedKey = encryptedKey
 
-            coroutineScope.launch {
-                realmDataStore.saveSettings(iv, encryptedKey)
-                Napier.d("### $iv, $encryptedKey")
-            }
+            realmDataStore.saveSettings(iv, encryptedKey)
         }
 
         return encryptionRealm.getKey(settings.initialVector, settings.encryptedKey)

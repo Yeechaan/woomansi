@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lee.remember.android.utils.NetworkUtils
 import com.lee.remember.android.utils.getErrorMessage
+import com.lee.remember.local.BaseRealm
 import com.lee.remember.repository.AuthRepository
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
@@ -45,6 +46,7 @@ class IntroViewModel(
     private val friendRepository: FriendRepository,
     private val memoryRepository: MemoryRepository,
     private val networkUtils: NetworkUtils,
+    private val baseRealm: BaseRealm,
 ) : ViewModel() {
 
     private val _introUiState = MutableStateFlow(IntroUiState())
@@ -63,34 +65,38 @@ class IntroViewModel(
     val splashUiState: StateFlow<SplashUiState> = _splashUiState.asStateFlow()
 
     fun initUserState() {
-        if (!networkUtils.isNetworkAvailable()) {
-            _splashUiState.update {
-                it.copy(isLocalMode = true)
-            }
-            return
-        }
+        viewModelScope.launch {
+            baseRealm.initRealm()
 
-        val user = userRepository.getUser()
-        if (user != null && user.isLocalMode) {
-            _splashUiState.update {
-                it.copy(isLocalMode = true)
+            if (!networkUtils.isNetworkAvailable()) {
+                _splashUiState.update {
+                    it.copy(isLocalMode = true)
+                }
+                return@launch
             }
-            return
-        }
 
-        val token = authRepository.getToken()
-        if (token == null) {
-            _splashUiState.update {
-                it.copy(isFirst = true)
+            val user = userRepository.getUser()
+            if (user != null && user.isLocalMode) {
+                _splashUiState.update {
+                    it.copy(isLocalMode = true)
+                }
+                return@launch
             }
-        } else {
+
+            val token = authRepository.getToken()
+            if (token == null) {
+                _splashUiState.update {
+                    it.copy(isFirst = true)
+                }
+            } else {
 //            viewModelScope.launch {
 //                val result = userRepository.fetchUser()
 //                _uiState.update {
 //                    it.copy(isAuthSuccess = result.isSuccess)
 //                }
 //            }
-            fetchUser()
+                fetchUser()
+            }
         }
     }
 

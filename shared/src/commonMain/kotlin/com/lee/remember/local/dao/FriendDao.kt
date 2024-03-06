@@ -5,6 +5,7 @@ import com.lee.remember.local.model.AuthRealm
 import com.lee.remember.local.model.EventRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.ProfileImageRealm
+import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmList
@@ -12,7 +13,9 @@ import io.realm.kotlin.types.RealmList
 class FriendDao(
     private val baseRealm: BaseRealm,
 ) {
-    private val realm = baseRealm.realm
+    //    private val realm = baseRealm.realm
+    private val realm: Realm
+        get() = baseRealm.realm
 
     suspend fun setFriend(friend: FriendRealm) {
         realm.write {
