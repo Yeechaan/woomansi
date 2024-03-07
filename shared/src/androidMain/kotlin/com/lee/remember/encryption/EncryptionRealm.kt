@@ -16,7 +16,7 @@ actual class EncryptionRealm {
 
     companion object {
         private const val AES_MODE_M = "AES/GCM/NoPadding"
-        private const val KEY_ALIAS = "realm_key_test_2"
+        private const val KEY_ALIAS = "realm_key"
         private const val ANDROID_KEY_STORE = "AndroidKeyStore"
     }
 

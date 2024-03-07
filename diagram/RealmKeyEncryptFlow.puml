@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+== 최초 실행 시: Realm Key 생성 및 암호화 ==
+APP -> APP: Realm Key  생성(64bytes)
+APP -> KeyStore: 대칭키 생성(AES/GCM/NoPadding)
+KeyStore -> APP: SecretKey
+APP -> APP: Realm Key 암호화 by SecretKey
+APP -> DataStore: initialVector, encryptedRealmKey 저장
+
+== 앱 실행 시: Realm Key 복호화 및 Realm 실행 ==
+APP -> DataStore: Realm Key 정보 요청
+DataStore -> APP: initialVector, encryptedRealmKey
+APP -> KeyStore: SecretKey 요청 by alias
+KeyStore -> APP: SecretKey
+APP -> APP: Encrypted Realm Key 복호화 by SecretKey
+APP -> APP: Open Realm by Realm Key
+
+@enduml

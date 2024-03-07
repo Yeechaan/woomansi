@@ -9,7 +9,7 @@
 - Android 앱
   - 모든 UI는 Jetpack Compose로 구성
   - Kotlin Coroutines으로 비동기 처리
-- 추후 iOS 앱 개발을 고려하여 data layer의 비지니스 로직은 Kotlin Multiplatfrom으로 개발
+- data layer의 비지니스 로직은 Kotlin Multiplatfrom으로 개발
 
 
 
@@ -23,7 +23,7 @@
   - Navigation: for navigating screens with [Compose Navigation](https://developer.android.com/jetpack/compose/navigation).
 - [realm-kotlin](https://github.com/realm/realm-kotlin) : a mobile database that runs on Kotlin Multiplatform and Android.
 - [Ktor](https://github.com/ktorio/ktor) : building asynchronous servers and clients in Kotlin by JetBrains.
-- [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization) : 
+- [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization) : provides support for serialization and deserialization of data in various formats.
 - [Koin](https://github.com/InsertKoinIO/koin) : for pragmatic lightweight dependency injection framework.
 - [Napier](https://github.com/AAkira/Napier) : a logger library for Kotlin Multiplatform. It supports Android, Darwin, JVM, JavaScript.
 
@@ -38,3 +38,14 @@ follow the [Guide to app architecture](https://developer.android.com/topic/archi
 - Data layer : Repository, Api, Dao
   (shared/src/commonMain)
 
+
+
+## Database Encryption
+
+encrypt Realm Database with 64-byte encryption key and manage key with KeyStore.
+
+![class-diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/Yeechaan/woomansi/main/diagram/RealmKeyEncryptFlow.puml)
+
+- EncryptionRealm(android) : create and manage realm key with AndroidKeyStore. [code](https://github.com/Yeechaan/woomansi/blob/main/shared/src/androidMain/kotlin/com/lee/remember/encryption/EncryptionRealm.kt)
+- BaseRealm(common) : initialize and open Realm Instance. [code](https://github.com/Yeechaan/woomansi/blob/main/shared/src/commonMain/kotlin/com/lee/remember/local/BaseRealm.kt) 
+- RealmDataStore(common) : manage(save, read) initial vector and encrypted realm key. [code](https://github.com/Yeechaan/woomansi/blob/main/shared/src/commonMain/kotlin/com/lee/remember/local/datastore/RealmDataStore.kt)
