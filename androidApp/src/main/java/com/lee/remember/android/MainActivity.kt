@@ -13,9 +13,9 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
+import com.lee.remember.android.ui.MainApp
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
-import java.io.Serializable
 
 class MainActivity : ComponentActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -46,13 +46,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-data class Contract(
-    val id: String,
-    val name: String,
-    val number: String,
-    var isChecked: Boolean = false,
-) : Serializable
 
 @Preview
 @Composable

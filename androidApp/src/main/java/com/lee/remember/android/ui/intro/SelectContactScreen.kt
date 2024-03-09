@@ -38,15 +38,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.android.Contract
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.friend.fontColorBlack
 import com.lee.remember.android.ui.friend.lightColor
 import com.lee.remember.android.utils.RememberCheckbox
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.FriendViewModel
+import com.lee.remember.model.Contract
 import com.lee.remember.remote.request.FriendRequest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel

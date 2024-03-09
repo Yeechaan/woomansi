@@ -60,8 +60,7 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.data.FriendProfile
+import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.friend.ContactType
 import com.lee.remember.android.ui.friend.FriendContactDialog
 import com.lee.remember.android.ui.friend.lightColor
@@ -71,7 +70,7 @@ import com.lee.remember.android.ui.memory.fontPointColor
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.HistoryViewModel
-import com.lee.remember.local.model.FriendRealm
+import com.lee.remember.model.Friend
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.absoluteValue
@@ -194,7 +193,7 @@ fun HistoryEmptyScreen(navHostController: NavHostController) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HistoryPagerScreen(navHostController: NavHostController, friendList: List<FriendRealm>, onCurrentPage: (Int) -> Unit) {
+fun HistoryPagerScreen(navHostController: NavHostController, friendList: List<Friend>, onCurrentPage: (Int) -> Unit) {
 
     val pagerState = rememberPagerState(pageCount = { friendList.size })
     onCurrentPage(pagerState.currentPage)
@@ -235,18 +234,10 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: List<Fr
             elevation = CardDefaults.cardElevation(1.dp)
         ) {
             val friend = friendList[page]
-            val friendProfile = FriendProfile(
-                id = friend.id,
-                name = friend.name,
-                phoneNumber = friend.phoneNumber ?: "",
-                image = friend.profileImage?.image ?: ""
-            )
-
-            val brush = Brush.verticalGradient(listOf(Color(0x77000000), Color.White))
 
             Column(modifier = Modifier
                 .clickable {
-                    val friendId = friendProfile.id
+                    val friendId = friend.id
                     navHostController.navigate("${RememberScreen.MemoryFriend.name}/${friendId}")
                 }
                 .fillMaxSize()
@@ -256,10 +247,10 @@ fun HistoryPagerScreen(navHostController: NavHostController, friendList: List<Fr
 //                    modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Top
                 ) {
-                    FriendSummaryItem(friendProfile)
+                    FriendSummaryItem(friend)
                 }
 
-                val bitmap: Bitmap? = stringToBitmap(friendProfile.image)
+                val bitmap: Bitmap? = stringToBitmap(friend.image)
                 if (bitmap != null) {
                     Image(
                         bitmap = bitmap.asImageBitmap(), contentDescription = null,
@@ -311,7 +302,7 @@ fun HistoryItem(text: String, icon: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun FriendSummaryItem(friendProfile: FriendProfile) {
+fun FriendSummaryItem(friend: Friend) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -320,16 +311,16 @@ fun FriendSummaryItem(friendProfile: FriendProfile) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(text = friendProfile.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_3), color = Color(0xFF000000))
+            Text(text = friend.name, style = getTextStyle(textStyle = RememberTextStyle.HEAD_3), color = Color(0xFF000000))
             Text(
-                text = friendProfile.phoneNumber,
+                text = friend.phoneNumber,
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_1B),
                 modifier = Modifier.padding(top = 8.dp),
                 color = Color(0xFF000000)
             )
             Text(
 //                text = stringResource(id = R.string.birth_date, birthMonth, birthDate),
-                text = friendProfile.birthDate,
+                text = friend.birthDate,
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_1),
                 color = Color.White
             )

@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.rememberFontFamily
 import com.lee.remember.android.ui.friend.fontColorBlack
 import com.lee.remember.android.ui.friend.lightColor

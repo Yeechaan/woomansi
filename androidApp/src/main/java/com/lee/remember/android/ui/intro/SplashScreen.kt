@@ -18,10 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberScreen
+import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.friend.lightColor
 import com.lee.remember.android.viewmodel.IntroViewModel
-import io.github.aakira.napier.Napier
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

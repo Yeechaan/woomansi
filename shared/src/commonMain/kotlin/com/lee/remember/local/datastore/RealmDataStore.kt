@@ -52,7 +52,7 @@ fun createDataStore(
     produceFile = { producePath().toPath() },
 )
 
-internal const val dataStoreFileName = "meetings.preferences_pb"
+internal const val dataStoreFileName = "realm.preferences_pb"
 fun initKoinAndroid() = getBaseModules()
 
 

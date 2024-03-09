@@ -65,7 +65,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.lee.remember.android.Contract
 import com.lee.remember.android.R
 import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.friend.convertMillisToDate
@@ -77,6 +76,7 @@ import com.lee.remember.android.utils.RememberTextField.placeHolder
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.MemoryAddViewModel
+import com.lee.remember.model.Contract
 import com.lee.remember.remote.request.MemoryRequest
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch

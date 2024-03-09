@@ -30,7 +30,7 @@ class AuthRepository(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
                         userDao.setUser(it.asRealm())
-                        authDao.updateAuth(it.result?.jwtToken ?: "", password)
+                        authDao.updateAuth(it.result?.jwtToken ?: "")
 
                         Result.success(true)
                     } else {
@@ -51,7 +51,7 @@ class AuthRepository(
             return@withContext result.fold(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
-                        authDao.updateAuth(it.result?.jwtToken ?: "", password)
+                        authDao.updateAuth(it.result?.jwtToken ?: "")
                         Result.success(it)
                     } else {
                         Result.failure(Exception(it.resultCode))

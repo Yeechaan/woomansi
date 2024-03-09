@@ -42,14 +42,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lee.remember.android.Contract
 import com.lee.remember.android.R
-import com.lee.remember.android.RememberScreen
-import com.lee.remember.android.data.FriendProfile
+import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.intro.getContracts
 import com.lee.remember.android.utils.RememberTextStyle
 import com.lee.remember.android.utils.getTextStyle
 import com.lee.remember.android.viewmodel.FriendViewModel
+import com.lee.remember.model.Contract
+import com.lee.remember.model.Friend
 import org.koin.androidx.compose.koinViewModel
 
 val whiteColor = Color(0xFFFFFFFF)
@@ -91,14 +91,14 @@ fun FriendScreen(
                 ) {
                     item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
 
-                    items(friendList.value) { contact ->
-                        val friendProfile = FriendProfile(
-                            id = contact.id,
-                            name = contact.name,
-                            phoneNumber = contact.phoneNumber ?: "",
-                            image = contact.profileImage?.image ?: ""
-                        )
-                        FriendItem(friendProfile, navHostController)
+                    items(friendList.value) { friend ->
+//                        val friendfriendProfile = FriendProfile(
+//                            id = contact.id,
+//                            name = contact.name,
+//                            phoneNumber = contact.phoneNumber ?: "",
+//                            image = contact.profileImage?.image ?: ""
+//                        )
+                        FriendItem(friend, navHostController)
                     }
 
                     item { Spacer(modifier = Modifier.padding(bottom = 44.dp)) }
@@ -201,7 +201,7 @@ fun CharacterHeader(string: String) {
 }
 
 @Composable
-fun FriendItem(friendProfile: FriendProfile, navHostController: NavHostController) {
+fun FriendItem(friendProfile: Friend, navHostController: NavHostController) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,

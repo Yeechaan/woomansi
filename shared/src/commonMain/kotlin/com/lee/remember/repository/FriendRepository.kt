@@ -6,6 +6,7 @@ import com.lee.remember.local.model.EventRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.ProfileImageRealm
 import com.lee.remember.local.model.asRealm
+import com.lee.remember.model.Friend
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.request.FriendRequest
 import io.github.aakira.napier.Napier
@@ -14,6 +15,8 @@ import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class FriendRepository(
@@ -24,10 +27,31 @@ class FriendRepository(
     private val token: String
         get() = authDao.getToken() ?: ""
 
-    fun getFriendsAsFlow() = friendDao.getFriends().asFlow()
+    fun getFriendsAsFlow() = friendDao.getFriends().asFlow().map {
+        it.list.map {
+            Friend(
+                id = it.id,
+                name = it.name,
+                phoneNumber = it.phoneNumber,
+                image = it.profileImage?.image ?: "",
+                grouped = it.group,
+                birthDate = it.events.firstOrNull()?.date ?: ""
+            )
+        }
+    }
     fun getFriendAsFlow(friendId: Int) = friendDao.getFriend(friendId)?.asFlow()
 
-    fun getFriends() = friendDao.getFriends()
+    fun getFriends() = friendDao.getFriends().map {
+        Friend(
+            id = it.id,
+            name = it.name,
+            phoneNumber = it.phoneNumber,
+            image = it.profileImage?.image ?: "",
+            grouped = it.group,
+            birthDate = it.events.firstOrNull()?.date ?: ""
+        )
+    }
+
     fun getFriend(friendId: Int) = friendDao.getFriend(friendId)
 
     suspend fun addFriends(friends: List<FriendRequest>): Result<Boolean> =

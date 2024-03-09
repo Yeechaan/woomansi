@@ -11,16 +11,14 @@ class AuthDao(
     private val realm: Realm
         get() = baseRealm.realm
 
-    suspend fun updateAuth(token: String, password: String) {
+    suspend fun updateAuth(token: String) {
         realm.write {
             val authRealm = query<AuthRealm>().find().firstOrNull()
             if (authRealm != null) {
                 authRealm.accessToken = "Bearer $token"
-                authRealm.password = password
             } else {
                 copyToRealm(AuthRealm().apply {
                     this.accessToken = "Bearer $token"
-                    this.password = password
                 })
             }
         }
