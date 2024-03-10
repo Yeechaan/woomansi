@@ -44,7 +44,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -67,9 +66,9 @@ import com.lee.remember.android.ui.friend.lightColor
 import com.lee.remember.android.ui.friend.stringToBitmap
 import com.lee.remember.android.ui.friend.whiteColor
 import com.lee.remember.android.ui.memory.fontPointColor
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.HistoryViewModel
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
+import com.lee.remember.android.viewmodel.home.HistoryViewModel
 import com.lee.remember.model.Friend
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel

@@ -1,6 +1,5 @@
 package com.lee.remember.android.ui.intro
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,26 +22,25 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.lee.remember.android.ui.friend.fontColorBlack
-import com.lee.remember.android.utils.RememberTextField
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.ui.common.RememberTextField
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
+import kotlinx.coroutines.launch
 
 @Composable
 fun EmailConfirmDialog(
+    snackbarHostState: SnackbarHostState,
     emailCode: String,
     onDismissRequest: () -> Unit,
     onConfirmation: (Boolean) -> Unit,
 ) {
     var emailCodeConfirm by remember { mutableStateOf("") }
-    var isValid by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         // Draw a rectangle shape with rounded corners inside the dialog
@@ -83,15 +82,6 @@ fun EmailConfirmDialog(
                     singleLine = true,
                     minLines = 1,
                     enabled = true,
-//                    isError = !isValid && emailCode.isNotEmpty(),
-//                    supportingText = {
-//                        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
-//                        isValid = emailCode.matches(emailRegex.toRegex())
-//
-//                        if (!isValid && emailCode.isNotEmpty()) {
-//                            Text("이메일 형식이 올바르지 않습니다.", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFFB3661E)))
-//                        }
-//                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
                         .padding(top = 16.dp)
@@ -118,10 +108,11 @@ fun EmailConfirmDialog(
                             if (emailCodeConfirm.isNotEmpty() && emailCodeConfirm == emailCode) {
                                 onConfirmation(true)
                             } else {
-                                Toast.makeText(context, "인증번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("인증번호가 일치하지 않습니다.")
+                                }
                             }
                         },
-//                        modifier = Modifier.padding(8.dp),
                     ) {
                         Text(
                             "확인",
@@ -137,5 +128,5 @@ fun EmailConfirmDialog(
 @Preview
 @Composable
 fun PreviewEmailConfirmDialog() {
-    EmailConfirmDialog("", {}, {})
+    EmailConfirmDialog(SnackbarHostState(), "", {}, {})
 }

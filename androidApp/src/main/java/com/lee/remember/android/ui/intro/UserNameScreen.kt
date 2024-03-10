@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,18 +32,17 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.friend.lightColor
-import com.lee.remember.android.utils.RememberTextField
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.android.viewmodel.IntroViewModel
+import com.lee.remember.android.ui.common.RememberTextField
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
+import com.lee.remember.android.ui.common.rememberImeState
+import com.lee.remember.android.viewmodel.intro.SignUpViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserNameScreen(
     navController: NavHostController,
-    viewModel: IntroViewModel = koinViewModel(),
+    viewModel: SignUpViewModel = koinViewModel(),
 ) {
     val uiState = viewModel.signUpUiState.collectAsState()
 

@@ -24,10 +24,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,9 +45,9 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.intro.getContracts
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.FriendViewModel
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
+import com.lee.remember.android.viewmodel.friend.FriendViewModel
 import com.lee.remember.model.Contract
 import com.lee.remember.model.Friend
 import org.koin.androidx.compose.koinViewModel
@@ -62,9 +62,7 @@ fun FriendScreen(
     navHostController: NavHostController,
     viewModel: FriendViewModel = koinViewModel(),
 ) {
-    val friendList = remember {
-        mutableStateOf(viewModel.getFriends())
-    }
+    val friendList = viewModel.getFriends().collectAsState(initial = emptyList())
 
     Column(
         Modifier
@@ -74,7 +72,6 @@ fun FriendScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-//                .padding(top = 16.dp)
                 .background(lightColor)
         ) {
             if (friendList.value.isEmpty()) {
@@ -92,12 +89,6 @@ fun FriendScreen(
                     item { Spacer(modifier = Modifier.padding(top = 10.dp)) }
 
                     items(friendList.value) { friend ->
-//                        val friendfriendProfile = FriendProfile(
-//                            id = contact.id,
-//                            name = contact.name,
-//                            phoneNumber = contact.phoneNumber ?: "",
-//                            image = contact.profileImage?.image ?: ""
-//                        )
                         FriendItem(friend, navHostController)
                     }
 
@@ -107,7 +98,6 @@ fun FriendScreen(
 
             var showBottomSheet by remember { mutableStateOf(false) }
             val sheetState = androidx.compose.material3.rememberModalBottomSheetState()
-            val scope = rememberCoroutineScope()
 
             val openAlertDialog = remember { mutableStateOf(false) }
             if (openAlertDialog.value) {

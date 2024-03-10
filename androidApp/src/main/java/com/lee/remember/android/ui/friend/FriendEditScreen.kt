@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Base64
-import android.util.Base64.NO_WRAP
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -51,19 +50,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,17 +68,15 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
 import com.lee.remember.android.ui.common.RememberTopAppBar
-import com.lee.remember.android.utils.RememberTextField
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.android.viewmodel.FriendViewModel
+import com.lee.remember.android.ui.common.RememberTextField
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
+import com.lee.remember.android.ui.common.rememberImeState
+import com.lee.remember.android.viewmodel.friend.FriendViewModel
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.remote.request.FriendRequest
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -98,9 +92,6 @@ fun FriendEditScreen(
     if (uiState.success) {
         viewModel.resetUiState()
         navHostController.navigateUp()
-    }
-    if (uiState.loading) {
-        // Todo 로딩 처리
     }
 
     val imeState = rememberImeState()
@@ -142,7 +133,6 @@ fun FriendEditScreen(
 
         savedImage = friend.profileImage?.image ?: ""
         var name by remember { mutableStateOf(friend.name) }
-        var group by remember { mutableStateOf("") }
         var number by remember { mutableStateOf(friend.phoneNumber) }
         var dateTitle by remember { mutableStateOf(friend.events.firstOrNull()?.name ?: "기념일") }
         var date by remember { mutableStateOf(friend.events.firstOrNull()?.date ?: "") }
@@ -152,10 +142,6 @@ fun FriendEditScreen(
             date = convertMillisToDate(it)
         }
         val context = LocalContext.current
-
-        val apiScope = rememberCoroutineScope()
-
-        val appBarTitle = if (friendId == null || friendId == "-1") "추가" else "수정"
 
         RememberTopAppBar(
             navHostController = navHostController,
@@ -227,31 +213,6 @@ fun FriendEditScreen(
                     )
                 }
             }
-
-
-//            if (savedImage.isNotEmpty()) {
-//                val bitmap: Bitmap? = stringToBitmap(savedImage)
-//                bitmap?.let {
-//                    Image(
-//                        bitmap = bitmap.asImageBitmap(), contentDescription = null,
-//                        contentScale = ContentScale.Crop,
-//                        modifier = Modifier.fillMaxSize()
-//                    )
-//                }
-//            } else if (selectedImage != null) {
-//                AsyncImage(
-//                    model = selectedImage,
-//                    contentDescription = null,
-//                    contentScale = ContentScale.Crop
-//                )
-//            } else {
-//                Image(
-//                    painter = painterResource(id = R.drawable.ic_camera_32),
-//                    contentDescription = "",
-//                    colorFilter = ColorFilter.tint(Color(0xff1D1B20)),
-//                    modifier = Modifier.padding(40.dp),
-//                )
-//            }
         }
 
         Column(
@@ -300,69 +261,6 @@ fun FriendEditScreen(
                 text = "선택 입력",
                 style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0x61000000))
             )
-
-//            Box(
-//                modifier = Modifier
-//                    .wrapContentSize(Alignment.TopStart)
-//            ) {
-//                var expanded by remember { mutableStateOf(false) }
-//                val items = listOf("가족", "가장 친한", "친해지고 싶은")
-//                var selectedIndex by remember { mutableStateOf<Int?>(null) }
-//
-//                OutlinedTextField(
-//                    value = selectedIndex?.let { items[it] } ?: group, onValueChange = { group = it }, readOnly = true,
-//                    label = { RememberTextField.label(text = "그룹") },
-//                    textStyle = RememberTextField.textStyle(),
-//                    colors = RememberTextField.colors(),
-//                    singleLine = true,
-//                    modifier = Modifier
-//                        .padding(top = 12.dp)
-//                        .fillMaxWidth(),
-//                    trailingIcon = {
-//                        IconButton(onClick = { expanded = true }) {
-//                            if (!expanded) {
-//                                Icon(
-//                                    painter = painterResource(id = R.drawable.baseline_expand_more_24),
-//                                    contentDescription = "",
-//                                    tint = Color.Black
-//                                )
-//                            } else {
-//                                Icon(
-//                                    painter = painterResource(id = R.drawable.baseline_expand_less_24),
-//                                    contentDescription = "",
-//                                    tint = Color.Black
-//                                )
-//                            }
-//                        }
-//                    }
-//                )
-//
-//                DropdownMenu(
-//                    expanded = expanded,
-//                    onDismissRequest = { expanded = false },
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .background(Color.White)
-//                        .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-//                ) {
-//                    DropdownMenuItem(text = {
-//                        Text(text = "새 그룹 추가")
-//                    }, onClick = {
-//                        navHostController.navigate(RememberScreen.FriendGroup.name)
-//                        expanded = false
-//                    })
-//
-//                    items.forEachIndexed { index, s ->
-//                        DropdownMenuItem(text = {
-//                            Text(text = s)
-//                        }, onClick = {
-//                            selectedIndex = index
-//                            group = items[index]
-//                            expanded = false
-//                        })
-//                    }
-//                }
-//            }
 
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
                 var expanded by remember { mutableStateOf(false) }
@@ -455,7 +353,6 @@ fun FriendEditScreen(
             }
         }
 
-//        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -468,21 +365,6 @@ fun saveImageToInternalStorage(context: Context, uri: Uri) {
             input.copyTo(output)
         }
     }
-}
-
-fun test(context: Context, uri: Uri?): String {
-    val ins: InputStream? = uri?.let {
-        context.contentResolver.openInputStream(it)
-    }
-    val img: Bitmap = BitmapFactory.decodeStream(ins)
-    ins?.close()
-    val resized = Bitmap.createScaledBitmap(img, 256, 256, true)
-    val byteArrayOutputStream = ByteArrayOutputStream()
-    resized.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-    val byteArray: ByteArray = byteArrayOutputStream.toByteArray()
-//    val outStream = ByteArrayOutputStream()
-//    val res: Resources = resources
-    return Base64.encodeToString(byteArray, NO_WRAP)
 }
 
 fun uriToBitmapString(context: Context, uri: Uri?): String {

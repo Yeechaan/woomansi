@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -49,20 +48,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.lee.remember.android.R
+import com.lee.remember.android.ui.common.RememberFilledButton
+import com.lee.remember.android.ui.common.RememberTextField
+import com.lee.remember.android.ui.common.RememberTextStyle
 import com.lee.remember.android.ui.common.RememberTopAppBar
+import com.lee.remember.android.ui.common.getTextStyle
 import com.lee.remember.android.ui.friend.pointColor
 import com.lee.remember.android.ui.friend.stringToBitmap
-import com.lee.remember.android.utils.RememberFilledButton
-import com.lee.remember.android.utils.RememberTextField
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.MyViewModel
-import com.lee.remember.local.BaseRealm
+import com.lee.remember.android.viewmodel.my.MyViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScreen(
     navHostController: NavHostController,
@@ -181,8 +178,6 @@ fun MyScreen(
                 .fillMaxWidth()
         )
 
-//        val scope = rememberCoroutineScope()
-//        val activity = (LocalContext.current as? Activity)
         RememberFilledButton(text = "로그아웃") {
             scope.launch {
                 // Todo 공통 코드 처리

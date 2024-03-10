@@ -42,10 +42,10 @@ import com.lee.remember.android.R
 import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.friend.fontColorBlack
 import com.lee.remember.android.ui.friend.lightColor
-import com.lee.remember.android.utils.RememberCheckbox
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.FriendViewModel
+import com.lee.remember.android.ui.common.RememberCheckbox
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
+import com.lee.remember.android.viewmodel.friend.FriendViewModel
 import com.lee.remember.model.Contract
 import com.lee.remember.remote.request.FriendRequest
 import kotlinx.coroutines.launch
@@ -65,9 +65,6 @@ fun SelectContractScreen(
                 inclusive = true
             }
         }
-    }
-    if (uiState.loading) {
-        // Todo 로딩 처리
     }
 
     var openDialog by remember { mutableStateOf(false) }

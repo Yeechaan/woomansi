@@ -23,7 +23,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Napier.base(DebugAntilog())
         firebaseAnalytics = Firebase.analytics
 
         setContent {

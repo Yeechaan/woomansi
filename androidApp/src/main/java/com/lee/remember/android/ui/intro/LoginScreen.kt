@@ -35,10 +35,10 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.friend.whiteColor
-import com.lee.remember.android.utils.RememberFilledButton
-import com.lee.remember.android.utils.RememberTextField
-import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.android.viewmodel.LoginViewModel
+import com.lee.remember.android.ui.common.RememberFilledButton
+import com.lee.remember.android.ui.common.RememberTextField
+import com.lee.remember.android.ui.common.rememberImeState
+import com.lee.remember.android.viewmodel.intro.LoginViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 

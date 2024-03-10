@@ -1,4 +1,4 @@
-package com.lee.remember.android.utils
+package com.lee.remember.android.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle

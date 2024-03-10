@@ -1,4 +1,4 @@
-package com.lee.remember.android.utils
+package com.lee.remember.android.ui.common
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues

@@ -1,4 +1,4 @@
-package com.lee.remember.android.utils
+package com.lee.remember.android.ui.common
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text

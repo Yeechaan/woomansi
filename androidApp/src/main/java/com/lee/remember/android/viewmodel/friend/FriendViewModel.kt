@@ -1,4 +1,4 @@
-package com.lee.remember.android.viewmodel
+package com.lee.remember.android.viewmodel.friend
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,7 +26,7 @@ class FriendViewModel(
     val uiState: StateFlow<FriendUiState> = _uiState.asStateFlow()
 
     fun getFriend(friendId: Int) = friendRepository.getFriend(friendId)
-    fun getFriends() = friendRepository.getFriends()
+    fun getFriends() = friendRepository.getFriendsAsFlow()
 
     private val user = userRepository.getUser() ?: UserRealm()
 

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,12 +30,11 @@ import com.lee.remember.android.R
 import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.friend.whiteColor
-import com.lee.remember.android.utils.RememberCheckbox
-import com.lee.remember.android.utils.RememberFilledButton
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.ui.common.RememberCheckbox
+import com.lee.remember.android.ui.common.RememberFilledButton
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermsScreen(navController: NavHostController) {
     var allCheckedState by remember { mutableStateOf(false) }

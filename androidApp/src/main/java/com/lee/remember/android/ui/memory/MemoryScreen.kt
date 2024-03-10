@@ -50,9 +50,9 @@ import com.lee.remember.android.rememberFontFamily
 import com.lee.remember.android.ui.friend.fontColorBlack
 import com.lee.remember.android.ui.friend.lightColor
 import com.lee.remember.android.ui.friend.stringToBitmap
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.MemoryViewModel
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
+import com.lee.remember.android.viewmodel.memory.MemoryViewModel
 import com.lee.remember.model.Memory
 import org.koin.androidx.compose.koinViewModel
 

@@ -34,10 +34,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.common.RememberTopAppBar
-import com.lee.remember.android.utils.RememberOutlinedButton
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.FriendProfileViewModel
+import com.lee.remember.android.ui.common.RememberOutlinedButton
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
+import com.lee.remember.android.viewmodel.friend.FriendProfileViewModel
 import com.lee.remember.local.model.FriendRealm
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf

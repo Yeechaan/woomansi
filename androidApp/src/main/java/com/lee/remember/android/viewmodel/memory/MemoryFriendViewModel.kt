@@ -1,4 +1,4 @@
-package com.lee.remember.android.viewmodel
+package com.lee.remember.android.viewmodel.memory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

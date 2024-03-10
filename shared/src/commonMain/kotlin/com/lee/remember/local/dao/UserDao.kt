@@ -28,7 +28,6 @@ class UserDao(
         }
     }
 
-    // Todo flow 사용 여부 검토
     fun getUser() = realm.query<UserRealm>().find().firstOrNull()
 
     suspend fun delete() {

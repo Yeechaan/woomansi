@@ -15,7 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
@@ -39,22 +38,20 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.ui.RememberScreen
+import com.lee.remember.android.ui.common.RememberTextField
+import com.lee.remember.android.ui.common.RememberTextStyle
 import com.lee.remember.android.ui.common.RememberTopAppBar
-import com.lee.remember.android.ui.memory.fontHintColor
+import com.lee.remember.android.ui.common.getTextStyle
 import com.lee.remember.android.ui.friend.whiteColor
-import com.lee.remember.android.utils.RememberTextField
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.utils.rememberImeState
-import com.lee.remember.android.viewmodel.IntroViewModel
+import com.lee.remember.android.ui.memory.fontHintColor
+import com.lee.remember.android.viewmodel.intro.SignUpViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     navController: NavHostController, snackbarHostState: SnackbarHostState,
-    viewModel: IntroViewModel = koinViewModel(),
+    viewModel: SignUpViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.signUpUiState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -63,31 +60,30 @@ fun SignUpScreen(
     loading = viewModel.signUpUiState.value.loading
 
     var emailCode by remember { mutableStateOf("") }
-    val isEmailConfirmed = remember { mutableStateOf(false) }
-    val openAlertDialog = remember { mutableStateOf(false) }
-    if (openAlertDialog.value) {
+    var isEmailConfirmed by remember { mutableStateOf(false) }
+    var openAlertDialog by remember { mutableStateOf(false) }
+    if (openAlertDialog) {
         EmailConfirmDialog(
+            snackbarHostState = snackbarHostState,
             emailCode = emailCode,
             onDismissRequest = {
-                openAlertDialog.value = false
+                openAlertDialog = false
                 viewModel.resetSignUpUiState()
             },
             onConfirmation = {
-                isEmailConfirmed.value = it
-                openAlertDialog.value = false
+                isEmailConfirmed = it
+                openAlertDialog = false
                 viewModel.resetSignUpUiState()
             }
         )
     }
 
-    // Todo 맞네 초기화 로직이 필요하네.. 매번 그렇게 해야하나?
     if (uiState.emailCodeResult.isNotEmpty()) {
         emailCode = uiState.emailCodeResult
-        openAlertDialog.value = true
+        openAlertDialog = true
     }
 
     if (uiState.signupResult) {
-        // Todo 꼭 이렇게 처리해야 하나?
         viewModel.resetSignUpUiState()
 
         navController.navigate(RememberScreen.UserName.name) {
@@ -105,13 +101,7 @@ fun SignUpScreen(
     }
 
 
-    val imeState = rememberImeState()
     val scrollState = rememberScrollState()
-//    LaunchedEffect(key1 = imeState.value) {
-//        if (imeState.value) {
-//            scrollState.animateScrollTo(scrollState.maxValue, tween(300))
-//        }
-//    }
 
     Column(
         modifier = Modifier
@@ -123,15 +113,12 @@ fun SignUpScreen(
         RememberTopAppBar(navHostController = navController, title = "회원가입")
 
         var email by remember { mutableStateOf("") }
-//        var emailCode by remember { mutableStateOf("") }
         var isValid by remember { mutableStateOf(true) }
 
-        val password = remember { mutableStateOf("") }
-        val passwordConfirm = remember { mutableStateOf("") }
-        val isPasswordError = remember { mutableStateOf(false) }
-
-
-        var passwordVisible by rememberSaveable { mutableStateOf(false) }
+        var password by remember { mutableStateOf("") }
+        var passwordConfirm by remember { mutableStateOf("") }
+        var isPasswordError by remember { mutableStateOf(false) }
+        val passwordVisible by rememberSaveable { mutableStateOf(false) }
 
         OutlinedTextField(
             value = email, onValueChange = { email = it },
@@ -156,8 +143,8 @@ fun SignUpScreen(
                 .padding(horizontal = 16.dp),
         )
 
-        val emailConfirmedText = if (isEmailConfirmed.value) "인증완료" else "인증"
-        val emailConfirmedColor = if (isEmailConfirmed.value) Color(0xFFF2BE2F) else fontHintColor
+        val emailConfirmedText = if (isEmailConfirmed) "인증완료" else "인증"
+        val emailConfirmedColor = if (isEmailConfirmed) Color(0xFFF2BE2F) else fontHintColor
         Button(
             onClick = { viewModel.sendEmailCode(email) },
             modifier = Modifier
@@ -186,7 +173,7 @@ fun SignUpScreen(
         }
 
         OutlinedTextField(
-            value = password.value, onValueChange = { password.value = it },
+            value = password, onValueChange = { password = it },
             label = { RememberTextField.label(text = "비밀번호") },
             placeholder = { RememberTextField.placeHolder(text = "비밀번호 입력") },
             textStyle = RememberTextField.textStyle(),
@@ -201,20 +188,20 @@ fun SignUpScreen(
         )
 
         OutlinedTextField(
-            value = passwordConfirm.value,
+            value = passwordConfirm,
             onValueChange = {
-                isPasswordError.value = password.value != it
+                isPasswordError = password != it
 
-                passwordConfirm.value = it
+                passwordConfirm = it
             },
             label = { RememberTextField.label(text = "비밀번호 확인") },
             placeholder = { RememberTextField.placeHolder(text = "비밀번호 확인") },
             textStyle = RememberTextField.textStyle(),
             colors = RememberTextField.colors(),
             singleLine = true,
-            isError = isPasswordError.value,
+            isError = isPasswordError,
             supportingText = {
-                if (isPasswordError.value) {
+                if (isPasswordError) {
                     Text("입력하신 비밀번호가 일치하지 않습니다.", style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFFB3661E)))
                 }
             },
@@ -230,18 +217,17 @@ fun SignUpScreen(
         Button(
             onClick = {
                 scope.launch {
-                    if (password.value != passwordConfirm.value) {
+                    if (password != passwordConfirm) {
                         snackbarHostState.showSnackbar("비밀번호가 일치하지 않습니다.")
                         return@launch
                     }
 
-                    if (email.isEmpty() || password.value.isEmpty() || passwordConfirm.value.isEmpty()) {
+                    if (email.isEmpty() || password.isEmpty() || passwordConfirm.isEmpty()) {
                         snackbarHostState.showSnackbar("이메일 또는 비밀번호는 입력해주세요.")
                         return@launch
                     }
 
-                    // Todo compose state 처리
-                    viewModel.signUp(email, password.value)
+                    viewModel.signUp(email, password)
                 }
             },
             // Todo 버튼 활성화 정책 설정

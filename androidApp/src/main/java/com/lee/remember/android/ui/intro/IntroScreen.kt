@@ -36,11 +36,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.ui.RememberScreen
-import com.lee.remember.android.utils.RememberFilledButton
-import com.lee.remember.android.utils.RememberOutlinedButton
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
-import com.lee.remember.android.viewmodel.IntroViewModel
+import com.lee.remember.android.ui.common.RememberFilledButton
+import com.lee.remember.android.ui.common.RememberOutlinedButton
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
+import com.lee.remember.android.viewmodel.intro.IntroViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -52,9 +52,6 @@ fun IntroScreen(
 
     if (uiState.value.testUserResult) {
         navController.navigate(RememberScreen.SelectContact.name)
-    }
-    if (uiState.value.loading) {
-        // Todo loading dialog
     }
 
     val activity = (LocalContext.current as Activity)

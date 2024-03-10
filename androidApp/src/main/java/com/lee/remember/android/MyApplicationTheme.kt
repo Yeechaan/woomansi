@@ -27,7 +27,6 @@ val rememberFontFamily = FontFamily(
     Font(R.font.nanum_myeongjo_regular, FontWeight.Normal),
 )
 
-// Todo
 val RememberTypography = Typography(
     body1 = TextStyle(fontFamily = rememberFontFamily),
     body2 = TextStyle(fontFamily = rememberFontFamily),

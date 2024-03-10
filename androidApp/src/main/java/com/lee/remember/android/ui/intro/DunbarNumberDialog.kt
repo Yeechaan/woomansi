@@ -23,8 +23,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.lee.remember.android.R
 import com.lee.remember.android.ui.friend.fontColorBlack
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
 
 @Composable
 fun DunbarNumberDialog(

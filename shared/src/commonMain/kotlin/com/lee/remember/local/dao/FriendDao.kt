@@ -13,7 +13,6 @@ import io.realm.kotlin.types.RealmList
 class FriendDao(
     private val baseRealm: BaseRealm,
 ) {
-    //    private val realm = baseRealm.realm
     private val realm: Realm
         get() = baseRealm.realm
 

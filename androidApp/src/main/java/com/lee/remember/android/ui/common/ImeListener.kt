@@ -1,4 +1,4 @@
-package com.lee.remember.android.utils
+package com.lee.remember.android.ui.common
 
 import android.view.ViewTreeObserver
 import androidx.compose.runtime.Composable

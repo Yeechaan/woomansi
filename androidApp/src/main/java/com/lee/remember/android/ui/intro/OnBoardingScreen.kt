@@ -30,10 +30,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.ui.RememberScreen
-import com.lee.remember.android.utils.RememberFilledButton
-import com.lee.remember.android.utils.RememberOutlinedButton
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
+import com.lee.remember.android.ui.common.RememberFilledButton
+import com.lee.remember.android.ui.common.RememberOutlinedButton
+import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.getTextStyle
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -56,7 +56,9 @@ fun OnBoardingScreen(navController: NavHostController) {
         val pagerState = rememberPagerState(pageCount = { items.size })
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxWidth().weight(1f)
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         ) { page ->
             val item = items[page]
 
@@ -88,12 +90,11 @@ fun OnBoardingScreen(navController: NavHostController) {
             }
         }
 
-//        Spacer(modifier = Modifier.weight(1f))
-
         Row(
             Modifier
                 .wrapContentHeight()
-                .fillMaxWidth().padding(top = 16.dp),
+                .fillMaxWidth()
+                .padding(top = 16.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             repeat(pagerState.pageCount) { iteration ->

@@ -20,13 +20,13 @@ import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.R
 import com.lee.remember.android.ui.RememberScreen
 import com.lee.remember.android.ui.friend.lightColor
-import com.lee.remember.android.viewmodel.IntroViewModel
+import com.lee.remember.android.viewmodel.intro.SplashViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SplashScreen(
     navController: NavHostController,
-    viewModel: IntroViewModel = koinViewModel(),
+    viewModel: SplashViewModel = koinViewModel(),
 ) {
     LaunchedEffect(null) {
         viewModel.initUserState()

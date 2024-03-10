@@ -1,28 +1,16 @@
 package com.lee.remember.android.ui
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,10 +19,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lee.remember.android.R
+import com.lee.remember.android.ui.common.RememberBottomNavigation
 import com.lee.remember.android.ui.common.RememberTopAppBarMain
 import com.lee.remember.android.ui.friend.FriendAddScreen
 import com.lee.remember.android.ui.friend.FriendEditScreen
-import com.lee.remember.android.ui.friend.FriendGroupScreen
 import com.lee.remember.android.ui.friend.FriendProfileScreen
 import com.lee.remember.android.ui.friend.FriendScreen
 import com.lee.remember.android.ui.home.HistoryScreen
@@ -52,8 +40,6 @@ import com.lee.remember.android.ui.memory.MemoryEditScreen
 import com.lee.remember.android.ui.memory.MemoryFriendScreen
 import com.lee.remember.android.ui.memory.MemoryScreen
 import com.lee.remember.android.ui.my.MyScreen
-import com.lee.remember.android.utils.RememberTextStyle
-import com.lee.remember.android.utils.getTextStyle
 
 enum class RememberScreen(@StringRes val title: Int) {
     Splash(title = R.string.splash),
@@ -72,7 +58,6 @@ enum class RememberScreen(@StringRes val title: Int) {
     FriendProfile(title = R.string.select_contact),
     FriendAdd(title = R.string.friend_edit),
     FriendEdit(title = R.string.friend_edit),
-    FriendGroup(title = R.string.friend_group),
 
     MemoryFriend(title = R.string.memory_friend),
     MemoryAdd(title = R.string.memory_add),
@@ -84,9 +69,6 @@ enum class RememberScreen(@StringRes val title: Int) {
 
 val mainScreens = listOf(RememberScreen.History.name, RememberScreen.Memory.name, RememberScreen.Friend.name)
 
-var selectedFriendGroup: String? = null
-var bottomPadding: Dp = 0.dp
-
 @Composable
 fun MainApp(
     navController: NavHostController = rememberNavController(),
@@ -95,10 +77,6 @@ fun MainApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
     val currentScreen = backStackEntry?.destination?.route ?: RememberScreen.Splash.name
-
-    val bottomBarState = rememberSaveable {
-        (mutableStateOf(mainScreens.contains(currentScreen)))
-    }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -111,52 +89,7 @@ fun MainApp(
         },
         bottomBar = {
             if (mainScreens.contains(currentScreen)) {
-                BottomNavigation(
-                    backgroundColor = Color.White,
-                ) {
-                    mainScreens.forEach { mainScreen ->
-                        BottomNavigationItem(
-                            label = {
-                                val title = when (mainScreen) {
-                                    RememberScreen.History.name -> stringResource(id = R.string.home)
-                                    RememberScreen.Memory.name -> stringResource(id = R.string.memory)
-                                    RememberScreen.Friend.name -> stringResource(id = R.string.friend)
-                                    else -> ""
-                                }
-
-                                Text(
-                                    title,
-                                    style = getTextStyle(textStyle = RememberTextStyle.BODY_4).copy(Color(0xFF49454F))
-                                )
-                            },
-                            icon = {
-                                val resourceId = when (mainScreen) {
-                                    RememberScreen.History.name -> R.drawable.ic_home_off to R.drawable.ic_home_on
-                                    RememberScreen.Memory.name -> R.drawable.ic_feed_off to R.drawable.ic_feed_on
-                                    RememberScreen.Friend.name -> R.drawable.ic_friend_off to R.drawable.ic_friend_on
-                                    else -> R.drawable.ic_dot to R.drawable.ic_dot
-                                }
-
-                                if (currentScreen == mainScreen) {
-                                    Image(painterResource(id = resourceId.second), contentDescription = null)
-                                } else {
-                                    Image(painterResource(id = resourceId.first), contentDescription = null)
-                                }
-                            },
-                            selected = currentScreen == mainScreen,
-                            onClick = {
-                                navController.popBackStack(RememberScreen.History.name, false)
-                                navController.navigate(mainScreen) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                        )
-                    }
-                }
+                RememberBottomNavigation(navController, currentScreen)
             }
         }
     ) { innerPadding ->
@@ -166,7 +99,6 @@ fun MainApp(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-//                .systemBarsPadding().statusBarsPadding().navigationBarsPadding()
         ) {
             composable(route = RememberScreen.Splash.name) {
                 SplashScreen(navController)
@@ -233,9 +165,6 @@ fun MainApp(
                 val friendId = it.arguments?.getString("friendId")
                 FriendEditScreen(navHostController = navController, friendId)
             }
-            composable(route = RememberScreen.FriendGroup.name) {
-                FriendGroupScreen(navHostController = navController)
-            }
 
             composable(
                 route = "${RememberScreen.MemoryAdd.name}/{friendId}",
@@ -259,8 +188,6 @@ fun MainApp(
                 MyScreen(navController)
             }
         }
-
-        bottomPadding = innerPadding.calculateBottomPadding()
     }
 }
 
