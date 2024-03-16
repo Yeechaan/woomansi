@@ -81,7 +81,9 @@ actual class EncryptionRealm {
             cipher.init(Cipher.ENCRYPT_MODE, aesKey)
 
             val encodedBytes: ByteArray = cipher.doFinal(input)
-            Pair(Base64.encodeToString(cipher.iv, Base64.DEFAULT), Base64.encodeToString(encodedBytes, Base64.DEFAULT))
+            val encryptedRealmKey = Base64.encodeToString(encodedBytes, Base64.DEFAULT)
+            val iv = Base64.encodeToString(cipher.iv, Base64.DEFAULT)
+            Pair(iv, encryptedRealmKey)
         } catch (e: Exception) {
             e.printStackTrace()
             Pair("", "")

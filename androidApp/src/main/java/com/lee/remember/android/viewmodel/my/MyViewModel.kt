@@ -2,7 +2,7 @@ package com.lee.remember.android.viewmodel.my
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lee.remember.local.model.UserRealm
+import com.lee.remember.model.User
 import com.lee.remember.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class MyUiState(
-    val user: UserRealm? = null,
+    val user: User? = null,
     val loading: Boolean = false,
     val success: Boolean = false,
     val message: String = "",
@@ -19,7 +19,7 @@ data class MyUiState(
 
 class MyViewModel(
     private val userRepository: UserRepository,
-): ViewModel() {
+) : ViewModel() {
     private val _uiState = MutableStateFlow(MyUiState())
     val uiState: StateFlow<MyUiState> = _uiState.asStateFlow()
 

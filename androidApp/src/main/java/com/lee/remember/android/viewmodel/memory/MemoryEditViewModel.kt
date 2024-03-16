@@ -2,9 +2,9 @@ package com.lee.remember.android.viewmodel.memory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lee.remember.local.model.UserRealm
 import com.lee.remember.model.Contract
 import com.lee.remember.model.Memory
+import com.lee.remember.model.User
 import com.lee.remember.model.asData
 import com.lee.remember.remote.request.MemoryUpdateRequest
 import com.lee.remember.repository.FriendRepository
@@ -32,7 +32,7 @@ class MemoryEditViewModel(
     private val _uiState = MutableStateFlow(MemoryEditUiState())
     val uiState: StateFlow<MemoryEditUiState> = _uiState
 
-    private val user = userRepository.getUser() ?: UserRealm()
+    private val user = userRepository.getUser() ?: User()
 
     init {
         viewModelScope.launch {

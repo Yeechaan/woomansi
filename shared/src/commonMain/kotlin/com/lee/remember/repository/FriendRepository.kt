@@ -5,8 +5,8 @@ import com.lee.remember.local.dao.FriendDao
 import com.lee.remember.local.model.EventRealm
 import com.lee.remember.local.model.FriendRealm
 import com.lee.remember.local.model.ProfileImageRealm
-import com.lee.remember.local.model.asDomain
 import com.lee.remember.local.model.asRealm
+import com.lee.remember.model.asDomain
 import com.lee.remember.remote.FriendApi
 import com.lee.remember.remote.request.FriendRequest
 import io.realm.kotlin.ext.asFlow
@@ -29,7 +29,9 @@ class FriendRepository(
         it.list.map { friend -> friend.asDomain() }
     }
 
-    fun getFriendAsFlow(friendId: Int) = friendDao.getFriend(friendId)?.asFlow()
+    fun getFriendAsFlow(friendId: Int) = friendDao.getFriend(friendId)?.asFlow()?.map {
+        it.obj?.asDomain()
+    }
 
     fun getFriends() = friendDao.getFriends().map { friend -> friend.asDomain() }
 

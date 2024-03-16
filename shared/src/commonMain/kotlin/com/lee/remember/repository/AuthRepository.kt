@@ -5,9 +5,7 @@ import com.lee.remember.local.dao.UserDao
 import com.lee.remember.local.model.asRealm
 import com.lee.remember.remote.AuthApi
 import com.lee.remember.remote.request.EmailRequest
-import com.lee.remember.remote.request.EmailResponse
 import com.lee.remember.remote.request.LoginRequest
-import com.lee.remember.remote.request.LoginResponse
 import com.lee.remember.remote.request.SignupRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -43,7 +41,7 @@ class AuthRepository(
             )
         }
 
-    suspend fun login(email: String, password: String): Result<LoginResponse> =
+    suspend fun login(email: String, password: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
             val request = LoginRequest(email = email, password = password)
             val result = authApi.login(request)
@@ -52,7 +50,7 @@ class AuthRepository(
                 onSuccess = {
                     if (it.resultCode == "SUCCESS") {
                         authDao.updateAuth(it.result?.jwtToken ?: "")
-                        Result.success(it)
+                        Result.success(true)
                     } else {
                         Result.failure(Exception(it.resultCode))
                     }
@@ -63,15 +61,15 @@ class AuthRepository(
             )
         }
 
-    suspend fun sendEmailCode(email: String): Result<EmailResponse> =
+    suspend fun sendEmailCode(email: String): Result<String> =
         withContext(Dispatchers.IO) {
             val request = EmailRequest(email)
             val result = authApi.sendEmailCode(request)
 
             return@withContext result.fold(
                 onSuccess = {
-                    if (it.resultCode == "SUCCESS") {
-                        Result.success(it)
+                    if (it.resultCode == "SUCCESS" && it.result != null) {
+                        Result.success(it.result.code)
                     } else {
                         Result.failure(Exception(it.resultCode))
                     }

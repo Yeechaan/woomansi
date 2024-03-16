@@ -2,8 +2,8 @@ package com.lee.remember.android.viewmodel.memory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lee.remember.local.model.UserRealm
 import com.lee.remember.model.Contract
+import com.lee.remember.model.User
 import com.lee.remember.remote.request.MemoryRequest
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
@@ -30,7 +30,7 @@ class MemoryAddViewModel(
     private val _uiState = MutableStateFlow<MemoryAddUiState>(MemoryAddUiState())
     val uiState: StateFlow<MemoryAddUiState> = _uiState
 
-    private val user = userRepository.getUser() ?: UserRealm()
+    private val user = userRepository.getUser() ?: User()
 
     init {
         viewModelScope.launch {
@@ -59,7 +59,7 @@ class MemoryAddViewModel(
                     _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                 },
                 onFailure = {
-                    _uiState.update { it.copy(isLoading = false, isSuccess = false, message = it.message ?: "") }
+                    _uiState.update { it.copy(isLoading = false, isSuccess = false, message = it.message) }
                 }
             )
         }

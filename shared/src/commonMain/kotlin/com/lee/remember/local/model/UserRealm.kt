@@ -14,7 +14,6 @@ class UserRealm : RealmObject {
     var profileImage: String = ""
 
     var isLocalMode: Boolean = true
-    var test: Long = 1
 }
 
 fun SignupResponse.asRealm() =

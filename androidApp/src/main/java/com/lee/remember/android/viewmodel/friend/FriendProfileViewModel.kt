@@ -2,7 +2,7 @@ package com.lee.remember.android.viewmodel.friend
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lee.remember.local.model.FriendRealm
+import com.lee.remember.model.Friend
 import com.lee.remember.repository.FriendRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class FriendProfileUiState(
-    val friend: FriendRealm? = null,
+    val friend: Friend? = null,
 )
 
 class FriendProfileViewModel(
@@ -24,7 +24,7 @@ class FriendProfileViewModel(
     init {
         viewModelScope.launch {
             friendRepository.getFriendAsFlow(friendId ?: -1)?.collectLatest {
-                val friend = it.obj
+                val friend = it
                 _uiState.update { it.copy(friend = friend) }
             }
         }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lee.remember.local.model.UserRealm
 import com.lee.remember.model.Memory
+import com.lee.remember.model.User
 import com.lee.remember.model.asData
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.MemoryRepository
@@ -31,7 +32,7 @@ class MemoryFriendViewModel(
     private val _uiState = MutableStateFlow(MemoryFriendUiState())
     val uiState: StateFlow<MemoryFriendUiState> = _uiState
 
-    private val user = userRepository.getUser() ?: UserRealm()
+    private val user = userRepository.getUser() ?: User()
 
     init {
         viewModelScope.launch {

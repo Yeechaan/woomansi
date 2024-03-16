@@ -2,7 +2,7 @@ package com.lee.remember.android.viewmodel.friend
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lee.remember.local.model.UserRealm
+import com.lee.remember.model.User
 import com.lee.remember.remote.request.FriendRequest
 import com.lee.remember.repository.FriendRepository
 import com.lee.remember.repository.UserRepository
@@ -28,7 +28,7 @@ class FriendViewModel(
     fun getFriend(friendId: Int) = friendRepository.getFriend(friendId)
     fun getFriends() = friendRepository.getFriendsAsFlow()
 
-    private val user = userRepository.getUser() ?: UserRealm()
+    private val user = userRepository.getUser() ?: User()
 
     fun addFriends(friends: List<FriendRequest>) {
         viewModelScope.launch {

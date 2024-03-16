@@ -4,6 +4,7 @@ import com.lee.remember.local.dao.AuthDao
 import com.lee.remember.local.dao.UserDao
 import com.lee.remember.local.model.UserRealm
 import com.lee.remember.local.model.asRealm
+import com.lee.remember.model.asDomain
 import com.lee.remember.remote.UserApi
 import com.lee.remember.remote.request.UserInfoRequest
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,7 @@ class UserRepository(
     private val token: String
         get() = authDao.getToken() ?: ""
 
-    fun getUser() = userDao.getUser()
+    fun getUser() = userDao.getUser()?.asDomain()
 
     suspend fun updateUserName(name: String): Result<Boolean> =
         withContext(Dispatchers.IO) {

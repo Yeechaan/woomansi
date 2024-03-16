@@ -21,7 +21,7 @@ data class SignUpUiState(
 class SignUpViewModel(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
-): ViewModel() {
+) : ViewModel() {
 
     private val _signUpUiState = MutableStateFlow(SignUpUiState())
     val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState.asStateFlow()
@@ -36,7 +36,7 @@ class SignUpViewModel(
             result.fold(
                 onSuccess = {
                     _signUpUiState.update { state ->
-                        state.copy(loading = false, emailCodeResult = it.result?.code ?: "")
+                        state.copy(loading = false, emailCodeResult = it)
                     }
                 },
                 onFailure = {

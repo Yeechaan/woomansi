@@ -17,7 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,20 +32,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lee.remember.android.ui.RememberScreen
-import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.common.RememberOutlinedButton
 import com.lee.remember.android.ui.common.RememberTextStyle
+import com.lee.remember.android.ui.common.RememberTopAppBar
 import com.lee.remember.android.ui.common.getTextStyle
 import com.lee.remember.android.viewmodel.friend.FriendProfileViewModel
-import com.lee.remember.local.model.FriendRealm
+import com.lee.remember.model.Friend
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-// 0xFF1D1B20
 val fontColorBlack = Color(0xFF1D1B20)
 val fontColorPoint = Color(0xFFFFCF40)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendProfileScreen(
     navHostController: NavHostController,
@@ -55,8 +52,8 @@ fun FriendProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    val friend = uiState.friend ?: FriendRealm()
-    val image = friend.profileImage?.image ?: ""
+    val friend = uiState.friend ?: Friend()
+    val image = friend.image
 
     val scrollState = rememberScrollState()
     Column(
@@ -110,7 +107,6 @@ fun FriendProfileScreen(
                 .fillMaxWidth()
         ) {
             FriendProfileItem("연락처", friend.phoneNumber)
-//            FriendProfileItem("그룹", group)
             FriendProfileItem(friend.events.firstOrNull()?.name ?: "기념일", friend.events.firstOrNull()?.date ?: "-")
         }
 

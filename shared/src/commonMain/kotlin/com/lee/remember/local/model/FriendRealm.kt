@@ -1,6 +1,5 @@
 package com.lee.remember.local.model
 
-import com.lee.remember.model.Friend
 import com.lee.remember.remote.request.FriendResponse
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
@@ -32,16 +31,6 @@ class ProfileImageRealm : EmbeddedRealmObject {
     var image: String = ""
 }
 
-
-fun FriendRealm.asDomain() =
-    Friend(
-        id = id,
-        name = name,
-        phoneNumber = phoneNumber,
-        image = profileImage?.image ?: "",
-        grouped = group,
-        birthDate = events.firstOrNull()?.date ?: ""
-    )
 
 fun FriendResponse.Result.asRealm() =
     FriendRealm().apply {
